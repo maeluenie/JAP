@@ -1,17 +1,22 @@
 <template>
-  <v-row justify="center" align="center">
+
+<v-row justify="center" align="center">
     <v-col cols="12" sm="8" md="6">
-      <v-card class="logo py-4 d-flex justify-center">
+      
+      <v-card>
+        <div class="logo py-4 d-flex justify-center">
         <NuxtLogo />
         <VuetifyLogo />
-      </v-card>
-      <v-card>
+      </div>
         <v-card-title class="headline">
           Welcome to the Vuetify + Nuxt.js template
         </v-card-title>
         <v-card-text>
+          <h1> Hello tagun jivasitthikul </h1>
+          
           <p>Vuetify is a progressive Material Design component framework for Vue.js. It was designed to empower developers to create amazing applications.</p>
           <p>
+
             For more information on Vuetify, check out the <a
               href="https://vuetifyjs.com"
               target="_blank"
@@ -72,8 +77,10 @@
           </v-btn>
         </v-card-actions>
       </v-card>
+    
     </v-col>
-  </v-row>
+  </v-row> 
+  
 </template>
 
 <script>
