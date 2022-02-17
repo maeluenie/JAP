@@ -16,6 +16,7 @@
           :to="item.to"
           router
           exact
+          dense
         >
           <!-- Looping through the imported list of item declared from line 138-158 -->
 
