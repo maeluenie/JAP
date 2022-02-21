@@ -2,7 +2,7 @@
   <v-app>
     <!-- this marks the left side bar -->
 
-    <v-navigation-drawer
+    <v-navigation-drawer 
       v-model="drawer"
       :mini-variant="miniVariant"
       :clipped="clipped"
@@ -17,6 +17,7 @@
           router
           exact
           dense
+          color="primary darken-3"
         >
           <!-- Looping through the imported list of item declared from line 138-158 -->
 
@@ -38,7 +39,7 @@
     <v-app-bar :clipped-left="clipped" fixed app>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-btn icon @click.stop="miniVariant = !miniVariant">
-        <v-icon>mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
+        <v-icon >mdi-{{ `chevron-${miniVariant ? "right" : "left"}` }}</v-icon>
       </v-btn>
       <v-btn icon @click.stop="clipped = !clipped">
         <v-icon>mdi-application</v-icon>
@@ -46,7 +47,7 @@
       <v-btn icon @click.stop="fixed = !fixed">
         <v-icon>mdi-minus</v-icon>
       </v-btn>
-      <v-toolbar-title v-text="title" />
+      <v-toolbar-title class="font-weight-bold primary--text text--darken-3" v-text="title"/>
       <v-spacer />
       <v-btn icon @click.stop="rightDrawer = !rightDrawer">
         <v-icon>mdi-menu</v-icon>
