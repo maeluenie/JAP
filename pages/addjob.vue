@@ -232,9 +232,9 @@
               </h5></v-text
             >
 
-            <input type="radio" name="test_id" @change="onChange($event)" value="male"> Open for Application
-            <input type="radio" name="test_id" @change="onChange($event)" value="female"> Close Temporarily
-            <input type="radio" name="test_id" @change="onChange($event)" value="female"> Urgent
+            <input class="mx-2" type="radio" name="test_id" @change="onChange($event)" value="male"> Open for Application
+            <input class="mx-2" type="radio" name="test_id" @change="onChange($event)" value="female"> Close Temporarily
+            <input class="mx-2" type="radio" name="test_id" @change="onChange($event)" value="female"> Urgent
 
             </v-col>
         <!-- </v-row> 
