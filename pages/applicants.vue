@@ -1,63 +1,75 @@
 <template>
-  <v-card class="mx-4 mt-4">
-    <v-card-title class="mx-4 font-weight-bold">
-      Suitable Applicants
-      <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search by Full Name / Applied Jobs / Teams"
-        single-line
-        hide-details
-      ></v-text-field>
-      <v-spacer></v-spacer>
-    </v-card-title>
-    <v-data-table :headers="headers" :items="applicants" :search="search"
-      ><template v-slot:item.control="item">
+  <v-app>
+    <v-card class="mx-4 mt-4">
+      <v-card-title class="mx-4 font-weight-bold">
+        Suitable Applicants
+        <v-spacer></v-spacer>
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Search by Full Name / Applied Jobs / Teams"
+          single-line
+          hide-details
+        ></v-text-field>
+        <v-spacer></v-spacer>
+      </v-card-title>
+      <v-data-table :headers="headers" :items="applicants" :search="search">
+        <!-- trying according to the link here >> https://www.youtube.com/watch?v=J4fIObUYiHw -->
+            
+        <template v-slot:item.control="item">
         <v-btn
           class="mx-2"
           fab
           dark
           x-small
           color="primary"
-          @click="deleteItem(item)"
+          @click="dialog = true"
           ref="deleteItem"
         >
-          <v-icon dark @click="$refs.deleteItem.click()">mdi-send</v-icon>
+          <v-icon dark>mdi-send</v-icon>
         </v-btn>
-        <v-dialog
-        hide-overlay
-        persistent
-          v-model="dialogDelete"
+        <dialog ref="dialog"/>
+        <!-- <v-dialog
+          content-class="dialogNew"
+          hide-overlay
+          persistent
+          v-model="dialog"
+          ref="dialog"
           transition="dialog-bottom-transition"
           max-width="700px"
           class="elevation-1"
         >
           <v-card>
             <v-card-title class="text-h6"
-              >Please confirm your action to contact this applicant</v-card-title
+              >Please confirm your action to contact this
+              applicant</v-card-title
             >
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeDelete"
+              <v-btn color="blue darken-1" text @click="cancelContact"
                 >Cancel</v-btn
               >
-              <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+              <v-btn color="blue darken-1" text @click="confirmContact"
                 >OK</v-btn
               >
               <v-spacer></v-spacer>
             </v-card-actions>
-          </v-card> </v-dialog></template
-    ></v-data-table>
-  </v-card>
+          </v-card>
+        </v-dialog> -->
+      </template>
+      </v-data-table>
+    </v-card>
+  </v-app>
 </template>
 
 <script>
+import dialog from './../components/dialog.vue'
 export default {
+  components: {dialog},
   name: "Applicants Page",
   data() {
     return {
-      dialogDelete: false,
+      dialog: false,
       search: "",
       headers: [
         {
@@ -73,25 +85,25 @@ export default {
         { text: "Contacted", value: "contact", sortable: false },
         { text: "Actions", value: "control", sortable: false },
       ],
-      editedIndex: -1,
-      editedItem: {
-        name: "",
-        department: "",
-        tel_number: "",
-        location: "",
-        deadline: "",
-        approved: "",
-        contact: "",
-      },
-      defaultItem: {
-        name: "",
-        department: "",
-        tel_number: "",
-        location: "",
-        deadline: "",
-        approved: "",
-        contact: "",
-      },
+      // editedIndex: -1,
+      // editedItem: {
+      //   name: "",
+      //   department: "",
+      //   tel_number: "",
+      //   location: "",
+      //   deadline: "",
+      //   approved: "",
+      //   contact: "",
+      // },
+      // defaultItem: {
+      //   name: "",
+      //   department: "",
+      //   tel_number: "",
+      //   location: "",
+      //   deadline: "",
+      //   approved: "",
+      //   contact: "",
+      // },
       applicants: [
         {
           name: "John Doe",
@@ -193,30 +205,39 @@ export default {
           contact: "No",
         },
       ],
-      watch: {
-        dialogDelete(val) {
-          val || this.closeDelete();
-        },
-      },
-      deleteItem(item) {
-        this.editedIndex = this.applicants.indexOf(item);
-        this.editedItem = Object.assign({}, item);
-        this.dialogDelete = true;
-      },
-      deleteItemConfirm() {
-        this.applicants.contact = "Yes"
-        // this line must connect to the applicant's email, providing them the URL to do the test
-        // this.applicants.splice(this.editedIndex, 1);
-        this.closeDelete();
-      },
-      closeDelete() {
-        this.dialogDelete = false;
-        // this.$nextTick(() => {
-        //   this.editedItem = Object.assign({}, this.defaultItem);
-        //   this.editedIndex = -1;
-        // });
-      },
-    };
-  },
-};
+
+    // methods:{
+    //   closeDialog(){
+    //     console.log(this.tel_number);
+    //     this.dialog = false;
+    //   },
+    //   // deleteItem(item) {
+    //   //   this.editedIndex = this.applicants.indexOf(item);
+    //   //   this.editedItem = Object.assign({}, item);
+    //   //   this.dialog = true;
+    //   // },
+    //   confirmContact() {
+    //     // this.applicants.contacted = "Yes"
+    //     console.log("completed");
+    //     // this line must connect to the applicant's email, providing them the URL to do the test
+    //     // this.applicants.splice(this.editedIndex, 1);
+    //     this.dialog = false;
+    //   },
+    //   cancelContact() {
+    //     console.log("cancelling the process, incompleted");
+    //    this.dialog = false;
+    //     // this.$nextTick(() => {
+    //     //   this.editedItem = Object.assign({}, this.defaultItem);
+    //     //   this.editedIndex = -1;
+    //     // });
+    //   },
+      }
+  }
+}
 </script>
+
+<style>
+.dialogNew {
+  box-shadow: 2px 2px 5px 0.05px !important;
+}
+</style>
