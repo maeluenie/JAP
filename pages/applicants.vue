@@ -1,6 +1,6 @@
 <template>
-  <v-card class = "mx-4 mt-4">
-    <v-card-title class = "mx-4 font-weight-bold">
+  <v-card class="mx-4 mt-4">
+    <v-card-title class="mx-4 font-weight-bold">
       Suitable Applicants
       <v-spacer></v-spacer>
       <v-text-field
@@ -12,10 +12,42 @@
       ></v-text-field>
       <v-spacer></v-spacer>
     </v-card-title>
-    <v-data-table
-      :headers="headers"
-      :items="desserts"
-      :search="search"
+    <v-data-table :headers="headers" :items="applicants" :search="search"
+      ><template v-slot:item.control="item">
+        <v-btn
+          class="mx-2"
+          fab
+          dark
+          x-small
+          color="primary"
+          @click="deleteItem(item)"
+          ref="deleteItem"
+        >
+          <v-icon dark @click="$refs.deleteItem.click()">mdi-send</v-icon>
+        </v-btn>
+        <v-dialog
+        hide-overlay
+        persistent
+          v-model="dialogDelete"
+          transition="dialog-bottom-transition"
+          max-width="700px"
+          class="elevation-1"
+        >
+          <v-card>
+            <v-card-title class="text-h6"
+              >Please confirm your action to contact this applicant</v-card-title
+            >
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeDelete"
+                >Cancel</v-btn
+              >
+              <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+                >OK</v-btn
+              >
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card> </v-dialog></template
     ></v-data-table>
   </v-card>
 </template>
@@ -25,6 +57,7 @@ export default {
   name: "Applicants Page",
   data() {
     return {
+      dialogDelete: false,
       search: "",
       headers: [
         {
@@ -32,102 +65,157 @@ export default {
           align: "start",
           value: "name",
         },
-        { text: "Job Department", value: "department", filterable: false},
+        { text: "Job Department", value: "department", filterable: false },
         { text: "Telephone Number", value: "tel_number", filterable: false },
         { text: "Location", value: "location", filterable: false },
-        { text: "Application Deadline", value: "deadline" , filterable: false},
+        { text: "Application Deadline", value: "deadline", filterable: false },
         { text: "Approved Date", value: "approved", filterable: false },
+        { text: "Contacted", value: "contact", sortable: false },
+        { text: "Actions", value: "control", sortable: false },
       ],
-      desserts: [
+      editedIndex: -1,
+      editedItem: {
+        name: "",
+        department: "",
+        tel_number: "",
+        location: "",
+        deadline: "",
+        approved: "",
+        contact: "",
+      },
+      defaultItem: {
+        name: "",
+        department: "",
+        tel_number: "",
+        location: "",
+        deadline: "",
+        approved: "",
+        contact: "",
+      },
+      applicants: [
         {
           name: "John Doe",
-          department: 159,
-          tel_number: 6.0,
-          location: 24,
-          deadline: 4.0,
-          approved: "1%",
+          department: "Team A",
+          tel_number: "0888888888",
+          location: "Lad Krabang",
+          deadline: "March 29th, 2023",
+          approved: "No",
+          contact: "No",
         },
         {
           name: "George Doe",
-          department: 237,
-          tel_number: 9.0,
-          location: 37,
-          deadline: 4.3,
-          approved: "1%",
+          department: "Team A",
+          tel_number: "0888888888",
+          location: "Lad Krabang",
+          deadline: "March 29th, 2023",
+          approved: "No",
+          contact: "No",
         },
         {
           name: "Johnny Doe",
-          department: 262,
-          tel_number: 16.0,
-          location: 23,
-          deadline: 6.0,
-          approved: "7%",
+          department: "Team A",
+          tel_number: "0888888888",
+          location: "Lad Krabang",
+          deadline: "March 29th, 2023",
+          approved: "No",
+          contact: "No",
         },
         {
           name: "Jonathan Doe",
-          department: 305,
-          tel_number: 3.7,
-          location: 67,
-          deadline: 4.3,
-          approved: "8%",
+          department: "Team A",
+          tel_number: "0888888888",
+          location: "Lad Krabang",
+          deadline: "March 29th, 2023",
+          approved: "No",
+          contact: "No",
         },
         {
           name: "Joni Doe",
-          department: 356,
-          tel_number: 16.0,
-          location: 49,
-          deadline: 3.9,
-          approved: "16%",
+          department: "Team A",
+          tel_number: "0888888888",
+          location: "Lad Krabang",
+          deadline: "March 29th, 2023",
+          approved: "No",
+          contact: "No",
         },
         {
           name: "Jinny Doe",
-          department: 375,
-          tel_number: 0.0,
-          location: 94,
-          deadline: 0.0,
-          approved: "0%",
+          department: "Team A",
+          tel_number: "0888888888",
+          location: "Lad Krabang",
+          deadline: "March 29th, 2023",
+          approved: "No",
+          contact: "No",
         },
         {
           name: "Jelly Doe",
-          department: 392,
-          tel_number: 0.2,
-          location: 98,
-          deadline: 0,
-          approved: "2%",
+          department: "Team A",
+          tel_number: "0888888888",
+          location: "Lad Krabang",
+          deadline: "March 29th, 2023",
+          approved: "No",
+          contact: "No",
         },
         {
           name: "Giorno Doe",
-          department: 408,
-          tel_number: 3.2,
-          location: 87,
-          deadline: 6.5,
-          approved: "45%",
+          department: "Team A",
+          tel_number: "0888888888",
+          location: "Lad Krabang",
+          deadline: "March 29th, 2023",
+          approved: "No",
+          contact: "No",
         },
         {
           name: "Giorgio Doe",
-          department: 452,
-          tel_number: 25.0,
-          location: 51,
-          deadline: 4.9,
-          approved: "22%",
+          department: "Team A",
+          tel_number: "0888888888",
+          location: "Lad Krabang",
+          deadline: "March 29th, 2023",
+          approved: "No",
+          contact: "No",
         },
         {
           name: "Jitney Doe",
-          department: 518,
-          tel_number: 26.0,
-          location: 65,
-          deadline: 7,
-          approved: "6%",
+          department: "Team A",
+          tel_number: "0888888888",
+          location: "Lad Krabang",
+          deadline: "March 29th, 2023",
+          approved: "No",
+          contact: "No",
         },
         {
           name: "Silly Doe",
-          department: 518,
-          tel_number: 26.0,
-          location: 65,
-          deadline: 7,
-          approved: "6%",
+          department: "Team A",
+          tel_number: "0888888888",
+          location: "Lad Krabang",
+          deadline: "March 29th, 2023",
+          approved: "No",
+          contact: "No",
         },
       ],
+      watch: {
+        dialogDelete(val) {
+          val || this.closeDelete();
+        },
+      },
+      deleteItem(item) {
+        this.editedIndex = this.applicants.indexOf(item);
+        this.editedItem = Object.assign({}, item);
+        this.dialogDelete = true;
+      },
+      deleteItemConfirm() {
+        this.applicants.contact = "Yes"
+        // this line must connect to the applicant's email, providing them the URL to do the test
+        // this.applicants.splice(this.editedIndex, 1);
+        this.closeDelete();
+      },
+      closeDelete() {
+        this.dialogDelete = false;
+        // this.$nextTick(() => {
+        //   this.editedItem = Object.assign({}, this.defaultItem);
+        //   this.editedIndex = -1;
+        // });
+      },
     };
   },
 };
