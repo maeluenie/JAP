@@ -147,7 +147,7 @@
                     class="my-2 mx-2"
                     color="blue darken-1"
                     outlined
-                    @click="close"
+                    @click="closeDetailsDialog"
                   >
                     Close
                   </v-btn>
@@ -285,7 +285,7 @@ export default {
 
   watch: {
     detailsDialog(val) {
-      val || this.close();
+      val || this.closeDetailsDialog();
     },
     sendEmailDialog(val) {
       val || this.closeSendEmailDialog();
@@ -436,10 +436,10 @@ export default {
       } else {
         this.applicants.push(this.passed);
       }
-      this.close();
+      this.closeDetailsDialog();
       // this function must continues to send validation success to the database, via the API too!
     },
-    close() {
+    closeDetailsDialog() {
       this.detailsDialog = false;
       this.$nextTick(() => {
         // this.editedItem = Object.assign({}, this.defaultItem);
@@ -469,6 +469,8 @@ export default {
         this.editedIndex = -1;
       });
     },
+
+    
     deleteApplicantConfirm() {
       this.applicants.splice(this.editedIndex, 1);
       this.detailsDialog = false;
