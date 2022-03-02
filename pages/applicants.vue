@@ -211,7 +211,10 @@
         </v-btn>
       </template> -->
       </v-data-table>
+    
     </v-app>
+      <v-btn @click="dispApp"> test </v-btn>
+
   </div>
 </template>
 
@@ -474,6 +477,9 @@ export default {
       this.applicants.splice(this.editedIndex, 1);
       this.detailsDialog = false;
     },
+    dispApp(){   // for testing purposes, don't forget to remove this line of code before launching the product
+      console.log(this.applicants)
+    }
   },
 };
 </script>
