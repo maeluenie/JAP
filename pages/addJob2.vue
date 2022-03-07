@@ -1,8 +1,11 @@
 <template>
   <v-app>
+
+    <!-- addJob2 page will be the second page of job details with navigation after addJob1 --> 
+
     <v-card class="mx-4 my-4 py-2">
       <v-text-title class="font-weight-bold"
-        ><h2 class="mx-8 mb-4 text-left">
+        ><h2 class="mx-8 my-4 text-left">
           Job Details
         </h2></v-text-title
       >
@@ -59,13 +62,16 @@
               dense
             ></v-text-field>
           </template>
-        <v-date-picker
+          <v-date-picker
           v-model="date"
           :active-picker.sync="activePicker1"
           :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
           min="1950-01-01"
+          elevation="4"
+          class="mb-4"
           @change="save"
         ></v-date-picker>
+        
 
             <v-text class="font"
               ><h5 class="mx-1 mb-2 text-left">

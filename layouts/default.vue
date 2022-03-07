@@ -107,11 +107,6 @@ export default {
         },
         {
           icon: "mdi-chart-bubble",
-          title: "Company Information",
-          to: "/company_information",
-        },
-        {
-          icon: "mdi-chart-bubble",
           title: "Job Display",
           to: "/list_of_jobs",
         },
@@ -120,6 +115,17 @@ export default {
           title: "Suitable Applicants",
           to: "/applicants",
         },
+        {
+          icon: "mdi-chart-bubble",
+          title: "Add New Jobs",
+          to: "/addJob1",
+        },
+        {
+          icon: "mdi-chart-bubble",
+          title: "Edit Job Details",
+          to: "/addJob2",
+        },
+
       ],
       miniVariant: false,
       right: true,

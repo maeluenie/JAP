@@ -1,5 +1,8 @@
 <template>
   <v-app>
+
+    <!-- this page will be how users can submit their purpose and required information for the job -->
+
     <v-card class="mx-4 my-4 py-2">
       <v-text-title class="font-weight-bold"
         ><h2 class="mx-8 mb-4 text-center">

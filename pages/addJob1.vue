@@ -1,8 +1,11 @@
 <template>
   <v-app>
+
+    <!-- addJob1 must be the user's personal details , it must also be an editable form with original content for modification too --> 
+
     <v-card class="mx-4 my-4 py-2">
       <v-text-title class="font-weight-bold"
-        ><h2 class="mx-8 mb-4 text-left">
+        ><h2 class="mx-8 my-4 text-left">
           Job Details
         </h2></v-text-title
       >
