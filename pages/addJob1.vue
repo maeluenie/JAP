@@ -2,7 +2,7 @@
   <v-app>
 
     <!-- addJob1 must be the user's personal details , it must also be an editable form with original content for modification too --> 
-    <v-card class="mx-6 my-6" outlined color="transparent">
+    <v-card class="mx-6 my-4" outlined color="transparent">
     <v-btn :ripple="false" text color="natural dark-grey" id="no-background-hover">
     <v-text>1 Job Details</v-text>
     </v-btn>
