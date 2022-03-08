@@ -1,8 +1,22 @@
 <template>
   <v-app>
+
+    <!-- addJob1 must be the user's personal details , it must also be an editable form with original content for modification too --> 
+    <v-card class="mx-6 my-6" outlined color="transparent">
+    <v-btn :ripple="false" text color="natural dark-grey" id="no-background-hover">
+    <v-text>1 Job Details</v-text>
+    </v-btn>
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/addJob2">
+    <v-text>2 General Question</v-text>
+    </v-btn>
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/.">
+    <v-text>3 Benefits and Welfare</v-text>
+    </v-btn>
+    </v-card>
+
     <v-card class="mx-4 my-4 py-2">
-      <v-text-title class="font-weight-bold">
-        <h2 class="mx-8 mb-4 text-left">
+      <v-text-title class="font-weight-bold"
+        ><h2 class="mx-8 my-4 text-left">
           Job Details
         </h2></v-text-title>
      
@@ -231,13 +245,36 @@
               </h5></v-text
             >
 
-            <input type="radio" name="test_id" @change="onChange($event)" value="male"> Open for Application
-            <input type="radio" name="test_id" @change="onChange($event)" value="female"> Close Temporarily
-            <input type="radio" name="test_id" @change="onChange($event)" value="female"> Urgent
-
-            </v-col>
+            <label for="Open">
+            <input type="radio" 
+              name="radio" 
+              value="Open" 
+              id="Open" 
+              @change="$emit('input', 'Open')" 
+            />
+            Open for Application
+            </label>
+            <label for="Close">
+            <input 
+              type="radio" 
+              name="radio" 
+              value="Close" 
+              id="Close" 
+              @change="$emit('input', 'Close')" 
+            />
+            Close Temporarily</label>
+            <label for="Urgent">
+            <input
+                type="radio"
+                name="radio"
+                value="Urgent"
+                id="Urgent"
+                @change="$emit('input', 'Urgent')"
+            />Urgent
+            </label>
+          </v-col>
         
-          <v-col cols="1" sm="1" md="11">
+          <v-col cols="1" sm="1" md="12">
             <v-text class="font"
                 ><h5 class="mx-1 mb-2 text-left">
                   Required Skills
@@ -284,6 +321,12 @@
             outlined
             dense
             ></v-textarea>
+
+            <v-col class="text-right">
+                <v-btn align="end" color="primary darken-3" nuxt to="/addJob2">  
+                  Next
+                </v-btn>
+              </v-col>
           </v-col>
         </v-row>
       </v-form>
@@ -315,7 +358,6 @@ export default {
     belongedTeam: "",
     managerName: "",
     educationalDegree: "",
-    workingLocation: "",
     requiredExperience: "",
     nameRules: [
       (v) => !!v || "This field is required",
@@ -327,61 +369,66 @@ export default {
       (v) => !!v || "E-mail is required",
       (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
     ],
+
     select: null,
-    religion: "",
-    religionSelection: [
-      "Buddhism",
-      "Christianity",
-      "Islam",
-      "Hinduism",
-      "Sikhism",
-      "Atheist",
-      "Others",
+    workingLocation: "",
+    locationSelection: [
+      "Latkrabung",
+      "Sathorn",
+      "Bangsue",
+      "Thonglor",
     ],
 
-    chips: [],
+    //chips
+    requiredSkills: [],
     items: ['Communication', 'Eating'],
 
-    //calendar
+    //calendar 1
     activePicker1: null,
     date1: null,
     menu1: false,
     checkbox1: false,
   
+    //calender 2
     activePicker2: null,
     date2: null,
     menu2: false,
     checkbox2: false,
   }),
 
+  //calendar 1
   watch: {
     menu1 (val) {
       val && setTimeout(() => (this.activePicker1 = 'YEAR'))
     },
   },
 
+  //calender 2
   watch: {
     menu2 (val) {
       val && setTimeout(() => (this.activePicker2 = 'YEAR'))
     },
   },
 
+  //calender 1
   methods: {
     save (date) {
       this.$refs.menu1.save(date)
     },
   },
 
-   methods: {
+  //calender 2
+  methods: {
     save (date) {
       this.$refs.menu2.save(date)
     },
   },
 
+  //chips
   methods: {
     remove (item) {
-      this.chips.splice(this.chips.indexOf(item), 1)
-      this.chips = [...this.chips]
+      this.requiredSkills.splice(this.requiredSkills.indexOf(item), 1)
+      this.requiredSkills = [...this.requiredSkills]
     },
   },
 
