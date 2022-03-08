@@ -1,11 +1,10 @@
 <template>
   <v-app>
     <v-card class="mx-4 my-4 py-2">
-      <v-text-title class="font-weight-bold"
-        ><h2 class="mx-8 mb-4 text-left">
+      <v-text-title class="font-weight-bold">
+        <h2 class="mx-8 mb-4 text-left">
           Job Details
-        </h2></v-text-title
-      >
+        </h2></v-text-title>
      
 
       <v-form class="mx-8 mt-2 align-content-center">
@@ -48,34 +47,34 @@
                 Start Date
               </h5></v-text
             >
-          <v-menu
-        ref="menu1"
-        v-model= "menu1"
-        :close-on-content-click="false"
-        transition="scale-transition"
-        offset-y
-        min-width="auto"
-      >
-        <template v-slot:activator="{ on, attrs }">
-          <v-text-field
-            v-model= "date1"
-            label="Start Date"
-            append-icon="mdi-calendar"
-            readonly
-            v-bind="attrs"
-            v-on="on"
-            outlined
-            dense
-          ></v-text-field>
-        </template>
-        <v-date-picker
-          v-model="date1"
-          :active-picker.sync="activePicker1"
-          :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
-          min="1950-01-01"
-          @change="save"
-        ></v-date-picker>
-      </v-menu>
+            <v-menu
+              ref="menu1"
+              v-model= "menu1"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              min-width="auto"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  v-model= "date1"
+                  label="Start Date"
+                  append-icon="mdi-calendar"
+                  readonly
+                  v-bind="attrs"
+                  v-on="on"
+                  outlined
+                  dense
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="date1"
+                :active-picker.sync="activePicker1"
+                :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
+                min="1950-01-01"
+                @change="save"
+              ></v-date-picker>
+            </v-menu>
 
             <v-text class="font"
               ><h5 class="mx-1 mb-2 text-left">
@@ -110,19 +109,19 @@
             <v-text class="font"
                 ><h5 class="mx-1 mb-1 text-left">
                   Working Time Details
-                </h5></v-text
-              >
+                </h5>
+            </v-text>
 
-              <v-text-field
-                v-model= "workingTime"
-                :rules="numRules"
-                type="number"
-                label="Working Time Details"
-                required
-                dense
-                outlined
-              ></v-text-field
-              >
+            <v-text-field
+              v-model= "workingTime"
+              :rules="numRules"
+              type="number"
+              label="Working Time Details"
+              required
+              dense
+              outlined
+            >
+            </v-text-field>
 
           </v-col>
 
@@ -166,33 +165,33 @@
             >
 
             <v-menu
-        ref="menu2"
-        v-model= "menu2"
-        :close-on-content-click="false"
-        transition="scale-transition"
-        offset-y
-        min-width="auto"
-      >
-        <template v-slot:activator="{ on, attrs }">
-          <v-text-field
-            v-model= "date2"
-            label="Application Deadline"
-            append-icon="mdi-calendar"
-            readonly
-            v-bind="attrs"
-            v-on="on"
-            outlined
-            dense
-          ></v-text-field>
-        </template>
-        <v-date-picker
-          v-model= "date2"
-          :active-picker.sync="activePicker2"
-          :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
-          min="1950-01-01"
-          @change="save"
-        ></v-date-picker>
-      </v-menu>
+              ref="menu2"
+              v-model= "menu2"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              min-width="auto"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-text-field
+                  v-model= "date2"
+                  label="Application Deadline"
+                  append-icon="mdi-calendar"
+                  readonly
+                  v-bind="attrs"
+                  v-on="on"
+                  outlined
+                  dense
+                ></v-text-field>
+              </template>
+                <v-date-picker
+                  v-model= "date2"
+                  :active-picker.sync="activePicker2"
+                  :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
+                  min="1950-01-01"
+                  @change="save"
+              ></v-date-picker>
+            </v-menu>
 
             <v-text class="font"
               ><h5 class="mx-1 mb-2 text-left">
@@ -226,7 +225,7 @@
               dense
             ></v-select>
 
-          <v-text class="font"
+            <v-text class="font"
               ><h5 class="mx-1 mb-2 text-left">
                 Status
               </h5></v-text
@@ -237,28 +236,58 @@
             <input type="radio" name="test_id" @change="onChange($event)" value="female"> Urgent
 
             </v-col>
-        <!-- </v-row> 
-        <v-row> -->
+        
           <v-col cols="1" sm="1" md="11">
-          <v-text class="font"
-              ><h5 class="mx-1 mb-2 text-left">
-                Number of Accepting Applicants
-              </h5></v-text
-            >
-            <v-text-field
-              v-model= "numAccepting"
-              :rules="numRules"
-              type="number"
-              label="Number of Accepting Applicants"
+            <v-text class="font"
+                ><h5 class="mx-1 mb-2 text-left">
+                  Required Skills
+                </h5></v-text
+              >
+
+            <v-combobox
+              v-model="requiredSkills"
+              :items="items"
+              :rules="nameRules"
+              chips
+              clearable
+              label="Required Skills"
               required
               outlined
               dense
-            ></v-text-field>
-            </v-col>
-        </v-row>
+              multiple
+            >
+              <template v-slot:selection="{ attrs, item, select, selected }">
+                <v-chip
+                  v-bind="attrs"
+                  :input-value="selected"
+                  close
+                  @click="select"
+                  @click:close="remove(item)"
+                >
+                  <strong>{{ item }}</strong>&nbsp;
+                  <span>(interest)</span>
+                </v-chip>
+              </template>
+            </v-combobox>
+            <v-divider class="my-2"></v-divider>
 
-        </v-form
-    ></v-card>
+            <v-text class="font"
+            ><h5 class="mx-1 mb-2 text-left">
+              Job Description
+            </h5></v-text>
+
+            <v-textarea
+            v-model="firstName"
+            :rules="nameRules"
+            label="Job Description"
+            required
+            outlined
+            dense
+            ></v-textarea>
+          </v-col>
+        </v-row>
+      </v-form>
+    </v-card>
   </v-app>
 </template>
 
@@ -269,6 +298,8 @@ export default {
     return: {
       selectedFile: null,
     },
+
+    //number
     valid: true,
     approximateSalary: "",
     numAccepting: "",
@@ -278,11 +309,7 @@ export default {
       // (v) => (v && v.length == 13) || "Please fill all your Citizen ID",
     ],
 
-    activePicker1: null,
-    date1: null,
-    menu1: false,
-    checkbox1: false,
-
+    //alphabet
     roleName: "",
     lastName: "",
     belongedTeam: "",
@@ -311,21 +338,53 @@ export default {
       "Atheist",
       "Others",
     ],
+
+    chips: [],
+    items: ['Communication', 'Eating'],
+
+    //calendar
+    activePicker1: null,
+    date1: null,
+    menu1: false,
+    checkbox1: false,
+  
     activePicker2: null,
     date2: null,
     menu2: false,
     checkbox2: false,
   }),
+
   watch: {
-    menu (val) {
+    menu1 (val) {
       val && setTimeout(() => (this.activePicker1 = 'YEAR'))
     },
   },
-  methods: {
-    save (date) {
-      this.$refs.menu.save(date)
+
+  watch: {
+    menu2 (val) {
+      val && setTimeout(() => (this.activePicker2 = 'YEAR'))
     },
   },
+
+  methods: {
+    save (date) {
+      this.$refs.menu1.save(date)
+    },
+  },
+
+   methods: {
+    save (date) {
+      this.$refs.menu2.save(date)
+    },
+  },
+
+  methods: {
+    remove (item) {
+      this.chips.splice(this.chips.indexOf(item), 1)
+      this.chips = [...this.chips]
+    },
+  },
+
 };
 </script>
 <style></style>
