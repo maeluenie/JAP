@@ -5,8 +5,7 @@
       <v-btn
         :ripple="false"
         text
-                color="grey"
-
+        color="grey"
         id="no-background-hover"
         nuxt
         to="/addJob1"
@@ -16,19 +15,18 @@
       <v-btn
         :ripple="false"
         text
-                color="primary darken-3"
-
+        color="grey"
         id="no-background-hover"
+        nuxt
+        to="/addJob2"
       >
         <v-text class="font-weight-bold">2 General Question</v-text>
       </v-btn>
       <v-btn
         :ripple="false"
         text
-         color="grey"
+        color="primary darken-3"
         id="no-background-hover"
-        nuxt
-        to="/addJob3"
       >
         <v-text class="font-weight-bold">3 Benefits and Welfare</v-text>
       </v-btn>
@@ -60,7 +58,7 @@
             >
             <v-text-field
               v-model="citizenID"
-              :rules="saralyRules"
+              :rules="salaryRules"
               type="number"
               label="Citizen ID"
               required
@@ -171,23 +169,48 @@
               outlined
               color="primary darken-3"
               nuxt
-              to="/addJob1"
+              to="/addJob2"
             >
               Back
             </v-btn>
-            <v-btn
-              align="end"
-              class="ml-1 mb-2"
-              color="primary darken-3"
-              nuxt
-              to="/addJob3"
-            >
-              Next
-            </v-btn>
+            <v-dialog v-model="addJobConfirmDialog" width="500">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  color="primary darken-2"
+                  class="ml-1 mb-2"
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="openConfirmDialog"
+                >
+                  SAVE
+                </v-btn>
+              </template>
+
+              <v-card>
+                <v-card-title>
+                  <span class="font-weight-bold">Confirmation</span>
+                </v-card-title>
+
+                <v-card-text> Save Successfully </v-card-text>
+
+                <v-divider></v-divider>
+
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="primary darken-2"
+                    class="mx-2 my-2"
+                    @click="saveJobDetails"
+                  >
+                    Done
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
           </v-col>
         </v-row>
-      </v-form></v-card
-    >
+      </v-form>
+    </v-card>
   </v-app>
 </template>
 
@@ -195,12 +218,13 @@
 export default {
   name: " Job Edit Page",
   data: () => ({
+    addJobConfirmDialog: false,
     return: {
       selectedFile: null,
     },
     valid: true,
     citizenID: "",
-    saralyRules: [
+    salaryRules: [
       (v) => !!v || "This field is required, receiving only integers",
       (v) => (v && v.length == 13) || "Please fill all your Citizen ID",
     ],
@@ -241,10 +265,26 @@ export default {
     menu(val) {
       val && setTimeout(() => (this.activePicker = "YEAR"));
     },
+    addJobConfirmDialog(val) {
+      val || this.saveJobDetails();
+    },
   },
   methods: {
     save(date) {
       this.$refs.menu.save(date);
+    },
+    openConfirmDialog() {
+      this.addJobConfirmDialog = true;
+      // packup data together and submitted to the back-end
+      console.log("open dialog");
+    },
+
+    saveJobDetails() {
+      // this function must link all the data and submitted to back-end, the difficult part is to take the data from 3 pages and submitted it together.
+      // alternatively, if linking information is difficult, we can merge different addJobX.vue to be overlayed upon once page for simpler data wrapup.
+
+      console.log("save completed");
+      this.addJobConfirmDialog = false;
     },
   },
 };
