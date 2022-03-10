@@ -314,7 +314,7 @@
             </h5></v-text>
 
             <v-textarea
-            v-model="firstName"
+            v-model="jobDescription"
             :rules="nameRules"
             label="Job Description"
             required
@@ -336,7 +336,7 @@
 
 <script>
 export default {
-  name: " Add Job Page",
+  name: "Add Job Benefits and Wellfare",
   data: () => ({
     return: {
       selectedFile: null,
@@ -359,6 +359,7 @@ export default {
     managerName: "",
     educationalDegree: "",
     requiredExperience: "",
+    jobDescription: "",
     nameRules: [
       (v) => !!v || "This field is required",
       // (v) => (v && v.length <= 10) || "Name must be less than 10 characters",
