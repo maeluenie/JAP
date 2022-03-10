@@ -265,12 +265,22 @@
         <v-spacer />
         <v-btn
           color="primary darken-2"
-          class="mx-4 my-2"
+          class="mx-1 my-2"
+          outlined
+          nuxt
+          to="/list_of_jobs"
+        >
+          BACK
+        </v-btn>
+        <v-btn
+          color="primary darken-2"
+          class="ml-1 mr-4 my-2"
           nuxt
           to="/applicationForm"
         >
           APPLY
         </v-btn>
+        
       </v-card-actions>
     </v-card>
   </v-app>
