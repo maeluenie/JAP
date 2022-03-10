@@ -110,7 +110,7 @@ export default {
   data() {
     return {
       selectedRole: [],
-      job_role: [
+      job_role: [      // must be retrieved from the database via the API
         "UX/UI Designer",
         "DevOps",
         "Cyber Security",
