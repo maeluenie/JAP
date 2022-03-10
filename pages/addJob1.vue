@@ -12,23 +12,20 @@
     <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/.">
     <v-text>3 Benefits and Welfare</v-text>
     </v-btn>
+
     </v-card>
 
-    <v-card class="mx-4 my-4 py-2">
+    <v-card class="mx-4 my-2 py-2">
       <v-text-title class="font-weight-bold"
-        ><h2 class="mx-8 my-4 text-left">
-          Job Details
-        </h2></v-text-title>
-     
+        ><h2 class="mx-8 my-4 text-left">Job Details</h2></v-text-title
+      >
 
       <v-form class="mx-8 mt-2 align-content-center">
         <!-- on real use case situation, the upload method will be included in the main save button -->
         <v-row>
           <v-col cols="12" sm="8" md="6">
             <v-text class="font"
-              ><h5 class="mx-1 mb-2 text-left">
-                Role Name
-              </h5></v-text
+              ><h5 class="mx-1 mb-2 text-left">Role Name</h5></v-text
             >
 
             <v-text-field
@@ -38,32 +35,26 @@
               required
               outlined
               dense
-            ></v-text-field
-            >
+            ></v-text-field>
             <v-text class="font"
-              ><h5 class="mx-1 mb-1 text-left">
-                Approximate Salary
-              </h5></v-text
+              ><h5 class="mx-1 mb-1 text-left">Approximate Salary</h5></v-text
             >
 
             <v-text-field
-              v-model= "approximateSalary"
+              v-model="approximateSalary"
               :rules="numRules"
               type="number"
               label="Approximate Salary"
               required
               dense
               outlined
-            ></v-text-field
-            >
+            ></v-text-field>
             <v-text class="font"
-              ><h5 class="mx-1 mb-2 text-left">
-                Start Date
-              </h5></v-text
+              ><h5 class="mx-1 mb-2 text-left">Start Date</h5></v-text
             >
             <v-menu
               ref="menu1"
-              v-model= "menu1"
+              v-model="menu1"
               :close-on-content-click="false"
               transition="scale-transition"
               offset-y
@@ -71,7 +62,7 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-text-field
-                  v-model= "date1"
+                  v-model="date1"
                   label="Start Date"
                   append-icon="mdi-calendar"
                   readonly
@@ -84,19 +75,21 @@
               <v-date-picker
                 v-model="date1"
                 :active-picker.sync="activePicker1"
-                :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
+                :max="
+                  new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+                    .toISOString()
+                    .substr(0, 10)
+                "
                 min="1950-01-01"
                 @change="save"
               ></v-date-picker>
             </v-menu>
 
             <v-text class="font"
-              ><h5 class="mx-1 mb-2 text-left">
-                Manager Name
-              </h5></v-text
+              ><h5 class="mx-1 mb-2 text-left">Manager Name</h5></v-text
             >
             <v-text-field
-              v-model= "managerName"
+              v-model="managerName"
               :rules="nameRules"
               label="Manager Name"
               required
@@ -105,13 +98,11 @@
             ></v-text-field>
 
             <v-text class="font"
-              ><h5 class="mx-1 mb-2 text-left">
-                Educational Degree
-              </h5></v-text
+              ><h5 class="mx-1 mb-2 text-left">Educational Degree</h5></v-text
             >
 
             <v-select
-              v-model= "educationalDegree"
+              v-model="educationalDegree"
               :items="degreeSelection"
               :rules="[(v) => !!v || 'This field is required']"
               label="Educational Degree"
@@ -121,13 +112,11 @@
             ></v-select>
 
             <v-text class="font"
-                ><h5 class="mx-1 mb-1 text-left">
-                  Working Time Details
-                </h5>
+              ><h5 class="mx-1 mb-1 text-left">Working Time Details</h5>
             </v-text>
 
             <v-text-field
-              v-model= "workingTime"
+              v-model="workingTime"
               :rules="numRules"
               type="number"
               label="Working Time Details"
@@ -136,19 +125,15 @@
               outlined
             >
             </v-text-field>
-
           </v-col>
 
           <v-col cols="12" sm="8" md="6">
-
             <v-text class="font"
-              ><h5 class="mx-1 mb-2 text-left">
-                Belonged Teams
-              </h5></v-text
+              ><h5 class="mx-1 mb-2 text-left">Belonged Teams</h5></v-text
             >
 
             <v-select
-              v-model= "belongedTeam"
+              v-model="belongedTeam"
               :items="teamSelection"
               :rules="nameRules"
               label="Belonged Team"
@@ -163,7 +148,7 @@
               </h5></v-text
             >
             <v-text-field
-              v-model= "numAccepting"
+              v-model="numAccepting"
               :rules="numRules"
               type="number"
               label="Number of Accepting Applicants"
@@ -173,14 +158,12 @@
             ></v-text-field>
 
             <v-text class="font"
-              ><h5 class="mx-1 mb-2 text-left">
-                End Date
-              </h5></v-text
+              ><h5 class="mx-1 mb-2 text-left">End Date</h5></v-text
             >
 
             <v-menu
               ref="menu2"
-              v-model= "menu2"
+              v-model="menu2"
               :close-on-content-click="false"
               transition="scale-transition"
               offset-y
@@ -188,7 +171,7 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-text-field
-                  v-model= "date2"
+                  v-model="date2"
                   label="Application Deadline"
                   append-icon="mdi-calendar"
                   readonly
@@ -198,23 +181,25 @@
                   dense
                 ></v-text-field>
               </template>
-                <v-date-picker
-                  v-model= "date2"
-                  :active-picker.sync="activePicker2"
-                  :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
-                  min="1950-01-01"
-                  @change="save"
+              <v-date-picker
+                v-model="date2"
+                :active-picker.sync="activePicker2"
+                :max="
+                  new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+                    .toISOString()
+                    .substr(0, 10)
+                "
+                min="1950-01-01"
+                @change="save"
               ></v-date-picker>
             </v-menu>
 
             <v-text class="font"
-              ><h5 class="mx-1 mb-2 text-left">
-                Working Location
-              </h5></v-text
+              ><h5 class="mx-1 mb-2 text-left">Working Location</h5></v-text
             >
 
             <v-select
-              v-model= "workingLocation"
+              v-model="workingLocation"
               :items="locationSelection"
               :rules="[(v) => !!v || 'This field is required']"
               label="Working Location"
@@ -224,13 +209,11 @@
             ></v-select>
 
             <v-text class="font"
-              ><h5 class="mx-1 mb-2 text-left">
-                Required Experience
-              </h5></v-text
+              ><h5 class="mx-1 mb-2 text-left">Required Experience</h5></v-text
             >
 
             <v-select
-              v-model= "requiredExperience"
+              v-model="requiredExperience"
               :items="experienceSelection"
               :rules="[(v) => !!v || 'This field is required']"
               label="Required Experience"
@@ -240,46 +223,44 @@
             ></v-select>
 
             <v-text class="font"
-              ><h5 class="mx-1 mb-2 text-left">
-                Status
-              </h5></v-text
+              ><h5 class="mx-1 mb-2 text-left">Status</h5></v-text
             >
 
             <label for="Open">
-            <input type="radio" 
-              name="radio" 
-              value="Open" 
-              id="Open" 
-              @change="$emit('input', 'Open')" 
-            />
-            Open for Application
+              <input
+                type="radio"
+                name="radio"
+                value="Open"
+                id="Open"
+                @change="$emit('input', 'Open')"
+              />
+              Open for Application
             </label>
             <label for="Close">
-            <input 
-              type="radio" 
-              name="radio" 
-              value="Close" 
-              id="Close" 
-              @change="$emit('input', 'Close')" 
-            />
-            Close Temporarily</label>
+              <input
+                type="radio"
+                name="radio"
+                value="Close"
+                id="Close"
+                @change="$emit('input', 'Close')"
+              />
+              Close Temporarily</label
+            >
             <label for="Urgent">
-            <input
+              <input
                 type="radio"
                 name="radio"
                 value="Urgent"
                 id="Urgent"
                 @change="$emit('input', 'Urgent')"
-            />Urgent
+              />Urgent
             </label>
           </v-col>
-        
+
           <v-col cols="1" sm="1" md="12">
             <v-text class="font"
-                ><h5 class="mx-1 mb-2 text-left">
-                  Required Skills
-                </h5></v-text
-              >
+              ><h5 class="mx-1 mb-2 text-left">Required Skills</h5></v-text
+            >
 
             <v-combobox
               v-model="requiredSkills"
@@ -301,7 +282,8 @@
                   @click="select"
                   @click:close="remove(item)"
                 >
-                  <strong>{{ item }}</strong>&nbsp;
+                  <strong>{{ item }}</strong
+                  >&nbsp;
                   <span>(interest)</span>
                 </v-chip>
               </template>
@@ -309,24 +291,25 @@
             <v-divider class="my-2"></v-divider>
 
             <v-text class="font"
-            ><h5 class="mx-1 mb-2 text-left">
-              Job Description
-            </h5></v-text>
+              ><h5 class="mx-1 mb-2 text-left">Job Description</h5></v-text
+            >
 
             <v-textarea
+
             v-model="jobDescription"
             :rules="nameRules"
             label="Job Description"
             required
             outlined
             dense
+
             ></v-textarea>
 
             <v-col class="text-right">
-                <v-btn align="end" color="primary darken-3" nuxt to="/addJob2">  
-                  Next
-                </v-btn>
-              </v-col>
+              <v-btn align="end" color="primary darken-3" nuxt to="/addJob2">
+                Next
+              </v-btn>
+            </v-col>
           </v-col>
         </v-row>
       </v-form>
@@ -364,7 +347,7 @@ export default {
       (v) => !!v || "This field is required",
       // (v) => (v && v.length <= 10) || "Name must be less than 10 characters",
     ],
-  
+
     email: "",
     emailRules: [
       (v) => !!v || "E-mail is required",
@@ -373,23 +356,18 @@ export default {
 
     select: null,
     workingLocation: "",
-    locationSelection: [
-      "Latkrabung",
-      "Sathorn",
-      "Bangsue",
-      "Thonglor",
-    ],
+    locationSelection: ["Latkrabung", "Sathorn", "Bangsue", "Thonglor"],
 
     //chips
     requiredSkills: [],
-    items: ['Communication', 'Eating'],
+    items: ["Communication", "Eating"],
 
     //calendar 1
     activePicker1: null,
     date1: null,
     menu1: false,
     checkbox1: false,
-  
+
     //calender 2
     activePicker2: null,
     date2: null,
@@ -399,40 +377,39 @@ export default {
 
   //calendar 1
   watch: {
-    menu1 (val) {
-      val && setTimeout(() => (this.activePicker1 = 'YEAR'))
+    menu1(val) {
+      val && setTimeout(() => (this.activePicker1 = "YEAR"));
     },
   },
 
   //calender 2
   watch: {
-    menu2 (val) {
-      val && setTimeout(() => (this.activePicker2 = 'YEAR'))
+    menu2(val) {
+      val && setTimeout(() => (this.activePicker2 = "YEAR"));
     },
   },
 
   //calender 1
   methods: {
-    save (date) {
-      this.$refs.menu1.save(date)
+    save(date) {
+      this.$refs.menu1.save(date);
     },
   },
 
   //calender 2
   methods: {
-    save (date) {
-      this.$refs.menu2.save(date)
+    save(date) {
+      this.$refs.menu2.save(date);
     },
   },
 
   //chips
   methods: {
-    remove (item) {
-      this.requiredSkills.splice(this.requiredSkills.indexOf(item), 1)
-      this.requiredSkills = [...this.requiredSkills]
+    remove(item) {
+      this.requiredSkills.splice(this.requiredSkills.indexOf(item), 1);
+      this.requiredSkills = [...this.requiredSkills];
     },
   },
-
 };
 </script>
 <style></style>
