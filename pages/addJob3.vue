@@ -21,12 +21,14 @@
         </h2>
       </v-text-title>
      
+30cdbbcbb608d14c589fd1b89108b187
 
       <v-form class="mx-8 mt-2 align-content-center">
         <!-- on real use case situation, the upload method will be included in the main save button -->
         <v-row>
           <v-col cols="12" sm="8" md="6">
             <v-text class="font"
+
               ><h5 class="mx-1 mb-2 text-left">
                 Accomodation
               </h5></v-text
@@ -164,7 +166,6 @@
                 Additional Provision 
               </h5></v-text
             >
-
             <v-select
               v-model= "additionalProvision"
               :items="additionalSelection"
