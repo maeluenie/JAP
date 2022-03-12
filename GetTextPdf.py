@@ -9,14 +9,22 @@ from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfparser import PDFParser
 
-output_string = StringIO()
-with open('Sample.pdf', 'rb') as in_file:
-    parser = PDFParser(in_file)
-    doc = PDFDocument(parser)
-    rsrcmgr = PDFResourceManager()
-    device = TextConverter(rsrcmgr, output_string, laparams=LAParams())
-    interpreter = PDFPageInterpreter(rsrcmgr, device)
-    for page in PDFPage.create_pages(doc):
-        interpreter.process_page(page)
+import os
+import glob
 
-print(output_string.getvalue())
+path = '/Users/maeluenie/Documents/GitHub/JAP/resume/'
+count =0
+for filename in glob.glob(os.path.join(path,'*.pdf')):
+    count +=1
+    with open(os.path.join(os.getcwd(), filename), 'rb') as f:
+        output_string = StringIO()
+        #with open(filename, 'rb') as in_file:
+        parser = PDFParser(f)
+        doc = PDFDocument(parser)
+        rsrcmgr = PDFResourceManager()
+        device = TextConverter(rsrcmgr, output_string, laparams=LAParams())
+        interpreter = PDFPageInterpreter(rsrcmgr, device)
+        for page in PDFPage.create_pages(doc):
+            interpreter.process_page(page)
+        print(output_string.getvalue())
+        print('-----------------------------------------', count)
