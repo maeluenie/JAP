@@ -1,7 +1,6 @@
 <template>
   <v-app>
-
-    <!-- this page will be how users can submit their purpose and required information for the job -->
+    <!-- this page will be how users can submit their purpose and required information for the job, full page overlay can be used -->
 
     <v-card class="mx-4 my-4 py-2">
       <v-text-title class="font-weight-bold"
@@ -34,86 +33,54 @@
         </v-col>
       </v-row>
 
-      <v-form class="mx-8 mt-2 align-content-center">
+      <v-form class="mx-4 mt-2 align-content-center" elevation-1>
         <!-- on real use case situation, the upload method will be included in the main save button -->
-        <v-row>
-          <v-col cols="12" sm="8" md="6">
-            <v-text-field
-              v-model="firstName"
-              :rules="nameRules"
-              label="First Name"
-              required
-              outlined
-              dense
-            ></v-text-field
-            ><v-text-field
-              v-model="citizenID"
-              :rules="citizenID_Rules"
-              type="number"
-              label="Citizen ID"
-              required
-              dense
-              outlined
-            ></v-text-field
-            ><v-text-field
-              v-model="name"
-              :rules="nameRules"
-              label="Full Name"
-              required
-              dense
-              outlined
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" sm="8" md="6">
-            <v-text-field
-              v-model="lastName"
-              :rules="nameRules"
-              label="Last Name"
-              required
-              dense
-              outlined
-            ></v-text-field>
-            <v-select
-              v-model="religion"
-              :items="religionSelection"
-              :rules="[(v) => !!v || 'This field is required']"
-              label="Religion"
-              required
-              outlined
-              dense
-            ></v-select>
-            <v-menu
-        ref="menu"
-        v-model="menu"
-        :close-on-content-click="false"
-        transition="scale-transition"
-        offset-y
-        min-width="auto"
-      >
-        <template v-slot:activator="{ on, attrs }">
-          <v-text-field
-            v-model="date"
-            label="Birthday date"
-            append-icon="mdi-calendar"
-            readonly
-            v-bind="attrs"
-            v-on="on"
-            outlined
-            dense
-          ></v-text-field>
-        </template>
-        <v-date-picker
-          v-model="date"
-          :active-picker.sync="activePicker"
-          dense
-          :max="(new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10)"
-          min="1950-01-01"
-          @change="save"
-        ></v-date-picker>
-      </v-menu>
-          </v-col>
-        </v-row> </v-form
-    ></v-card>
+        <v-container bg>
+          <v-layout
+            row
+            wrap
+            align-center
+            align-content-center
+            justify-center
+            class="mx-1"
+          >
+            <v-flex class="mx-2">
+              <v-text class="font"
+                ><h5 class="mb-1 text-left">Full Name</h5>
+              </v-text>
+              <v-text-field
+                v-model="fullName"
+                :rules="nameRules"
+                label="Full Name"
+                required
+                outlined
+                dense
+              ></v-text-field>
+            </v-flex>
+            <v-flex class="mx-2">
+              <v-text class="font"
+                ><h5 class="mx-1 mb-1 text-left">Approximate Salary</h5></v-text
+              >
+              <v-text-field
+                v-model="approximateSalary"
+                :rules="numRules"
+                type="number"
+                label="Approximate Salary"
+                required
+                dense
+                outlined
+              ></v-text-field>
+            </v-flex>
+          </v-layout>
+        </v-container>
+
+        <v-col class="text-right">
+          <v-btn align="end" color="primary darken-3">
+            Next
+          </v-btn>
+        </v-col>
+      </v-form></v-card
+    >
   </v-app>
 </template>
 
@@ -130,8 +97,7 @@ export default {
       (v) => !!v || "This field is required, receiving only integers",
       (v) => (v && v.length == 13) || "Please fill all your Citizen ID",
     ],
-    firstName: "",
-    lastName: "",
+    fullName: "",
     nameRules: [
       (v) => !!v || "This field is required",
       (v) => (v && v.length <= 10) || "Name must be less than 10 characters",
@@ -158,13 +124,13 @@ export default {
     checkbox: false,
   }),
   watch: {
-    menu (val) {
-      val && setTimeout(() => (this.activePicker = 'YEAR'))
+    menu(val) {
+      val && setTimeout(() => (this.activePicker = "YEAR"));
     },
   },
   methods: {
-    save (date) {
-      this.$refs.menu.save(date)
+    save(date) {
+      this.$refs.menu.save(date);
     },
     selectedFile(event) {
       // this is the function used to upload images for the profile picture.

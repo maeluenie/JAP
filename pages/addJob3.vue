@@ -3,25 +3,24 @@
 
     <!-- addJob1 must be the user's personal details , it must also be an editable form with original content for modification too --> 
     <v-card class="mx-6 my-4" outlined color="transparent">
-    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover">
+    <v-btn :ripple="false" text color="natural dark-grey" id="no-background-hover" nuxt to="/addJob1">
     <v-text>1 Job Details</v-text>
     </v-btn>
-    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/addJob2">
+    <v-btn :ripple="false" text color="natural dark-grey" id="no-background-hover" nuxt to="/addJob2">
     <v-text>2 General Question</v-text>
     </v-btn>
-    <v-btn :ripple="false" text color="natural dark-grey" id="no-background-hover" nuxt to="/.">
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover">
     <v-text>3 Benefits and Welfare</v-text>
     </v-btn>
     </v-card>
 
-    <v-card class="mx-4 my-4 py-2">
+    <v-card class="mx-4 my-2 py-2">
       <v-text-title class="font-weight-bold"
         ><h2 class="mx-8 my-4 text-left">
           Benefits and Welfare        
         </h2>
       </v-text-title>
      
-30cdbbcbb608d14c589fd1b89108b187
 
       <v-form class="mx-8 mt-2 align-content-center">
         <!-- on real use case situation, the upload method will be included in the main save button -->
