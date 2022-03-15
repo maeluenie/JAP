@@ -304,66 +304,83 @@
             <v-btn dark text @click="dialog = false"> Save </v-btn>
           </v-toolbar-items>
         </v-toolbar>
-        <v-list three-line subheader>
-          <v-subheader>User Controls</v-subheader>
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>Content filtering</v-list-item-title>
-              <v-list-item-subtitle
-                >Set the content filtering level to restrict apps that can be
-                downloaded</v-list-item-subtitle
+        <v-card class="mx-4 my-4 py-2">
+      <v-text-title class="font-weight-bold"
+        ><h2 class="mx-8 mb-4 text-center">
+          Job Application Form
+        </h2></v-text-title
+      >
+      <v-row class="mx-4 justify-center align-center">
+        <v-col>
+          <div class="text-center justify-center" centered>
+            <input
+              type="file"
+              accept=".jpeg,.jpg,.png,image/jpeg,image/png"
+              label="upload image button"
+              @change="selectedFile"
+              ref="fileInput"
+              style="display: none"
+            />
+
+            <img
+              icon
+              @click="$refs.fileInput.click()"
+              centered
+              width="150"
+              height="150"
+              src="~assets/upload.png"
+            />
+            <p class="mb-1 text-center">Upload your profile image.</p>
+          </div>
+        </v-col>
+      </v-row>
+
+      <v-form class="mx-4 mt-2 align-content-center" elevation-1>
+        <!-- on real use case situation, the upload method will be included in the main save button -->
+        <v-container bg>
+          <v-layout
+            row
+            wrap
+            align-center
+            align-content-center
+            justify-center
+            class="mx-1"
+          >
+            <v-flex class="mx-2">
+              <v-text class="font"
+                ><h5 class="mb-1 text-left">Full Name</h5>
+              </v-text>
+              <v-text-field
+                v-model="fullName"
+                :rules="nameRules"
+                label="Full Name"
+                required
+                outlined
+                dense
+              ></v-text-field>
+            </v-flex>
+            <v-flex class="mx-2">
+              <v-text class="font"
+                ><h5 class="mx-1 mb-1 text-left">Approximate Salary</h5></v-text
               >
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>Password</v-list-item-title>
-              <v-list-item-subtitle
-                >Require password for purchase or use password to restrict
-                purchase</v-list-item-subtitle
-              >
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-        <v-divider></v-divider>
-        <v-list three-line subheader>
-          <v-subheader>General</v-subheader>
-          <v-list-item>
-            <v-list-item-action>
-              <v-checkbox v-model="notifications"></v-checkbox>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>Notifications</v-list-item-title>
-              <v-list-item-subtitle
-                >Notify me about updates to apps or games that I
-                downloaded</v-list-item-subtitle
-              >
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-action>
-              <v-checkbox v-model="sound"></v-checkbox>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>Sound</v-list-item-title>
-              <v-list-item-subtitle
-                >Auto-update apps at any time. Data charges may
-                apply</v-list-item-subtitle
-              >
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-action>
-              <v-checkbox v-model="widgets"></v-checkbox>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>Auto-add widgets</v-list-item-title>
-              <v-list-item-subtitle
-                >Automatically add home screen widgets</v-list-item-subtitle
-              >
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
+              <v-text-field
+                v-model="approximateSalary"
+                :rules="numRules"
+                type="number"
+                label="Approximate Salary"
+                required
+                dense
+                outlined
+              ></v-text-field>
+            </v-flex>
+          </v-layout>
+        </v-container>
+
+        <v-col class="text-right">
+          <v-btn align="end" color="primary darken-3"> Next </v-btn>
+        </v-col>
+      </v-form>
+    </v-card>
       </v-card>
     </v-dialog>
   </v-app>
