@@ -39,21 +39,22 @@
         class="mx-2 my-2"
       >
         <!-- for the v-card, usage of <v-for> is considerable for repetitive display of cards -->
-        <v-card class="ml-4 mb-4" width="48rem" nuxt to="/jobDetails" hover>
+        <v-card
+          class="ml-4 mb-4"
+          width="48rem"
+          nuxt
+          to="/jobDetails"
+          hover
+          v-for="jobs in jobList"
+          :key="jobs.jobName"
+        >
           <v-list-item>
-             <v-list-item-content>
-              <div class="text-h6 ml-4 font-weight-bold">OVERLINE</div>
+            <v-list-item-content>
+              <div class="text-h6 ml-4 font-weight-bold">{{ jobs.jobName }}</div>
               <v-container bg>
                 <v-layout row justify-start class="py-2 px-4">
-                  <v-layout
-                    column
-                    align-content-start
-                    justify-start
-                  >
-                    <v-list-item-avatar
-                      align="center"
-                      size="100px"
-                      color="grey"
+                  <v-layout column align-content-start justify-start>
+                    <v-list-item-avatar align="center" size="100px" color="grey"
                       >UX/UI</v-list-item-avatar
                     ></v-layout
                   >
@@ -65,16 +66,16 @@
                   >
                     <v-layout row class="my-2">
                       <div class="font-weight-black">Team:</div>
-                      <div class="ml-2">User Experience Design</div>
+                      <div class="ml-2">{{jobs.teamName}}</div>
                     </v-layout>
                     <v-layout row class="my-2">
                       <v-icon class="mr-2" color="black">mdi-map-marker</v-icon>
                       <!-- <div class="font-weight-bold">Location:</div> -->
-                      <div class="ml-2">Ladkrabang HQ, Bangkok</div> </v-layout
+                      <div class="ml-2">{{jobs.location}}</div> </v-layout
                     ><v-layout row class="my-2">
                       <v-icon class="mr-2" color="black">mdi-clock</v-icon>
                       <!-- <div class="font-weight-bold">Team:</div> -->
-                      <div class="ml-2">Full-Time, Weekdays</div>
+                      <div class="ml-2">{{jobs.workTime}}</div>
                     </v-layout>
                   </v-layout>
                   <v-layout
@@ -85,15 +86,15 @@
                   >
                     <v-layout row class="my-2">
                       <div class="font-weight-black">Deadline:</div>
-                      <div class="ml-2">February 25, 2022</div>
+                      <div class="ml-2">{{jobs.deadline}}</div>
                     </v-layout>
                     <v-layout row class="my-2">
                       <div class="font-weight-black">Start Date:</div>
-                      <div class="ml-2">April 1, 2022</div>
+                      <div class="ml-2">{{jobs.startDate}}</div>
                     </v-layout>
                     <v-layout row class="my-2">
                       <div class="font-weight-black">Salary Range:</div>
-                      <div class="ml-2">Negotiable</div>
+                      <div class="ml-2">{{jobs.salaryRange}}</div>
                     </v-layout>
                   </v-layout>
                 </v-layout>
@@ -128,32 +129,56 @@
             </v-btn>
           </v-col>
         </v-card>
-        
       </v-layout>
     </v-container>
-    
   </div>
 </template>
 
 <script>
 export default {
   name: "List of Jobs Page",
-  data() {
-    return {
-      dialog: false,
-      notifications: false,
-      sound: true,
-      widgets: false,
+
+  data: () => ({
+    return: {
       selectedRole: [],
-      job_role: [
-        // must be retrieved from the database via the API
-        "UX/UI Designer",
-        "DevOps",
-        "Cyber Security",
-        "Back-End Golang Developer",
-        "Front-End Developer",
-      ],
-    };
+    },
+    job_role: [
+      // must be retrieved from the database via the API
+      "UX/UI Designer",
+      "DevOps",
+      "Cyber Security",
+      "Back-End Golang Developer",
+      "Front-End Developer",
+    ],
+    jobList: {
+      jobOverview1: {
+        // must link with the database through an API
+        jobID: 1111,
+        jobName: "UX/UI Designer",
+        teamName: "UX Researchers",
+        location: "Ladkrabang HQ",
+        workTime: "Full-Time, Weekdays",
+        deadline: "February 25, 2022",
+        startDate: "April 1, 2022",
+        salaryRange: "Negotiable",
+      },
+      jobOverview2: {
+        // must link with the database through an API
+        jobID: 1112,
+        jobName: "Back-End Developer ( Golang )",
+        teamName: "Back-End Team",
+        location: "Ramkhamhaeng Office",
+        workTime: "Part-Time, Weekdays",
+        deadline: "February 24, 2022",
+        startDate: "April 15, 2022",
+        salaryRange: "100,000 THB",
+      },
+    },
+  }),
+  watch: {
+    menu(val) {
+      val && setTimeout(() => (this.activePicker = "YEAR"));
+    },
   },
   methods: {
     printSelect() {

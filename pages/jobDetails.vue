@@ -271,7 +271,7 @@
           BACK
         </v-btn>
         <v-dialog
-          v-model="dialog"
+          v-model="dialog1"
           fullscreen
           hide-overlay
           transition="dialog-bottom-transition"
@@ -289,13 +289,13 @@
           <!-- this is the container of the overview of the form dialog for job application form -->
           <v-card>
             <v-toolbar dark color="primary">
-              <v-btn icon dark @click="dialog = false">
+              <v-btn icon dark @click="dialog1 = false">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
               <v-toolbar-title>Application form for {{ this.jobDetails.jobName }} </v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn dark text @click="dialog = false"> Submit </v-btn>
+                <v-btn dark text @click="dialog1 = false"> Submit </v-btn>
                 <!-- this line must link a function to submit the data to the database -->
               </v-toolbar-items>
             </v-toolbar>
@@ -450,7 +450,7 @@
                 </v-container>
 
                 <v-col class="text-right">
-                  <v-btn align="end" color="primary darken-3"> Next </v-btn>
+                  <v-btn align="end" color="primary darken-3" @click="testPrint"> Next </v-btn>
                 </v-col>
               </v-form>
             </v-card>
@@ -565,6 +565,9 @@ export default {
       console.log("Image uploaded successfully");
       this.selectedFile = event.target.files[0]; // this is use to access the actual image file in and store it in the "selectedFile" section.
     },
+    testPrint(){
+      console.log(this.fullName)
+    }
   },
 };
 </script>
