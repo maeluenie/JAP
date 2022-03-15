@@ -75,12 +75,10 @@
         </v-container>
 
         <v-col class="text-right">
-          <v-btn align="end" color="primary darken-3">
-            Next
-          </v-btn>
+          <v-btn align="end" color="primary darken-3"> Next </v-btn>
         </v-col>
-      </v-form></v-card
-    >
+      </v-form>
+    </v-card>
   </v-app>
 </template>
 
@@ -88,8 +86,43 @@
 export default {
   name: " Application Form Page",
   data: () => ({
+    
     return: {
       selectedFile: null,
+  
+      dialog: false,
+      notifications: false,
+      sound: true,
+      widgets: false,
+      competencies: [
+        {
+          skillName: "UX/UI Designer",
+          skillDesc:
+            "Discover how users can simply use the application as simple as possible",
+        },
+        {
+          skillName: "DevOps",
+          skillDesc:
+            "Provide stable system for different components of a system",
+        },
+        {
+          skillName: "Cyber Security",
+          skillDesc:
+            "Check the authenticity and security of a system to prevent hacking or data leaks",
+        },
+        {
+          skillName: "Front-End Developer",
+          skillDesc:
+            "Web-application developer using React.js framework to create a system's interface",
+        },
+      ],
+      accommodations: true, // must link with the database through an API
+      vehicles: false, // must link with the database through an API
+      laptop: false, // must link with the database through an API
+      overtime: false, // must link with the database through an API
+      // must link with the database through an API
+      textExample:
+        "User experience (UX) designers are among the most in-demand professionals in the creative industry right now. As businesses update their websites, mobile apps and more to interact with customers in new ways, people who can help conceive and build intuitive and engaging digital experiences are needed across the country. The UX designer creates satisfying and compelling experiences for users of a product, often drawing on results from user research and workflow analysis. Generally, UX designers need to possess strong creative, technical and problem-solving skills. Areas of focus may include content, controls, visual design and development, information architecture, user research, branding, and customer/technical support.",
     },
     valid: true,
     citizenID: "",
@@ -100,7 +133,6 @@ export default {
     fullName: "",
     nameRules: [
       (v) => !!v || "This field is required",
-      (v) => (v && v.length <= 10) || "Name must be less than 10 characters",
     ],
     email: "",
     emailRules: [

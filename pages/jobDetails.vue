@@ -280,49 +280,176 @@
         >
           APPLY
         </v-btn>
-        
       </v-card-actions>
     </v-card>
+    <v-dialog
+      v-model="dialog"
+      fullscreen
+      hide-overlay
+      transition="dialog-bottom-transition"
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn color="primary" dark v-bind="attrs" v-on="on">
+          Open Dialog
+        </v-btn>
+      </template>
+      <v-card>
+        <v-toolbar dark color="primary">
+          <v-btn icon dark @click="dialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Settings</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-toolbar-items>
+            <v-btn dark text @click="dialog = false"> Save </v-btn>
+          </v-toolbar-items>
+        </v-toolbar>
+        <v-list three-line subheader>
+          <v-subheader>User Controls</v-subheader>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Content filtering</v-list-item-title>
+              <v-list-item-subtitle
+                >Set the content filtering level to restrict apps that can be
+                downloaded</v-list-item-subtitle
+              >
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>Password</v-list-item-title>
+              <v-list-item-subtitle
+                >Require password for purchase or use password to restrict
+                purchase</v-list-item-subtitle
+              >
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+        <v-divider></v-divider>
+        <v-list three-line subheader>
+          <v-subheader>General</v-subheader>
+          <v-list-item>
+            <v-list-item-action>
+              <v-checkbox v-model="notifications"></v-checkbox>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Notifications</v-list-item-title>
+              <v-list-item-subtitle
+                >Notify me about updates to apps or games that I
+                downloaded</v-list-item-subtitle
+              >
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-action>
+              <v-checkbox v-model="sound"></v-checkbox>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Sound</v-list-item-title>
+              <v-list-item-subtitle
+                >Auto-update apps at any time. Data charges may
+                apply</v-list-item-subtitle
+              >
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-action>
+              <v-checkbox v-model="widgets"></v-checkbox>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Auto-add widgets</v-list-item-title>
+              <v-list-item-subtitle
+                >Automatically add home screen widgets</v-list-item-subtitle
+              >
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
 <script>
 export default {
   name: "Job Details",
-  data() {
-    return {
-      competencies: [
-        {
-          skillName: "UX/UI Designer",
-          skillDesc:
-            "Discover how users can simply use the application as simple as possible",
-        },
-        {
-          skillName: "DevOps",
-          skillDesc:
-            "Provide stable system for different components of a system",
-        },
-        {
-          skillName: "Cyber Security",
-          skillDesc:
-            "Check the authenticity and security of a system to prevent hacking or data leaks",
-        },
-        {
-          skillName: "Front-End Developer",
-          skillDesc:
-            "Web-application developer using React.js framework to create a system's interface",
-        },
-      ],
-      accommodations: true, // must link with the database through an API
-      vehicles: false, // must link with the database through an API
-      laptop: false, // must link with the database through an API
-      overtime: false, // must link with the database through an API
-      // must link with the database through an API
-      textExample:
-        "User experience (UX) designers are among the most in-demand professionals in the creative industry right now. As businesses update their websites, mobile apps and more to interact with customers in new ways, people who can help conceive and build intuitive and engaging digital experiences are needed across the country. The UX designer creates satisfying and compelling experiences for users of a product, often drawing on results from user research and workflow analysis. Generally, UX designers need to possess strong creative, technical and problem-solving skills. Areas of focus may include content, controls, visual design and development, information architecture, user research, branding, and customer/technical support.",
-    };
+  data: () => ({
+    return: { selectedFile: null }, // must return the data gathered from different entries and wrap up into json file.
+    dialog: false,
+    notifications: false,
+    sound: true,
+    widgets: false,
+    competencies: [
+      {
+        skillName: "UX/UI Designer",
+        skillDesc:
+          "Discover how users can simply use the application as simple as possible",
+      },
+      {
+        skillName: "DevOps",
+        skillDesc: "Provide stable system for different components of a system",
+      },
+      {
+        skillName: "Cyber Security",
+        skillDesc:
+          "Check the authenticity and security of a system to prevent hacking or data leaks",
+      },
+      {
+        skillName: "Front-End Developer",
+        skillDesc:
+          "Web-application developer using React.js framework to create a system's interface",
+      },
+    ],
+    accommodations: true, // must link with the database through an API
+    vehicles: false, // must link with the database through an API
+    laptop: false, // must link with the database through an API
+    overtime: false, // must link with the database through an API
+    // must link with the database through an API
+    textExample:
+      "User experience (UX) designers are among the most in-demand professionals in the creative industry right now. As businesses update their websites, mobile apps and more to interact with customers in new ways, people who can help conceive and build intuitive and engaging digital experiences are needed across the country. The UX designer creates satisfying and compelling experiences for users of a product, often drawing on results from user research and workflow analysis. Generally, UX designers need to possess strong creative, technical and problem-solving skills. Areas of focus may include content, controls, visual design and development, information architecture, user research, branding, and customer/technical support.",
+    valid: true,
+    citizenID: "",
+    citizenID_Rules: [
+      (v) => !!v || "This field is required, receiving only integers",
+      (v) => (v && v.length == 13) || "Please fill all your Citizen ID",
+    ],
+    fullName: "",
+    nameRules: [(v) => !!v || "This field is required"],
+    email: "",
+    emailRules: [
+      (v) => !!v || "E-mail is required",
+      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
+    ],
+    select: null,
+    religion: "",
+    religionSelection: [
+      "Buddhism",
+      "Christianity",
+      "Islam",
+      "Hinduism",
+      "Sikhism",
+      "Atheist",
+      "Others",
+    ],
+    activePicker: null,
+    date: null,
+    menu: false,
+    checkbox: false,
+  }),
+  watch: {
+    menu(val) {
+      val && setTimeout(() => (this.activePicker = "YEAR"));
+    },
   },
   methods: {
+    save(date) {
+      this.$refs.menu.save(date);
+    },
+    selectedFile(event) {
+      // this is the function used to upload images for the profile picture.
+      console.log(event);
+      console.log("Image uploaded successfully");
+      this.selectedFile = event.target.files[0]; // this is use to access the actual image file in and store it in the "selectedFile" section.
+    },
   },
 };
 </script>

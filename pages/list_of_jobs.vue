@@ -44,16 +44,14 @@
              <v-list-item-content>
               <div class="text-h6 ml-4 font-weight-bold">OVERLINE</div>
               <v-container bg>
-                <v-layout row justify-start class="py-2">
+                <v-layout row justify-start class="py-2 px-4">
                   <v-layout
                     column
                     align-content-start
                     justify-start
-                    class="mx-1"
                   >
                     <v-list-item-avatar
                       align="center"
-                      class="ml-1 mr-1"
                       size="100px"
                       color="grey"
                       >UX/UI</v-list-item-avatar
@@ -110,6 +108,7 @@
               align="end"
               outlined
               color="primary darken-3"
+              class="mr-2"
               nuxt
               to="/addJob1"
             >
@@ -120,17 +119,19 @@
               align="end"
               color="primary darken-3"
               hover
+              class="mr-2"
               nuxt
-              to="/applicationForm"
+              to="/jobDetails"
             >
               <!-- this application form url must include the job details -->
-              Apply
+              Details
             </v-btn>
           </v-col>
         </v-card>
         
       </v-layout>
     </v-container>
+    
   </div>
 </template>
 
@@ -139,6 +140,10 @@ export default {
   name: "List of Jobs Page",
   data() {
     return {
+      dialog: false,
+      notifications: false,
+      sound: true,
+      widgets: false,
       selectedRole: [],
       job_role: [
         // must be retrieved from the database via the API
