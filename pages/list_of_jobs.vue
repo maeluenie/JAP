@@ -54,8 +54,8 @@
               <v-container bg>
                 <v-layout row justify-start class="py-2 px-4">
                   <v-layout column align-content-start justify-start>
-                    <v-list-item-avatar align="center" size="100px" color="grey"
-                      >UX/UI</v-list-item-avatar
+                    <v-list-item-avatar class="text-p6" align="center" size="100px" color="grey"
+                      ><div class="text-body-6"> {{ jobs.jobName }}</div></v-list-item-avatar
                     ></v-layout
                   >
                   <v-layout
