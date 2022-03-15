@@ -3,14 +3,17 @@
 
     <!-- addJob1 must be the user's personal details , it must also be an editable form with original content for modification too --> 
     <v-card class="mx-6 my-4" outlined color="transparent">
-    <v-btn :ripple="false" text color="primary darken-3" background-color="primary">
-    1 Job Details
+
+    <v-btn :ripple="false" text color="natural dark-grey" id="background-hover" nuxt to ="/addJob1">
+    <v-text>1 Job Details</v-text>
     </v-btn>
-    <v-btn :ripple="false" text color="natural light-grey" id="no-background-hover" nuxt to="/addJob2">
-    2 General Question
+
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/addJob2">
+    <v-text>2 General Question</v-text>
     </v-btn>
-    <v-btn :ripple="false" text color="natural light-grey" id="no-background-hover" nuxt to="/addJob3">
-    3 Benefits and Welfare
+
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/addJob3">
+    <v-text>3 Benefits and Welfare</v-text>
     </v-btn>
 
     </v-card>
