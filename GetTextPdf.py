@@ -1,6 +1,6 @@
-# Template for extraction from resume pdf file
-
+from cgitb import text
 from io import StringIO
+from pathlib import Path
 
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
@@ -10,104 +10,105 @@ from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfparser import PDFParser
 
 import os
+from os import path
+import shutil
 import glob
+import numpy as np
+import pandas as pd
+from pandas import json_normalize # easy JSON -> pd.DataFrame
 
-import nltk
+# nltk.download('punkt')
+# nltk.download('averaged_perceptron_tagger')
+# nltk.download('maxent_ne_chunker')
+# nltk.download('words')
+# nltk.download('stopwords')
 
-#solve nltk can't download needed files
-import ssl
-try:
-    _create_unverified_https_context = ssl._create_unverified_context
-except AttributeError:
-    pass
-else:
-    ssl._create_default_https_context = _create_unverified_https_context
+# Logic - get applicant name - create applicant's dir - get text - store in text folders separately - move processed resume to applicant dir
+parent_dir = '/Users/maeluenie/Desktop/capstone project/'
+init_path = '/Users/maeluenie/Desktop/capstone project/unprocessed resume/'
+txt_path = '/Users/maeluenie/Desktop/capstone project/resume text files/'
 
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
-nltk.download('maxent_ne_chunker')
-nltk.download('words')
-nltk.download('stopwords')
+# Check if there's any file in the folder
+files_count = len(next(os.walk(init_path))[2])
 
-SKILLS_DB = [
-    'machine learning',
-    'data science',
-    'python',
-    'word',
-    'excel',
-    'English',
-    'Thai',
-    'React',
-    'Golang',
-    'C',
-    'C++',
-    'C#',
-    'Java',
-    'HTML',
-    'SQL'
-]
+temp_input = {
+    'applicant_id':'id', 
+    'fullname':'name', 
+    'citizen_id':'citizen id', 
+    'contact_number':'number', 
+    'email':'email', 
+    'age': 22, 
+    'DOB':'datetime',
+    'nationality':'nationality',
+    'religion':'religion', 
+    'degree':'degree',
+    'GPA':'gpa',
+    'address':'address', 
+    'gender':'gender',
+    'martial_status':'status',
+    'military_status':'status' 
+}
 
-path = '/Users/maeluenie/Documents/GitHub/JAP/resume/'
-count = 0
- 
- 
-def extract_names(txt):
-    person_names = []
- 
-    for sent in nltk.sent_tokenize(txt):
-        for chunk in nltk.ne_chunk(nltk.pos_tag(nltk.word_tokenize(sent))):
-            if hasattr(chunk, 'label') and chunk.label() == 'PERSON':
-                person_names.append(
-                    ' '.join(chunk_leave[0] for chunk_leave in chunk.leaves())
-                )
- 
-    return person_names
+# print(files_count)
+if files_count != 0:
+    print('Files exist')
+    # Check if this resume have been processed before
+    for file in glob.glob(os.path.join(init_path,'*.pdf')):
+        file_name = os.path.basename(file)
+        print(file_name)
+        # print(temp_input['fullname'])
+        dir_app = os.path.join(parent_dir, temp_input['fullname'])
+        if os.path.exists(dir_app):
+            print('Applicant directory existed')
+        else:
+            os.mkdir(dir_app)
+            print('Applicant directory created')
 
-def extract_skills(input_text):
-    stop_words = set(nltk.corpus.stopwords.words('english'))
-    word_tokens = nltk.tokenize.word_tokenize(input_text)
- 
-    # remove the stop words
-    filtered_tokens = [w for w in word_tokens if w not in stop_words]
- 
-    # remove the punctuation
-    filtered_tokens = [w for w in word_tokens if w.isalpha()]
- 
-    # generate bigrams and trigrams (such as artificial intelligence)
-    bigrams_trigrams = list(map(' '.join, nltk.everygrams(filtered_tokens, 2, 3)))
- 
-    # we create a set to keep the results in.
-    found_skills = set()
- 
-    # we search for each token in our skills database
-    for token in filtered_tokens:
-        if token.lower() in SKILLS_DB:
-            found_skills.add(token)
- 
-    # we search for each bigram and trigram in our skills database
-    for ngram in bigrams_trigrams:
-        if ngram.lower() in SKILLS_DB:
-            found_skills.add(ngram)
- 
-    return found_skills
+        # extract text from pdf files
+        with open(os.path.join(os.getcwd(), file), 'rb') as f:
 
+            output_string = StringIO()
+            # with open(filename, 'rb') as in_file:
+            parser = PDFParser(f)
+            doc = PDFDocument(parser)
+            rsrcmgr = PDFResourceManager()
+            device = TextConverter(rsrcmgr, output_string, laparams=LAParams())
+            interpreter = PDFPageInterpreter(rsrcmgr, device)
+            for page in PDFPage.create_pages(doc):
+                interpreter.process_page(page)
 
-for filename in glob.glob(os.path.join(path,'*.pdf')):
-    count +=1
-    with open(os.path.join(os.getcwd(), filename), 'rb') as f:
-
-        output_string = StringIO()
-        # with open(filename, 'rb') as in_file:
-        parser = PDFParser(f)
-        doc = PDFDocument(parser)
-        rsrcmgr = PDFResourceManager()
-        device = TextConverter(rsrcmgr, output_string, laparams=LAParams())
-        interpreter = PDFPageInterpreter(rsrcmgr, device)
-        for page in PDFPage.create_pages(doc):
-            interpreter.process_page(page)
+            content = output_string.getvalue()
         
-        content = output_string.getvalue()
-        skills = extract_skills(content)
+        fname = str(Path(file).stem)
+        complete_name = os.path.join(txt_path, fname+".txt")
+        text_file = open(complete_name, 'w')
+        n = text_file.write(content)
+        # for line in text_file:
+        #     if not line.isspace():
+        #             text_file.write(line)
+        text_file.close()
+        
 
-        print(skills)
-        print('-----------------------------------------', count)
+        # move processed PDF file to the applicants folder
+        # check if file exist in destination
+        app_res = os.path.join(dir_app, file_name)
+        print(app_res)
+        if os.path.exists(app_res):
+            # Split name and extension
+            data = os.path.splitext(file_name)
+            only_name = data[0]
+            extension = data[1]
+            # Adding the new name
+            new_base = only_name + '_new' + extension
+            # construct full file path
+            new_name = os.path.join(dir_app, new_base)
+            # move file
+            print(new_name)
+            shutil.move(init_path + file_name, new_name)
+        else:
+            print(app_res)
+            shutil.move(init_path + file_name, app_res)
+        print('All done')
+    
+else:
+    print('no file exist')
