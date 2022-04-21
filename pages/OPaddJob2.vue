@@ -7,7 +7,7 @@
     <v-text>1 Job Details</v-text>
     </v-btn>
 
-    <v-btn :ripple="false" text color="natural dark-grey" id="background-hover" nuxt to="/OPaddJob2">
+    <v-btn :ripple="false" text color="natural dark-grey" id="background-hover">
     <v-text>2 General Question</v-text>
     </v-btn>
 

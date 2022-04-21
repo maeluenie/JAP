@@ -276,16 +276,6 @@
           hide-overlay
           transition="dialog-bottom-transition"
         >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              color="primary darken-2"
-              class="ml-1 mr-4 my-2"
-              v-bind="attrs"
-              v-on="on"
-            >
-              APPLY
-            </v-btn>
-          </template>
           <!-- this is the container of the overview of the form dialog for job application form -->
           <v-card>
             <v-toolbar dark color="primary">
