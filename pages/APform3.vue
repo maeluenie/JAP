@@ -7,16 +7,16 @@
     <v-text>1 Biographical</v-text>
     </v-btn>
 
-    <v-btn :ripple="false" text color="natural dark-grey" id="background-hover" nuxt to="/APform2">
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/APform2">
     <v-text>2 Working Requirement</v-text>
     </v-btn>
 
-    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/APform3">
+    <v-btn :ripple="false" text color="natural dark-grey" id="background-hover" nuxt to="/APform3">
     <v-text>3 General Evaluation</v-text>
     </v-btn>
 
     <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/APform4">
-    <v-text>3 Personalized Evaluation</v-text>
+    <v-text>4 Personalized Evaluation</v-text>
     </v-btn>
 
     </v-card>
@@ -124,7 +124,10 @@
 
 
           <v-col class="text-right">
-            <v-btn align="end" color="primary darken-3" nuxt to="/addJob2">  
+            <v-btn align="end" color="natural dark-grey" nuxt to="/APform2">  
+              Back
+            </v-btn>
+            <v-btn align="end" color="primary darken-3" nuxt to="/APform4">  
               Next
             </v-btn>
           </v-col>
