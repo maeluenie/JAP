@@ -44,12 +44,12 @@ conn = pymysql.connect(host='host',port=int('port_number'),
 
 def extract_skills_list():
   all_skills_endpoint = "https://emsiservices.com/skills/versions/latest/skills" # List of all skills endpoint
-  auth = "Authorization: Bearer " + access_token
+  auth = "Authorization: Bearer " + access_token # Auth string including access token from above
   headers = {'authorization': auth} # headers
   response = requests.request("GET", all_skills_endpoint, headers=headers) # response
-  response = response.json()['data'] # data
+  response = response.json()['data'] # the data
 
-  all_skills_df = pd.DataFrame(json_normalize(response));
+  all_skills_df = pd.DataFrame(json_normalize(response)); # Where response is a JSON object drilled down to the level of 'data' key
   print(all_skills_df, type(all_skills_df))
 #   all_skills_df.to_csv('skills.csv')
   return all_skills_df
@@ -65,30 +65,30 @@ def find_id_by_skill_name(name_substring):
 
 def extract_skills_from_document(text):
   skills_from_doc_endpoint = "https://emsiservices.com/skills/versions/latest/extract"
-  # confidence_interval = str(0.4)
-  payload = "{ \"text\": \"... " + text + " ...\",  \"confidenceThreshold\": 0.4 }"
+  payload = "{ \"text\": \"... " + text + " ...\",  \"confidenceThreshold\": 0.7 }"
 
   headers = {
       'authorization': "Bearer " + access_token,
       'content-type': "text/plain"
       }
 
-  # data = payload.encode('utf-8')
-  print(payload)
-  print('----------------------------')
-  response = requests.request("POST", skills_from_doc_endpoint, data= payload, headers=headers)
-  skills_found_in_document_df = pd.DataFrame(json_normalize(response.json()['data'])); # response is a JSON object
-  print(skills_found_in_document_df[["skill.name"]])  
+  # print(payload)
+  # print('----------------------------')
+  response = requests.request("POST", skills_from_doc_endpoint, data= payload.encode('utf-8'), headers=headers)
+  # skills_found_in_document_df = pd.DataFrame(json_normalize(response.json())); # Where response is a JSON object
+  return response.text
+  # print(skills_found_in_document_df[["skill.name"]]) 
   # skills_found_in_document_df.to_csv('skills_found.csv')                                   
   # print(skills_found_in_document_df)
   # return skills_found_in_document_df
   
-# extract_skills_from_document()
 
-def find_related_skills(payload):
+def find_related_skills():
   url = "https://emsiservices.com/skills/versions/latest/related"
 
-  payload = "{ \"ids\": [ \"KS125LS6N7WP4S6SFTCK\", \"KSGWPO6DSN70GRY20JFT\" ] }"
+  # payload = "{ \"ids\": [ \"KS125LS6N7WP4S6SFTCK\", \"KSGWPO6DSN70GRY20JFT\" ] }"  
+  payload = "{ \"ids\": [ \"KS122R865B9T68GPYPF2\" ] }"
+
   headers = {
       'authorization': "Bearer " + access_token,
       'content-type': "application/json"
@@ -98,13 +98,26 @@ def find_related_skills(payload):
   related_skills_df = pd.DataFrame(json_normalize(response.json()['data']))
   print(related_skills_df)
 
-
+# find_related_skills()
 
 for filename in glob.glob(os.path.join(path,'*.txt')):
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding='utf-8') as f:
       content = f.read()
+      file_name = os.path.basename(filename)
+      print(file_name)
 
-      extract_skills_from_document(content)
+      skills = extract_skills_from_document(content)
+      
+      text_file = open('/Users/maeluenie/Desktop/capstone project/try/temp skills high thres', 'a+', encoding='utf-8')
+      text_file.seek(0)
+      # If file is not empty then append '\n'
+      data = text_file.read(100)
+      if len(data) > 0 :
+          text_file.write("\n")
+      # Append text at the end of file
+      text_file.write(file_name+"\n")
+      text_file.write(skills+"\n")
+      text_file.close()
 
     f.close()
     print('done')
