@@ -1,4 +1,5 @@
 from cgitb import text
+from distutils import filelist
 from io import StringIO
 
 import os
@@ -26,7 +27,7 @@ from pandas import json_normalize # easy JSON -> pd.DataFrame
 # nltk.download('words')
 # nltk.download('stopwords')
 
-path = '/Users/maeluenie/Desktop/capstone project/processed text files/'
+path = 'path to process text files'
 
 auth_endpoint = "https://auth.emsicloud.com/connect/token" # auth endpoint
 client_id = "your_client_id" # replace 'your_client_id' with your client id from your api invite email
@@ -47,21 +48,22 @@ def extract_skills_list():
   auth = "Authorization: Bearer " + access_token # Auth string including access token from above
   headers = {'authorization': auth} # headers
   response = requests.request("GET", all_skills_endpoint, headers=headers) # response
-  response = response.json()['data'] # the data
+  response = response.json()['data'] # data
 
-  all_skills_df = pd.DataFrame(json_normalize(response)); # Where response is a JSON object drilled down to the level of 'data' key
+  all_skills_df = pd.DataFrame(json_normalize(response));
   print(all_skills_df, type(all_skills_df))
 #   all_skills_df.to_csv('skills.csv')
   return all_skills_df
   
 # extract_skills_list()
 
+
 def find_id_by_skill_name(name_substring):
   all_skills_df = extract_skills_list() # pull all skills into a DF
-
-  return all_skills_df[all_skills_df['name'].str.contains(name_substring)] # Filter that DF by substring
+  return all_skills_df[all_skills_df['name'].str.contains(name_substring)] # Filter by substring
 
 # find_id_by_skill_name("Python")
+
 
 def extract_skills_from_document(text):
   skills_from_doc_endpoint = "https://emsiservices.com/skills/versions/latest/extract"
@@ -75,13 +77,14 @@ def extract_skills_from_document(text):
   # print(payload)
   # print('----------------------------')
   response = requests.request("POST", skills_from_doc_endpoint, data= payload.encode('utf-8'), headers=headers)
-  # skills_found_in_document_df = pd.DataFrame(json_normalize(response.json())); # Where response is a JSON object
-  return response.text
-  # print(skills_found_in_document_df[["skill.name"]]) 
+  # print(type(response))
+  skills_found_in_document_df = pd.DataFrame(json_normalize(response.json()['data']));
+  skills_list = skills_found_in_document_df['skill.name'].to_list()
+  return skills_list
+  # print(skills_found_in_document_df['skill.name'],type(skills_found_in_document_df['skill.name']))                                           
   # skills_found_in_document_df.to_csv('skills_found.csv')                                   
-  # print(skills_found_in_document_df)
-  # return skills_found_in_document_df
   
+# extract_skills_from_document()
 
 def find_related_skills():
   url = "https://emsiservices.com/skills/versions/latest/related"
@@ -100,31 +103,44 @@ def find_related_skills():
 
 # find_related_skills()
 
+
+
+
+
+
+
+
+fileList = []
+skillList = []
 for filename in glob.glob(os.path.join(path,'*.txt')):
-    with open(filename, 'r', encoding='utf-8') as f:
-      content = f.read()
-      file_name = os.path.basename(filename)
-      print(file_name)
+  with open(filename, 'r', encoding='utf-8') as f:
+    
+    content = f.read()
+    file_name = os.path.basename(filename)
+    print(file_name)
+    skills = extract_skills_from_document(content)
+    fileList.append(file_name)
+    skillList.append(skills)
+    df = pd.DataFrame({
+      'FileName':fileList,
+      'SkillName':skillList
+    })
 
-      skills = extract_skills_from_document(content)
-      
-      text_file = open('/Users/maeluenie/Desktop/capstone project/try/temp skills high thres', 'a+', encoding='utf-8')
-      text_file.seek(0)
-      # If file is not empty then append '\n'
-      data = text_file.read(100)
-      if len(data) > 0 :
-          text_file.write("\n")
-      # Append text at the end of file
-      text_file.write(file_name+"\n")
-      text_file.write(skills+"\n")
-      text_file.close()
+      # write skills to text files
+      # text_file = open('/Users/maeluenie/Desktop/capstone project/try/temp skills', 'a+', encoding='utf-8')
+      # text_file.seek(0)
+      # # If file is not empty then append '\n'
+      # data = text_file.read(100)
+      # if len(data) > 0 :
+      #     text_file.write("\n")
+      # # Append text at the end of file
+      # text_file.write(file_name+"\n")
+      # text_file.write(skills+"\n")
+      # text_file.close()
 
-    f.close()
-    print('done')
-
-
-
-
-
+  f.close()
+  df.to_csv('skills_extraction.csv')
+  df
+  print('done')
 
 
