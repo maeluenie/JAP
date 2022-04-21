@@ -4,15 +4,15 @@
     <!-- addJob1 must be the user's personal details , it must also be an editable form with original content for modification too --> 
     <v-card class="mx-6 my-4" outlined color="transparent">
 
-    <v-btn :ripple="false" text color="natural dark-grey" id="background-hover" nuxt to ="/addJob1">
+    <v-btn :ripple="false" text color="natural dark-grey" id="background-hover" nuxt to ="/OPaddJob1">
     <v-text>1 Job Details</v-text>
     </v-btn>
 
-    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/addJob2">
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/OPaddJob2">
     <v-text>2 General Question</v-text>
     </v-btn>
 
-    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/addJob3">
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/OPaddJob3">
     <v-text>3 Benefits and Welfare</v-text>
     </v-btn>
 
@@ -309,7 +309,7 @@
             ></v-textarea>
 
             <v-col class="text-right">
-              <v-btn align="end" color="primary darken-3" nuxt to="/addJob2">
+              <v-btn align="end" color="primary darken-3" nuxt to="/OPaddJob2">
                 Next
               </v-btn>
             </v-col>
@@ -361,9 +361,21 @@ export default {
     workingLocation: "",
     locationSelection: ["Latkrabung", "Sathorn", "Bangsue", "Thonglor"],
 
+    select: null,
+    educationalDegree: "",
+    degreeSelection: ["Associate Degree", "Bachelor’s Degree", "Master’s Degree", "Doctoral Degree"],
+
+    select: null,
+    belongedTeam: "",
+    teamSelection: ["Team A", "Team B", "Team C", "Team D"],
+
+    select: null,
+    requiredExperience: "",
+    experienceSelection: ["no experience", "<= 2 years", "5 years", "10 years"],
     //chips
+    select: null,
     requiredSkills: [],
-    items: ["Communication", "Eating"],
+    items: ["Communication", "Time management"],
 
     //calendar 1
     activePicker1: null,
