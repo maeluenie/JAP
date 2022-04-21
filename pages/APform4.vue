@@ -3,15 +3,23 @@
 
     <!-- addJob1 must be the user's personal details , it must also be an editable form with original content for modification too --> 
     <v-card class="mx-6 my-4" outlined color="transparent">
-    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/addJob1">
-    <v-text>1 Job Details</v-text>
+
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to ="/APform1">
+    <v-text>1 Biographical</v-text>
     </v-btn>
-    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/addJob2">
-    <v-text>2 General Question</v-text>
+
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/APform2">
+    <v-text>2 Working Requirement</v-text>
     </v-btn>
-    <v-btn :ripple="false" text color="natural dark-grey" id="background-hover" nuxt to="/addJob3">
-    <v-text>3 Benefits and Welfare</v-text>
+
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/APform3">
+    <v-text>3 General Evaluation</v-text>
     </v-btn>
+
+    <v-btn :ripple="false" text color="natural dark-grey" id="background-hover" nuxt to="/APform4">
+    <v-text>4 Personalized Evaluation</v-text>
+    </v-btn>
+
     </v-card>
 
     <v-card class="mx-4 my-4 py-2">
@@ -210,10 +218,10 @@
             ></v-textarea>
 
             <v-col class="text-right">
-                <v-btn align="end" color="natural dark-grey" nuxt to="/addJob2">  
+                <v-btn align="end" color="natural dark-grey" nuxt to="/APform3">  
                   Back
                 </v-btn>
-                <v-btn align="end" color="primary darken-3" nuxt to="/addJob2">  
+                <v-btn align="end" color="primary darken-3" nuxt to="/jobDetails">  
                   Done
                 </v-btn>
             </v-col>
