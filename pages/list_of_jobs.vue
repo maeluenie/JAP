@@ -54,7 +54,7 @@
               <v-container bg>
                 <v-layout row justify-start class="py-2 px-4">
                   <v-layout column align-content-start justify-start>
-                    <v-list-item-avatar class="text-p6" align="center" size="100px" color="grey"
+                    <v-list-item-avatar class="text-p6" align="center" size="100px" color="light grey"
                       ><div class="text-body-6"> {{ jobs.jobName }}</div></v-list-item-avatar
                     ></v-layout
                   >
@@ -102,7 +102,7 @@
             </v-list-item-content>
           </v-list-item>
 
-          <hr class="my-1" />
+          <v-divider class="my-2"></v-divider>
 
           <v-col class="text-right">
             <v-btn
@@ -111,7 +111,7 @@
               color="primary darken-3"
               class="mr-2"
               nuxt
-              to="/addJob1"
+              to="/OPaddJob1"
             >
               <!-- this section must take users to job details page with details of that job + v-if "admin" role -->
               Edit
