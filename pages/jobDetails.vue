@@ -460,7 +460,7 @@
           color="primary darken-2"
           class="ml-1 mr-4 my-2"
           nuxt
-          to="/applicationForm"
+          to="/APform1"
         >
           APPLY2
         </v-btn>
