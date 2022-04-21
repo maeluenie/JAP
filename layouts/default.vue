@@ -118,12 +118,12 @@ export default {
         {
           icon: "mdi-chart-bubble",
           title: "Add New Jobs",
-          to: "/addJob1",
+          to: "/OPaddjob1",
         },
         {
           icon: "mdi-chart-bubble",
           title: "Edit Job Details",
-          to: "/addJob2",
+          to: "/OPaddjob2",
         },
 
       ],
