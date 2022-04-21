@@ -6,20 +6,20 @@
     
     <v-card class="mx-6 my-4" outlined color="transparent">
 
-    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to ="/addJob1">
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to ="/APform1">
     <v-text>1 Biographical</v-text>
     </v-btn>
 
-    <v-btn :ripple="false" text color="natural dark-grey" id="background-hover" nuxt to="/addJob2">
+    <v-btn :ripple="false" text color="natural dark-grey" id="background-hover" nuxt to="/APform2">
     <v-text>2 Working Requirement</v-text>
     </v-btn>
 
-    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/addJob3">
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/APform3">
     <v-text>3 General Evaluation</v-text>
     </v-btn>
 
-    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/addJob3">
-    <v-text>3 Personalized Evaluation</v-text>
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/APform4">
+    <v-text>4 Personalized Evaluation</v-text>
     </v-btn>
 
     </v-card>
@@ -42,7 +42,6 @@
               ><h5 class="mx-1 mb-2 text-left">Resume/CV</h5></v-text
             >
            
-
               <v-file-input
                 :rules="[(v) => !!v || 'This field is required']"
                 label="No file chosen"
@@ -51,7 +50,7 @@
                 @change="selectFile"
               ></v-file-input>
               
-              <v-text class="font"
+            <v-text class="font"
             ><h5 class="mx-1 mb-2 text-left">
               Statement of Purpose
             </h5></v-text>
@@ -75,9 +74,10 @@
                 outlined
                 dense
                 @change="selectFile"
-              ></v-file-input>
+            ></v-file-input>
             
             <v-row>
+              
               <v-text class="font"
                 ><h5 class="mx-5 mb-2 text-left">Do you have a driving license?</h5></v-text
               >
@@ -167,10 +167,10 @@
                 ><h5 class="mx-1 mb-2 text-left">Foreign Language</h5></v-text
               >
             <v-select 
-              v-model= "insuranceLevel"
-              :items="insuranceLSelection"
+              v-model= "foreignLanguage"
+              :items="languageSelection"
               :rules="[(v) => !!v || 'This field is required']"
-              label="Insurance Level"
+              label="Foreign Language"
               required
               outlined
               dense
@@ -181,10 +181,10 @@
                 ><h5 class="mx-1 mb-2 text-left">Proficiency level</h5></v-text
             >
             <v-select 
-                v-model= "insuranceLevel"
-                :items="insuranceLSelection"
+                v-model= "proficiencyLevel"
+                :items="levelSelection"
                 :rules="[(v) => !!v || 'This field is required']"
-                label="Insurance Level"
+                label="Proficiency level"
                 required
                 outlined
                 dense
@@ -195,10 +195,10 @@
                 ><h5 class="mx-1 mb-2 text-left">Special Abilities</h5></v-text
             >
             <v-text-field
-              v-model="workingTime"
-              :rules="numRules"
+              v-model="specialAbilities"
+              :rules="specialAbilities"
               type="number"
-              label="Working Time Details"
+              label="Special Abilities"
               required
               dense
               outlined
@@ -213,7 +213,7 @@
       <v-text-title class="font-weight-bold"
 
       ><h2 class="mx-8 my-4 text-left">
-        Emergenncy Contact
+        Emergency Contact
       </h2></v-text-title>
      
         <v-form class="mx-8 mt-2 align-content-center">
@@ -224,10 +224,10 @@
                 ><h5 class="mx-1 mb-2 text-left">Contact Full Name</h5></v-text
             >
             <v-text-field
-              v-model="workingTime"
-              :rules="numRules"
+              v-model="contactName"
+              :rules="contactName"
               type="number"
-              label="Working Time Details"
+              label="Contact Full Name"
               required
               dense
               outlined
@@ -237,20 +237,20 @@
                 ><h5 class="mx-1 mb-2 text-left">Additional Contact Name</h5></v-text
             >
             <v-text-field
-              v-model="workingTime"
-              :rules="numRules"
+              v-model="additionalName"
+              :rules="additionalName"
               type="number"
-              label="Working Time Details"
+              label="Additional Contact Name"
               required
               dense
               outlined
             >
             </v-text-field>
             <v-text-field
-              v-model="workingTime"
-              :rules="numRules"
+              v-model="additionalName"
+              :rules="additionalName"
               type="number"
-              label="Working Time Details"
+              label="Additional Contact Name"
               required
               dense
               outlined
@@ -263,10 +263,10 @@
                   ><h5 class="mx-1 mb-2 text-left">Contact Number</h5></v-text
               >
               <v-text-field
-                v-model="workingTime"
-                :rules="numRules"
+                v-model="contactNumber"
+                :rules="contactNumber"
                 type="number"
-                label="Working Time Details"
+                label="Contact Number"
                 required
                 dense
                 outlined
@@ -276,19 +276,19 @@
                   ><h5 class="mx-1 mb-2 text-left">Contact Number</h5></v-text
               >
               <v-text-field
-                v-model="workingTime"
-                :rules="numRules"
+                v-model="contactNumber"
+                :rules="contactNumber"
                 type="number"
-                label="Working Time Details"
+                label="Contact Number"
                 required
                 dense
                 outlined
               >
               </v-text-field><v-text-field
-                v-model="workingTime"
-                :rules="numRules"
+                v-model="contactNumber"
+                :rules="contactNumber"
                 type="number"
-                label="Working Time Details"
+                label="Contact Number"
                 required
                 dense
                 outlined
@@ -301,10 +301,10 @@
                 ><h5 class="mx-1 mb-2 text-left">Family Status</h5></v-text
               >
             <v-select 
-              v-model= "insuranceLevel"
-              :items="insuranceLSelection"
+              v-model= "familyStatus"
+              :items="statusSelection"
               :rules="[(v) => !!v || 'This field is required']"
-              label="Insurance Level"
+              label="Family Status"
               required
               outlined
               dense
@@ -313,19 +313,19 @@
                   ><h5 class="mx-1 mb-2 text-left">Family Status</h5></v-text
                 >
               <v-select 
-                v-model= "insuranceLevel"
-                :items="insuranceLSelection"
+                v-model= "familyStatus"
+                :items="statusSelection"
                 :rules="[(v) => !!v || 'This field is required']"
-                label="Insurance Level"
+                label="Family Status"
                 required
                 outlined
                 dense
               ></v-select>
               <v-select 
-                v-model= "insuranceLevel"
-                :items="insuranceLSelection"
+                v-model= "familyStatus"
+                :items="statusSelection"
                 :rules="[(v) => !!v || 'This field is required']"
-                label="Insurance Level"
+                label="Family Status"
                 required
                 outlined
                 dense
@@ -336,9 +336,12 @@
       </v-form>
     
       <v-col class="text-right">
-            <v-btn align="end" color="primary darken-3" nuxt to="/addJob2">  
-              Next
-            </v-btn>
+        <v-btn align="end" color="natural dark-grey" nuxt to="/APform1">  
+          Back
+        </v-btn>
+        <v-btn align="end" color="primary darken-3" nuxt to="/APform3">  
+          Next
+        </v-btn>
       </v-col>
     </v-card>
   </v-app>
@@ -352,6 +355,17 @@ export default {
       selectedFile: null,
     },
     
+    select: null,
+    foreignLanguage: "",
+    LanguageSelection: ["Thai", "English", "French", "Chinese"],
+
+    select: null,
+    proficiencyLevel: "",
+    levelSelection: ["Novice", "Intermediate", "Advanced", "Superior", "Distinguished"],
+
+    select: null,
+    familyStatus: "",
+    statusSelection: ["Thai", "English", "French", "Chinese"],
 
   }),
   methods: {
