@@ -210,10 +210,10 @@
             ></v-textarea>
 
             <v-col class="text-right">
-                <v-btn align="end" color="natural dark-grey" nuxt to="/addJob2">  
+                <v-btn align="end" color="natural dark-grey" nuxt to="/OPaddJob2">  
                   Back
                 </v-btn>
-                <v-btn align="end" color="primary darken-3" nuxt to="/addJob2">  
+                <v-btn align="end" color="primary darken-3" nuxt to="/list_of_jobs">  
                   Done
                 </v-btn>
             </v-col>
@@ -242,7 +242,7 @@ export default {
     select: null,
     accomodation: "",
     accomodationSelection: [
-      "Latkrabung",
+      "lunch",
       "Sathorn",
       "Bangsue",
       "Thonglor",
@@ -258,34 +258,30 @@ export default {
     select: null,
     overTime: "",
     overtimeSelection: [
-      "Latkrabung",
-      "Sathorn",
-      "Bangsue",
-      "Thonglor",
+      "200",
+      "500",
+      "1000",
+      "1500",
+      "None",
     ],
     select: null,
     laptopProvision: "",
     laptopSelection: [
-      "Latkrabung",
-      "Sathorn",
-      "Bangsue",
-      "Thonglor",
+      "Mac", "ASUS", "Vivo", "MSI", "None"
     ],
     select: null,
-    workininsuranceProvisiongLocation: "",
+    insuranceProvisiongS: "",
     insuranceSelection: [
-      "Latkrabung",
-      "Sathorn",
-      "Bangsue",
-      "Thonglor",
+      "Yes",
+      "No",
     ],
     select: null,
     bonusAllowance: "",
     bonusSelection: [
-      "Latkrabung",
-      "Sathorn",
-      "Bangsue",
-      "Thonglor",
+      "5%",
+      "10%",
+      "15%",
+      "None",
     ],
     select: null,
     transportationAllowance: "",
