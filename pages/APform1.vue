@@ -4,20 +4,20 @@
     
     <v-card class="mx-6 my-4" outlined color="transparent">
 
-    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to ="/addJob1">
+    <v-btn :ripple="false" text color="natural dark-grey" id="background-hover" nuxt to ="/APform1">
     <v-text>1 Biographical</v-text>
     </v-btn>
 
-    <v-btn :ripple="false" text color="natural dark-grey" id="background-hover" nuxt to="/addJob2">
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/APform2">
     <v-text>2 Working Requirement</v-text>
     </v-btn>
 
-    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/addJob3">
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/APform3">
     <v-text>3 General Evaluation</v-text>
     </v-btn>
 
-    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/addJob3">
-    <v-text>3 Personalized Evaluation</v-text>
+    <v-btn :ripple="false" text color="primary darken-3" id="no-background-hover" nuxt to="/APform4">
+    <v-text>4 Personalized Evaluation</v-text>
     </v-btn>
 
     </v-card>
@@ -29,77 +29,460 @@
         ><h2 class="mx-8 my-4 text-left">
           Personal Information
         </h2></v-text-title>
-     
+    
+    <v-form class="mx-8 mt-5 align-content-center"> 
+      
+          <v-row>
 
-      <v-row class="mx-4 justify-center align-center">
-        <v-col cols="1" sm="1" md="12">
-          <div class="text-left justify-left" >
-            <input
-              type="file"
-              accept=".jpeg,.jpg,.png,image/jpeg,image/png"
-              label="upload image button"
-              @change="selectedFile"
-              ref="fileInput"
-              style="display: none"
-            />
 
-            <img
-              icon
-              @click="$refs.fileInput.click()"
-              width="150"
-              height="150"
-              src="~assets/upload.png"
-            />
-            <p class="mb-1 text-left">Upload your profile image.</p>
-          </div>
-        </v-col>
-      </v-row>
+            <v-col cols="20" sm="20" md="3">
+              <div class="text-center justify-center" >
+                
+                <input
+                  type="file"
+                  accept=".jpeg,.jpg,.png,image/jpeg,image/png"
+                  label="upload image button"
+                  @change="selectedFile"
+                  ref="fileInput"
+                  style="display: none"
+                />
 
-      <v-form class="mx-4 mt-2 align-content-center" elevation-1>
-        <!-- on real use case situation, the upload method will be included in the main save button -->
-        <v-container bg>
-          <v-layout
-            row
-            wrap
-            align-center
-            align-content-center
-            justify-center
-            class="mx-1"
-          >
-            <v-flex class="mx-2">
+                <img
+                  icon
+                  @click="$refs.fileInput.click()"
+                  width="200"
+                  height="200"
+                  src="~assets/upload.png"
+                />
+                <p class="mb-1 text-center">Upload your profile image.</p>
+
+              </div>
+            </v-col>
+              
+            <v-col>
+              <v-row>
+                <v-col cols="20" sm="20" md="12">
+                  <v-text class="font"
+                    ><h5 class="mx-1 mb-2 text-left">Full Name</h5></v-text
+                  >
+
+                  <v-text-field
+                    v-model="roleName"
+                    :rules="nameRules"
+                    label="Full Name"
+                    required
+                    outlined
+                    dense
+                  ></v-text-field>
+        
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  <v-text class="font"
+                    ><h5 class="mx-1 mb-2 text-left">Contact Number</h5></v-text
+                  >
+
+                  <v-text-field
+                    v-model="contactNum"
+                    :rules="numRules"
+                    label="Number"
+                    required
+                    outlined
+                    dense
+                  ></v-text-field>
+
+                  <v-text class="font"
+                    ><h5 class="mx-1 mb-2 text-left">Nationality</h5></v-text
+                  >
+
+                  <v-select
+                    v-model="nationality"
+                    :items="nationalitySelection"
+                    :rules="nameRules"
+                    label="Nationality"
+                    required
+                    outlined
+                    dense
+                  >
+                  </v-select>
+                </v-col>
+                <v-col>
+                  <v-text class="font"
+                    ><h5 class="mx-1 mb-2 text-left">Email Address</h5></v-text
+                  >
+
+                  <v-text-field
+                    v-model="emailAdress"
+                    :rules="nameRules"
+                    label="Email Address"
+                    required
+                    outlined
+                    dense
+                  ></v-text-field>
+
+                  <v-text class="font"
+                    ><h5 class="mx-1 mb-2 text-left">Religious</h5></v-text
+                  >
+
+                  <v-select
+                    v-model="religious"
+                    :items="religiousSelection"
+                    :rules="nameRules"
+                    label="Religious"
+                    required
+                    outlined
+                    dense
+                  ></v-select>
+                </v-col>
+              </v-row>
+            </v-col>
+
+
+
+            <v-col>
+              <v-row>
+                <v-col cols="20" sm="20" md="12">
+                  <v-text class="font"
+                    ><h5 class="mx-1 mb-2 text-left">Citizen ID/ Passport ID</h5></v-text
+                  >
+
+                  <v-text-field
+                    v-model="idCard"
+                    :rules="numRules"
+                    label="Citizen ID/ Passport ID"
+                    required
+                    outlined
+                    dense
+                  ></v-text-field>
+        
+                </v-col>
+              </v-row>
+              
+              <v-row>
+                <v-col>
+                  <v-text class="font"
+                    ><h5 class="mx-1 mb-2 text-left">Age</h5></v-text
+                  >
+
+                  <v-text-field
+                    v-model="age"
+                    :rules="numRules"
+                    label="Age"
+                    required
+                    outlined
+                    dense
+                  ></v-text-field>
+
+                  <v-text class="font"
+                    ><h5 class="mx-1 mb-2 text-left">Degree</h5></v-text
+                  >
+
+                  <v-select
+                    v-model="Degree"
+                    :items="degreeSelection"
+                    :rules="nameRules"
+                    label="Degree"
+                    required
+                    outlined
+                    dense
+                  ></v-select>
+                </v-col>
+                
+                <v-col>
+                  <v-text class="font"
+                    ><h5 class="mx-1 mb-2 text-left">Date of Birth</h5></v-text
+                  >
+                <v-menu
+                  ref="menu"
+                  v-model="menu"
+                  :close-on-content-click="false"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="date"
+                      label="Date of Birth"
+                      append-icon="mdi-calendar"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    v-model="date"
+                    :active-picker.sync="activePicker"
+                    :max="
+                      new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+                        .toISOString()
+                        .substr(0, 10)
+                    "
+                    min="1950-01-01"
+                    @change="save"
+                  ></v-date-picker>
+                </v-menu>
+                  
+                  <v-text class="font"
+                    ><h5 class="mx-1 mb-2 text-left">GPA</h5></v-text
+                  >
+
+                  <v-text-field
+                    v-model="GPA"
+                    :rules="numRules"
+                    label="GPA"
+                    required
+                    outlined
+                    dense
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-col>
+
+          </v-row>
+          <v-row>
+            <v-col>
               <v-text class="font"
-                ><h5 class="mb-1 text-left">Full Name</h5>
-              </v-text>
-              <v-text-field
-                v-model="fullName"
-                :rules="nameRules"
-                label="Full Name"
-                required
-                outlined
-                dense
-              ></v-text-field>
-            </v-flex>
-            <v-flex class="mx-2">
+            ><h5 class="mx-1 mb-2 text-left">
+              Statement of Purpose
+            </h5></v-text>
+
+            <v-textarea
+            v-model="statement"
+            :rules="statement"
+            label="Statement of Purpose"
+            required
+            outlined
+            dense
+            ></v-textarea>
+            </v-col>
+          </v-row>
+            
+          <v-row>
+            <v-col>  
               <v-text class="font"
-                ><h5 class="mx-1 mb-1 text-left">Approximate Salary</h5></v-text
+                ><h5 class="mb-2 text-left">Gender</h5></v-text
               >
-              <v-text-field
-                v-model="approximateSalary"
-                :rules="numRules"
-                type="number"
-                label="Approximate Salary"
+              <label for="Male">
+                <input
+                  type="radio"
+                  name="radio"
+                  value="Male"
+                  id="Male"
+                  @change="$emit('input', 'Male')"
+                />
+                Male
+              </label>
+              <label for="Female">
+                <input class="mx-2"
+                  type="radio"
+                  name="radio"
+                  value="Female"
+                  id="Female"
+                  @change="$emit('input', 'Female')"
+                />
+                Female</label
+              >
+
+              <label for="Non-Binary">
+                <input class="mx-2"
+                  type="radio"
+                  name="radio"
+                  value="Yes"
+                  id="Yes"
+                  @change="$emit('input', 'Yes')"
+                />
+                Non-Binary
+              </label>
+            </v-col>
+            <v-col>
+              <v-text class="font"
+                ><h5 class="mx-1 mb-2 text-left">Marital Status</h5></v-text
+              >
+
+              <v-select
+                v-model="maritalStatus"
+                :items="maritalSelection"
+                :rules="nameRules"
+                label="Marital Status"
                 required
-                dense
                 outlined
-              ></v-text-field>
-            </v-flex>
-          </v-layout>
-        </v-container>
+                dense
+              ></v-select>
+            </v-col>  
+            <v-col>
+              <v-text class="font"
+                ><h5 class="mx-1 mb-2 text-left">Military Status</h5></v-text
+              >
+
+              <v-select
+                v-model="militaryStatus"
+                :items="militarySelection"
+                :rules="nameRules"
+                label="Military Status"
+                required
+                outlined
+                dense
+              ></v-select>
+            </v-col>
+          </v-row>
+          
+       
+            
+        <v-divider class="my-2"></v-divider>
+      </v-form>
+
+      <v-text-title class="font-weight-bold"><h2 class="mx-8 my-4 text-left">
+        Partner's Information
+      </h2></v-text-title>
+
+      <v-form class="mx-8 mt-2 align-content-center">
+        <v-row>
+          <v-col cols="16" sm="8" md="4">
+            <v-text class="font"
+              ><h5 class="mx-1 mb-2 text-left">First Name</h5></v-text
+            >
+
+            <v-text-field
+              v-model="firstName"
+              :rules="nameRules"
+              label="FirstName"
+              required
+              outlined
+              dense
+            ></v-text-field>
+          </v-col>
+          <v-col cols="16" sm="8" md="4">
+            <v-text class="font"
+              ><h5 class="mx-1 mb-2 text-left">Middle Name</h5></v-text
+            >
+
+            <v-text-field
+              v-model="middleName"
+              :rules="nameRules"
+              label="Middle Name"
+              required
+              outlined
+              dense
+            ></v-text-field>
+          </v-col>
+          <v-col cols="16" sm="8" md="4">
+            <v-text class="font"
+              ><h5 class="mx-1 mb-2 text-left">Last Name</h5></v-text
+            >
+
+            <v-text-field
+              v-model="lastName"
+              :rules="nameRules"
+              label="Last Name"
+              required
+              outlined
+              dense
+            ></v-text-field>
+          </v-col>
+          <v-col cols="16" sm="8" md="4">
+            <v-text class="font"
+                ><h5 class="mx-1 mb-2 text-left">Occupation</h5></v-text
+              >
+            <v-select 
+              v-model= "occupation"
+              :items="occupationSelection"
+              :rules="[(v) => !!v || 'This field is required']"
+              label="Occupation"
+              required
+              outlined
+              dense
+            ></v-select>
+          </v-col>
+          <v-col cols="16" sm="8" md="8">
+            <v-text class="font"
+              ><h5 class="mx-1 mb-2 text-left">Working Company</h5></v-text
+            >
+
+            <v-text-field
+              v-model="workingCompany"
+              :rules="nameRules"
+              label="Working Company"
+              required
+              outlined
+              dense
+            ></v-text-field>
+          </v-col>
+          <v-col cols="16" sm="8" md="4">
+            <v-text class="font"
+                ><h5 class="mx-1 mb-2 text-left">Number of Children</h5></v-text
+              >
+            <v-select 
+              v-model= "numChild"
+              :items="childSelection"
+              :rules="[(v) => !!v || 'This field is required']"
+              label="Number of Children"
+              required
+              outlined
+              dense
+            ></v-select>
+          </v-col>
+
+          <v-col cols="16" sm="8" md="4">
+            <v-text class="font"
+              ><h5 class="mx-1 mb-2 text-left">Contact Number</h5></v-text
+            >
+
+            <v-text-field
+              v-model="partnerNum"
+              :rules="numRules"
+              label="Contact Number"
+              required
+              outlined
+              dense
+            ></v-text-field>
+          </v-col>
+          <v-col cols="16" sm="8" md="4">
+            <v-text class="font"
+              ><h5 class="mx-1 mb-2 text-left">Email Address</h5></v-text
+            >
+
+            <v-text-field
+              v-model="partnerEmail"
+              :rules="nameRules"
+              label="Email Address"
+              required
+              outlined
+              dense
+            ></v-text-field>
+          </v-col>
+          
+          <v-col>
+              <v-text class="font"
+            ><h5 class="mx-1 mb-2 text-left">
+              Address
+            </h5></v-text>
+
+            <v-textarea
+            v-model="statement"
+            :rules="statement"
+            label="Partner's Address"
+            required
+            outlined
+            dense
+            ></v-textarea>
+            </v-col>
+          
+          
+        </v-row>
+      
+      </v-form>
+
+
+      
 
         <v-col class="text-right">
-          <v-btn align="end" color="primary darken-3"> Next </v-btn>
-        </v-col>
-      </v-form>
+          <v-btn align="end" color="primary darken-3" nuxt to="/APform2">  Next </v-btn>
+        </v-col> 
     </v-card>
   </v-app>
 </template>
@@ -161,6 +544,31 @@ export default {
       (v) => !!v || "E-mail is required",
       (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
     ],
+
+    select: null,
+    foreignLanguage1: "",
+    languageSelection: [
+      "English",
+      "Chinese",
+      "Islam",
+      "Hindi",
+      "French",
+      "Spanish",
+      "Others",
+    ],
+
+    select: null,
+    foreignLanguage2: "",
+    languageSelection: [
+      "English",
+      "Chinese",
+      "Islam",
+      "Hindi",
+      "French",
+      "Spanish",
+      "Others",
+    ],
+
     select: null,
     religion: "",
     religionSelection: [
