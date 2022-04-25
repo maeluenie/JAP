@@ -43,11 +43,11 @@
             >
            
               <v-file-input
+                accept=".pdf"
                 :rules="[(v) => !!v || 'This field is required']"
                 label="No file chosen"
                 outlined
                 dense
-                @change="selectFile"
               ></v-file-input>
               
             <v-text class="font"
@@ -69,11 +69,11 @@
             >
 
             <v-file-input
+                accept=".pdf"
                 :rules="[(v) => !!v || 'This field is required']"
                 label="No file chosen"
                 outlined
                 dense
-                @change="selectFile"
             ></v-file-input>
             
             <v-row>
@@ -353,6 +353,7 @@ export default {
     data: () => ({
     return: {
       selectedFile: null,
+      //ngong
     },
     
     select: null,
@@ -369,7 +370,29 @@ export default {
 
   }),
   methods: {
-    async selectFile(e) {
+    async selectFile1(e) {
+      const file = e.target.files[0];
+
+      /* Make sure file exists */
+      if (!file) return;
+
+      /* create a reader */
+      const readData = (f) =>  new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(f);
+      });
+
+      /* Read data */
+      const data = await readData(file);
+
+      // /* upload the converted data */
+      // const instance = this.$cloudinary.upload(data, {
+      //   folder: 'upload-examples',
+      //   uploadPreset: 'your-upload-preset',
+      // })
+    },
+    async selectFile2(e) {
       const file = e.target.files[0];
 
       /* Make sure file exists */
