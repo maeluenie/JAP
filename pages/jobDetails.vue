@@ -1595,14 +1595,7 @@ export default {
       this.dialog3= false;
       this.dialog4= true;
     },
-    back2(){
-      this.dialog2= true;
-      this.dialog3= false;
-    },
-    back3(){
-      this.dialog3= true;
-      this.dialog4= false;
-    },
+
 
     selectedFile(event) {
       // this is the function used to upload images for the profile picture.
