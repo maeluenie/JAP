@@ -90,7 +90,13 @@
 
         <!-- maybe in this <v-item-group> section we can further use v-for for icon-iterations -->
         <v-item-group class="mx-4 my-2">
-          <v-tooltip bottom color="primary" v-if="jobDetails.benefits.accommodations == true">
+          <v-tooltip bottom color="primary" v-if="jobDetails.benefits.accommodations == true">      
+
+            <!-- for the accommodations, vehicles the data will provide something, so check the whether is it null or not might be better such as
+            v-if="jobDetails.accommodations != null" might be better, copy those characters and place it below at "Accommodations at Ladkrabang"-->
+            
+            <!-- So, if it's null, display grey, but if it provides anything, -->
+
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 class="mx-1"
@@ -104,7 +110,8 @@
                 <v-icon dark> mdi-home </v-icon>
               </v-btn>
             </template>
-            <span>Accommodations at Ladkrabang</span>
+            <span>Accommodations at Ladkrabang</span> 
+            <!-- specifically replacing the text here to be jobDetails.accommodations, so the text will be display as an overlay after hovering -->
           </v-tooltip>
           <v-tooltip bottom color="grey" v-else>
             <template v-slot:activator="{ on, attrs }">
