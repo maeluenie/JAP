@@ -105,17 +105,16 @@
           <v-divider class="my-2"></v-divider>
 
           <v-col class="text-right">
-            <v-btn
+            <!-- <v-btn
               align="end"
               outlined
               color="primary darken-3"
               class="mr-2"
-              nuxt
-              to="/OPaddJob1"
+              nuxt to="/OPaddJob1"
             >
-              <!-- this section must take users to job details page with details of that job + v-if "admin" role -->
-              Edit
-            </v-btn>
+              this section must take users to job details page with details of that job + v-if "admin" role 
+              APPLY
+            </v-btn>  -->
             <v-btn
               align="end"
               color="primary darken-3"
@@ -128,9 +127,66 @@
               Details
             </v-btn>
           </v-col>
+          
         </v-card>
       </v-layout>
     </v-container>
+
+  <v-container>
+
+    <v-row class="text-right">
+      <v-col col="12">
+        
+          <v-speed-dial
+            v-model="fab"
+            bottom
+            direction="right"
+            :open-on-hover="false"
+            transition="slide-y-reverse-transition"
+          >
+            <template v-slot:activator>
+              <v-btn v-model="fab" color="blue darken-2" dark fab>
+                <v-icon v-if="fab">mdi-close</v-icon>
+                <v-icon v-else>mdi-format-list-bulleted</v-icon>
+              </v-btn>
+            </template>
+            <v-col>
+              <v-tooltip top color="grey">
+                <template v-slot:activator="{ on, attrs }">
+                <v-btn fab dark small color="green"
+                  class="mx-1"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon dark> mdi-plus </v-icon>
+                </v-btn>
+              </template>
+              <span>Add Job</span>
+              </v-tooltip>
+
+              <v-tooltip top color="grey">
+                <template v-slot:activator="{ on, attrs }">
+                <v-btn fab dark small color="primary-darken"
+                  class="mx-1"
+                  v-bind="attrs"
+                  v-on="on"
+                  nuxt to="/applicants"
+                >
+                  <v-icon dark> mdi-account </v-icon>
+                </v-btn>
+              </template>
+              <span>Suitable Applicant</span>
+              </v-tooltip>
+            </v-col>
+          </v-speed-dial>  
+      
+      </v-col>
+    </v-row>
+  
+  </v-container>
+
+
+
   </div>
 </template>
 
@@ -141,6 +197,7 @@ export default {
   data: () => ({
     return: {
       selectedRole: [],
+      fab: false,
     },
     job_role: [
       // must be retrieved from the database via the API
