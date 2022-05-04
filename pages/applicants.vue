@@ -1045,8 +1045,8 @@
               </v-btn>
             </template> -->
 
-              <!-- this v-card section is the dialog of item's modification ( initially, it is edit item page )
-            <!-- <v-card>
+              <!-- this v-card section is the dialog of item's modification ( initially, it is edit item page ) -->
+              <!-- <v-card>
               <v-card-title>
                 <span class="text-h5">{{ dialogTitle }}</span>
               </v-card-title>
@@ -1198,7 +1198,7 @@
           <v-icon small class="mr-2" @click="openApplicantDetailsDialog(item)">
             mdi-magnify
           </v-icon>
-          <!-- this commented section is used for the deletion of that specific item ( Desserts as in the source code )
+          <!-- this commented section is used for the deletion of that specific item ( Desserts as in the source code ) -->
         <!-- <v-icon
           small
           @click="deleteItem(item)"
