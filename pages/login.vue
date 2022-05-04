@@ -19,7 +19,6 @@
                   <v-text-field
                     id="password"
                     name="password"
-                    :value ="myPass"
                     label="Password"
                     :append-icon="value ? 'mdi-eye':'mdi-eye-off'"
                     @click:append="()=>(value=!value)"
@@ -30,7 +29,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" @click="loginHandler">Login</v-btn>
+                <v-btn color="primary" nuxt to="/list_of_jobs" @click="loginHandler">Login</v-btn>
               </v-card-actions>
             </v-card>
           </v-flex>
