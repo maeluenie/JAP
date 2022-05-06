@@ -365,7 +365,7 @@
                             >
 
                             <v-text-field
-                              v-model="roleName"
+                              v-model="fullName"
                               :rules="nameRules"
                               label="Full Name"
                               required
@@ -412,8 +412,8 @@
                             >
 
                             <v-text-field
-                              v-model="emailAdress"
-                              :rules="nameRules"
+                              v-model="email"
+                              :rules="emailRules"
                               label="Email Address"
                               required
                               outlined
@@ -445,8 +445,8 @@
                             >
 
                             <v-text-field
-                              v-model="idCard"
-                              :rules="numRules"
+                              v-model="citizenID"
+                              :rules="citizenID_Rules"
                               label="Citizen ID/ Passport ID"
                               required
                               outlined
@@ -476,7 +476,7 @@
                             >
 
                             <v-select
-                              v-model="Degree"
+                              v-model="degree"
                               :items="degreeSelection"
                               :rules="nameRules"
                               label="Degree"
@@ -528,7 +528,7 @@
                             >
 
                             <v-text-field
-                              v-model="GPA"
+                              v-model="gpa"
                               :rules="numRules"
                               label="GPA"
                               required
@@ -544,20 +544,17 @@
                         <v-col>
                           <v-text class="font"
                         ><h5 class="mx-1 mb-2 text-left">
-                          Statement of Purpose
+                          Address
                         </h5></v-text>
 
                         <v-textarea
-                        v-model="statement"
-                        :rules="statement"
-                        label="Statement of Purpose"
+                        v-model="address"
+                        :rules="nameRules"
+                        label="Address"
                         required
                         outlined
                         dense
-                        counter="250"
-                        maxlength="250"
                         ></v-textarea>
-                        <span>{{ totalcharacter }} characters</span>
                         </v-col>
                       </v-row>
                         
@@ -647,7 +644,7 @@
                       >
 
                       <v-text-field
-                        v-model="firstName"
+                        v-model="partnerFirst"
                         :rules="nameRules"
                         label="FirstName"
                         required
@@ -661,7 +658,7 @@
                       >
 
                       <v-text-field
-                        v-model="middleName"
+                        v-model="partnerMiddle"
                         :rules="nameRules"
                         label="Middle Name"
                         required
@@ -675,7 +672,7 @@
                       >
 
                       <v-text-field
-                        v-model="lastName"
+                        v-model="partnerLast"
                         :rules="nameRules"
                         label="Last Name"
                         required
@@ -747,7 +744,7 @@
 
                       <v-text-field
                         v-model="partnerEmail"
-                        :rules="nameRules"
+                        :rules="emailRules"
                         label="Email Address"
                         required
                         outlined
@@ -758,12 +755,12 @@
                     <v-col>
                         <v-text class="font"
                       ><h5 class="mx-1 mb-2 text-left">
-                        Address
+                        Partner's Address
                       </h5></v-text>
 
                       <v-textarea
-                      v-model="statement"
-                      :rules="statement"
+                      v-model="partnerAddress"
+                      :rules="nameRules"
                       label="Partner's Address"
                       required
                       outlined
@@ -860,7 +857,10 @@
                       required
                       outlined
                       dense
+                      counter="250"
+                      maxlength="250"
                       ></v-textarea>
+
 
                       <v-text class="font"
                         ><h5 class="mx-1 mb-2 text-left">Additional Achievements and Certificates</h5></v-text
@@ -994,8 +994,7 @@
                       >
                       <v-text-field
                         v-model="specialAbilities"
-                        :rules="specialAbilities"
-                        type="number"
+                        :rules="nameRules"
                         label="Special Abilities"
                         required
                         dense
@@ -1022,9 +1021,8 @@
                         ><h5 class="mx-1 mb-2 text-left">Contact Full Name</h5></v-text
                     >
                     <v-text-field
-                      v-model="contactName"
-                      :rules="contactName"
-                      type="number"
+                      v-model="emergencyName1"
+                      :rules="nameRules"
                       label="Contact Full Name"
                       required
                       dense
@@ -1035,9 +1033,8 @@
                         ><h5 class="mx-1 mb-2 text-left">Additional Contact Name</h5></v-text
                     >
                     <v-text-field
-                      v-model="additionalName"
-                      :rules="additionalName"
-                      type="number"
+                      v-model="emergencyName2"
+                      :rules="nameRules"
                       label="Additional Contact Name"
                       required
                       dense
@@ -1045,9 +1042,8 @@
                     >
                     </v-text-field>
                     <v-text-field
-                      v-model="additionalName"
-                      :rules="additionalName"
-                      type="number"
+                      v-model="emergencyName3"
+                      :rules="nameRules"
                       label="Additional Contact Name"
                       required
                       dense
@@ -1061,8 +1057,8 @@
                           ><h5 class="mx-1 mb-2 text-left">Contact Number</h5></v-text
                       >
                       <v-text-field
-                        v-model="contactNumber"
-                        :rules="contactNumber"
+                        v-model="emergencyNum1"
+                        :rules="numRules"
                         type="number"
                         label="Contact Number"
                         required
@@ -1074,8 +1070,8 @@
                           ><h5 class="mx-1 mb-2 text-left">Contact Number</h5></v-text
                       >
                       <v-text-field
-                        v-model="contactNumber"
-                        :rules="contactNumber"
+                        v-model="emergencyNum2"
+                        :rules="numRules"
                         type="number"
                         label="Contact Number"
                         required
@@ -1083,8 +1079,8 @@
                         outlined
                       >
                       </v-text-field><v-text-field
-                        v-model="contactNumber"
-                        :rules="contactNumber"
+                        v-model="emergencyNum3"
+                        :rules="numRules"
                         type="number"
                         label="Contact Number"
                         required
@@ -1099,7 +1095,7 @@
                         ><h5 class="mx-1 mb-2 text-left">Family Status</h5></v-text
                       >
                     <v-select 
-                      v-model= "familyStatus"
+                      v-model= "familyStatus1"
                       :items="statusSelection"
                       :rules="[(v) => !!v || 'This field is required']"
                       label="Family Status"
@@ -1111,7 +1107,7 @@
                           ><h5 class="mx-1 mb-2 text-left">Family Status</h5></v-text
                         >
                       <v-select 
-                        v-model= "familyStatus"
+                        v-model= "familyStatus2"
                         :items="statusSelection"
                         :rules="[(v) => !!v || 'This field is required']"
                         label="Family Status"
@@ -1120,7 +1116,7 @@
                         dense
                       ></v-select>
                       <v-select 
-                        v-model= "familyStatus"
+                        v-model= "familyStatus3"
                         :items="statusSelection"
                         :rules="[(v) => !!v || 'This field is required']"
                         label="Family Status"
@@ -1366,9 +1362,32 @@ export default {
         "User experience (UX) designers are among the most in-demand professionals in the creative industry right now. As businesses update their websites, mobile apps and more to interact with customers in new ways, people who can help conceive and build intuitive and engaging digital experiences are needed across the country. The UX designer creates satisfying and compelling experiences for users of a product, often drawing on results from user research and workflow analysis. Generally, UX designers need to possess strong creative, technical and problem-solving skills. Areas of focus may include content, controls, visual design and development, information architecture, user research, branding, and customer/technical support.",
     },
 
-    statement:'',
-    totalcharacter : 0,
     role: true,
+    
+    //Dialog 1 
+    
+    fullName: "",
+    nationality: "",
+    statement: "",
+    partnerFirst:"",
+    partnerMiddle:"",
+    partnerLast:"",
+    partnerAddress:"",
+    workingCompany:"",
+    address:"",
+    
+    email: "",
+    partnerEmail:"",
+    emailRules: [
+      (v) => !!v || "E-mail is required",
+      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
+    ],
+
+    valid: true,
+    contactNum: "",
+    age:"",
+    gpa:"",
+    partnerNum: "",
 
     valid: true,
     citizenID: "",
@@ -1376,17 +1395,34 @@ export default {
       (v) => !!v || "This field is required, receiving only integers",
       (v) => (v && v.length == 13) || "Please fill all your Citizen ID",
     ],
-    
-    fullName: "",
-    nameRules: [(v) => !!v || "Full name is required"],
-    email: "",
-    emailRules: [
-      (v) => !!v || "E-mail is required",
-      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
-    ],
+
     select: null,
-    religion: "",
-    religionSelection: [
+    nationality: "",
+    nationalitySelection:
+      ["Afghan", "Albanian", "Algerian", "American", "Andorran", "Angolan", "Anguillan",
+       "Citizen of Antigua and Barbuda", "Argentine", "Armenian", "Australian", "Austrian", 
+       "Azerbaijani", "Bahamian", "Bahraini", "Bangladeshi",	 "Barbadian", "Belarusian", 
+       "Belgian", "Belizean", "Beninese", "Bermudian", "Bhutanese", "Bolivian",
+       	"Botswanan", "Brazilian", "British", "Bruneian", "Bulgaria", "Burkinan", "Burmese", 
+         "Burundian", "Cambodian", "Cameroonian", "Canadian", "Cape Verdean", 
+        " Cayman Islander", "Central African",	"Chadian", "Chilean", "Chinese", "Colombian", 
+        "Comoran", "Congolese (Congo)", "Costa Rican", "Croatian", "Cuban", "Cymraes", "Cymro",
+         "Cypriot", "Czech", "Danish", "Djiboutian", "Dominican", "Dutch","East Timorese", 
+         "Ecuadorean", "Egyptian", "Emirati", "English", "Eritrean", "Estonian", "Ethiopian", "Faroese",
+          "Fijian", "Filipino", "Finnish", "French", "Gabonese", "Gambian", "Georgian", "German",
+           "Ghanaian", "Gibraltarian", "Greek", "Greenlandic", "Grenadian", "Guamanian", "Guatemalan", 
+        "Hungarian", "Icelandic", "Indian", "Indonesian", "Iranian", "Iraqi", "Irish", "Israeli",	"Italian", 
+        "Ivorian", "Jamaican", "Japanese", "Jordanian", "Kazakh", "Kenyan", "Kittitian", "Lao", "Latvian"
+        ,"Malaysian", "Maldivian", "Malian", "Mexican", "Nepalese", "New Zealander", "Nigerian", "Nigerien",
+       "North Korean", "Northern Irish", "Norwegian", "Omani", "Pakistani", "Palauan", "Palestinian", "Polish",
+        "Portuguese", "Russian", "Saudi Arabian", "Scottish", "Singaporean", 
+        "South Korean", "Spanish", "Sri Lankan", "Swedish", "Swiss", "Syrian", "Taiwanese", "Thai", "Turkish",  
+        "Venezuelan", "Vietnamese", "Vincentian", "Wallisian", "Welsh", "Yemeni", "Zambian", "Zimbabwean"],
+
+
+    select: null,
+    religious: "",
+    religiousSelection: [
       "Buddhism",
       "Christianity",
       "Islam",
@@ -1395,10 +1431,80 @@ export default {
       "Atheist",
       "Others",
     ],
+
+    select: null,
+    degree: "",
+    degreeSelection: [
+      "Associate Degree", "Bachelor’s Degree", "Master’s Degree", "Doctoral Degree"
+    ],
+
+    select: null,
+    maritalStatue: "",
+    maritalSelection: [
+      "single", "married", "widowed", "divorced", "separated"
+    ],
+
+    select: null,
+    militaryStatus: "",
+    militarySelection: [
+      "single", "married", "widowed", "divorced", "separated"
+    ],
+
+    select: null,
+    occupation: "",
+    occupationSelection: [
+      "Engineer","Computer Engineer","UX/UI designer","Doctor","Dentist","Physical Therapist","Nurse Practitioner","Flight Attendant","Others"
+    ],
+
+    select: null,
+    numChild: "",
+    childSelection: [
+      "1","2","3","4","5","6","7","8","None"
+    ],
+
     activePicker: null,
     date: null,
     menu: false,
     checkbox: false,
+
+    //Dialog 2
+    //???read and pack pdf file
+    statement:"",
+    specialAbilities:"",
+    emergencyName1:"",
+    emergencyName2:"",
+    emergencyName3:"",
+    emergencyNum1:"",
+    emergencyNum2:"",
+    emergencyNum3:"",
+
+    select: null,
+    foreignLanguage: "",
+    languageSelection: ["Thai", "English", "French", "Chinese"],
+
+    select: null,
+    proficiencyLevel: "",
+    levelSelection: ["Novice", "Intermediate", "Advanced", "Superior", "Distinguished"],
+
+    select: null,
+    familyStatus1: "",
+    statusSelection: ["Partner", "Legal Guardian", "Aunt", "Brother", "Cousin", "Father", "Mother", "Grandfather", "Grandmother", "Other"],
+    
+    select: null,
+    familyStatus2: "",
+    statusSelection: ["Partner", "Legal Guardian", "Aunt", "Brother", "Cousin", "Father", "Mother", "Grandfather", "Grandmother", "Other"],
+    
+    select: null,
+    familyStatus3: "",
+    statusSelection: ["Partner", "Legal Guardian", "Aunt", "Brother", "Cousin", "Father", "Mother", "Grandfather", "Grandmother", "Other"],
+    
+    //common rules
+    nameRules: [(v) => !!v || "This field is required"],
+    numRules: [
+      (v) => !!v || "This field is required, receiving only integers",
+    ],
+
+    //Dialog3 display from admin(jobDetails)
   }),
   watch: {
     menu(val) {
@@ -1428,19 +1534,9 @@ export default {
       this.dialog4= false;
     },
 
+    
 
-    addField(value, fieldType) {
-      fieldType.push({ value: "" });
-    },
-    removeField(index, fieldType) {
-      fieldType.splice(index, 1);
-    },
 
-    charCount(){
-
-         this.totalcharacter = this.message.length;
-
-    },
 
     selectedFile(event) {
       // this is the function used to upload images for the profile picture.
@@ -1450,6 +1546,52 @@ export default {
     },
     testPrint(){
       console.log(this.fullName)
+    },
+
+    //pdf file in dialog2
+    async selectFile1(e) {
+      const file = e.target.files[0];
+
+      /* Make sure file exists */
+      if (!file) return;
+
+      /* create a reader */
+      const readData = (f) =>  new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(f);
+      });
+
+      /* Read data */
+      const data = await readData(file);
+
+      // /* upload the converted data */
+      // const instance = this.$cloudinary.upload(data, {
+      //   folder: 'upload-examples',
+      //   uploadPreset: 'your-upload-preset',
+      // })
+    },
+    async selectFile2(e) {
+      const file = e.target.files[0];
+
+      /* Make sure file exists */
+      if (!file) return;
+
+      /* create a reader */
+      const readData = (f) =>  new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(f);
+      });
+
+      /* Read data */
+      const data = await readData(file);
+
+      // /* upload the converted data */
+      // const instance = this.$cloudinary.upload(data, {
+      //   folder: 'upload-examples',
+      //   uploadPreset: 'your-upload-preset',
+      // })
     }
   },
 };
