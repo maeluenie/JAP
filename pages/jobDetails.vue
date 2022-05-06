@@ -279,7 +279,6 @@
         </v-btn>
         <!-- Dialog 1 -->
         <v-dialog
-          v-if="role===true"
           v-model="dialog1"
           fullscreen
           hide-overlay
@@ -293,7 +292,6 @@
               class="ml-1 mr-4 my-2"
               v-bind="attrs"
               v-on="on"
-              v-if="role===true"
             >
               EDIT
             </v-btn>
@@ -1059,9 +1057,6 @@ export default {
         "User experience (UX) designers are among the most in-demand professionals in the creative industry right now. As businesses update their websites, mobile apps and more to interact with customers in new ways, people who can help conceive and build intuitive and engaging digital experiences are needed across the country. The UX designer creates satisfying and compelling experiences for users of a product, often drawing on results from user research and workflow analysis. Generally, UX designers need to possess strong creative, technical and problem-solving skills. Areas of focus may include content, controls, visual design and development, information architecture, user research, branding, and customer/technical support.",
     },
 
-    statement:'',
-    totalcharacter : 0,
-    role: true,
 
     valid: true,
     citizenID: "",
@@ -1069,38 +1064,158 @@ export default {
       (v) => !!v || "This field is required, receiving only integers",
       (v) => (v && v.length == 13) || "Please fill all your Citizen ID",
     ],
+
+    valid: true,
+    approximateSalary: "",
+    numAccepting: "",
+    workingTime: "",
+    numRules: [
+      (v) => !!v || "This field is required, receiving only integers",
+      // (v) => (v && v.length == 13) || "Please fill all your Citizen ID",
+    ],
     
-    fullName: "",
-    nameRules: [(v) => !!v || "Full name is required"],
+    roleName: "",
+    lastName: "",
+    managerName: "",
+    requiredExperience: "",
+    jobDescription: "",
+    additional: "",//dialog3
+    nameRules: [
+      (v) => !!v || "This field is required",
+      // (v) => (v && v.length <= 10) || "Name must be less than 10 characters",
+    ],
     email: "",
     emailRules: [
       (v) => !!v || "E-mail is required",
       (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
     ],
+     select: null,
+    workingLocation: "",
+    locationSelection: ["Latkrabung", "Sathorn", "Bangsue", "Thonglor"],
+
     select: null,
-    religion: "",
-    religionSelection: [
-      "Buddhism",
-      "Christianity",
-      "Islam",
-      "Hinduism",
-      "Sikhism",
-      "Atheist",
-      "Others",
+    educationalDegree: "",
+    degreeSelection: ["Associate Degree", "Bachelor’s Degree", "Master’s Degree", "Doctoral Degree"],
+
+    select: null,
+    belongedTeam: "",
+    teamSelection: ["Team A", "Team B", "Team C", "Team D"],
+
+    select: null,
+    requiredExperience: "",
+    experienceSelection: ["no experience", "<= 2 years", "5 years", "10 years"],
+    //chips
+    select: null,
+    requiredSkills: [],
+    items: ["Communication", "Time management"],
+
+    //calendar 1
+    activePicker1: null,
+    date1: null,
+    menu1: false,
+    checkbox1: false,
+
+    //calender 2
+    activePicker2: null,
+    date2: null,
+    menu2: false,
+    checkbox2: false,
+
+    //addjob dialog 3 
+    select: null,
+    accomodation: "",
+    accomodationSelection: [
+      "lunch",
+      "Sathorn",
+      "Bangsue",
+      "Thonglor",
     ],
-    activePicker: null,
-    date: null,
-    menu: false,
-    checkbox: false,
+    select: null,
+    transportation: "",
+    transportationSelection: [
+      "Latkrabung",
+      "Sathorn",
+      "Bangsue",
+      "Thonglor",
+    ],
+    select: null,
+    overTime: "",
+    overtimeSelection: [
+      "200",
+      "500",
+      "1000",
+      "1500",
+      "None",
+    ],
+    select: null,
+    laptopProvision: "",
+    laptopSelection: [
+      "Mac", "ASUS", "Vivo", "MSI", "None"
+    ],
+    select: null,
+    insuranceProvisiongS: "",
+    insuranceSelection: [
+      "Yes",
+      "No",
+    ],
+    select: null,
+    bonusAllowance: "",
+    bonusSelection: [
+      "5%",
+      "10%",
+      "15%",
+      "None",
+    ],
+    select: null,
+    transportationAllowance: "",
+    transportationASelection: [
+      "200","500","1000", "None"
+    ],
+    select: null,
+    overTime: "",
+    overtimeSelection: [
+      "500","1000","1500","2000", "None"
+    ],
+    select: null,
+    leaveQuota: "",
+    leaveSelection: [
+      "10",
+      "15",
+      "20",
+      "None",
+    ],
+    select: null,
+    insuranceLevel: "",
+    insuranceLSelection: [
+      "Latkrabung",
+      "Sathorn",
+      "Bangsue",
+      "Thonglor",
+    ],
+    select: null,
+    additionalProvision: "",
+    additionalSelection: [
+      "Latkrabung",
+      "Sathorn",
+      "Bangsue",
+      "Thonglor",
+    ],
   }),
   watch: {
-    menu(val) {
-      val && setTimeout(() => (this.activePicker = "YEAR"));
+     //calendar1
+    menu1(val) {
+      val && setTimeout(() => (this.activePicker1 = "YEAR"));
+    },
+
+  //calender 2
+    menu2(val) {
+      val && setTimeout(() => (this.activePicker2 = "YEAR"));
     },
   },
   methods: {
     save(date) {
-      this.$refs.menu.save(date);
+      this.$refs.menu1.save(date);
+      this.$refs.menu2.save(date);
     },
 
     OP1(){
@@ -1121,7 +1236,11 @@ export default {
       this.dialog3= true;
 
     },
-
+    //editjob dialog 1
+    remove(item) {
+      this.requiredSkills.splice(this.requiredSkills.indexOf(item), 1);
+      this.requiredSkills = [...this.requiredSkills];
+    },
     addField(value, fieldType) {
       fieldType.push({ value: "" });
     },
@@ -1129,18 +1248,6 @@ export default {
       fieldType.splice(index, 1);
     },
 
-    charCount(){
-
-         this.totalcharacter = this.message.length;
-
-    },
-
-    selectedFile(event) {
-      // this is the function used to upload images for the profile picture.
-      console.log(event);
-      console.log("Image uploaded successfully");
-      this.selectedFile = event.target.files[0]; // this is use to access the actual image file in and store it in the "selectedFile" section.
-    },
     testPrint(){
       console.log(this.fullName)
     }
