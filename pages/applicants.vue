@@ -1019,10 +1019,14 @@
               
               <v-col class="text-right">
                 
+                <v-btn align="end" color="red darken-1"  @click="deleteApplicantConfirm"> 
+                  Delete
+                </v-btn>
                 <!-- pack into json send through API -->
-                <v-btn align="end" color="primary darken-3" @click="dialog4 = false"> 
+                <v-btn align="end" color="primary darken-3" @click="dialog1 = false"> 
                   Done
                 </v-btn>
+                
               </v-col>
               </v-row>
             </v-form>
@@ -1487,6 +1491,7 @@ export default {
     deleteApplicantConfirm() {
       this.applicants.splice(this.editedIndex, 1);
       this.detailsDialog = false;
+      this.dialog1 = false;
     },
     dispApp(){   // for testing purposes, don't forget to remove this line of code before launching the product
       console.log(this.applicants)
