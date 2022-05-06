@@ -157,6 +157,7 @@
                   class="mx-1"
                   v-bind="attrs"
                   v-on="on"
+                  nuxt to="/addJob"
                 >
                   <v-icon dark> mdi-plus </v-icon>
                 </v-btn>
