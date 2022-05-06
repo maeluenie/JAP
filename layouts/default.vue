@@ -101,30 +101,21 @@ export default {
       fixed: false,
       items: [
         {
-          icon: "mdi-home",
-          title: "Home",
-          to: "/",
+          icon: "mdi-lock",
+          title: "Login",
+          to: "/login",
+        },
+        {
+          icon: "mdi-chart-bubble",
+          title: "About us",
+          to: "/company_information",
         },
         {
           icon: "mdi-chart-bubble",
           title: "Job Display",
           to: "/list_of_jobs",
         },
-        {
-          icon: "mdi-chart-bubble",
-          title: "Suitable Applicants",
-          to: "/applicants",
-        },
-        {
-          icon: "mdi-chart-bubble",
-          title: "Add New Jobs",
-          to: "/OPaddjob1",
-        },
-        {
-          icon: "mdi-chart-bubble",
-          title: "Edit Job Details",
-          to: "/OPaddjob2",
-        },
+    
 
       ],
       miniVariant: false,
