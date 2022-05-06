@@ -29,6 +29,7 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
+                <!-- v-if role=admin go to listofjobs while else go to userQA page -->
                 <v-btn color="primary" nuxt to="/list_of_jobs" @click="loginHandler">Login</v-btn>
               </v-card-actions>
             </v-card>
