@@ -26,8 +26,8 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.environ.get('JAP_API_SECRET_KEY')
 
-EMAIL_ADDRESS = os.environ.get('EMAIL_USER')    # must have conditions not to be null
-EMAIL_PASSWORD = os.environ.get('EMAIL_PASS')    # must have conditions not to be null
+EMAIL_ADDRESS = os.environ.get('EMAIL_USER')    
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASS')    
 EMAIL_ADMIN_RECEIVER = os.environ.get('EMAIL_ADMIN_RECEIVER')
 EMAIL_APPLICANT_RECEIVER = os.environ.get('EMAIL_APPLICANT_RECEIVER')
 
