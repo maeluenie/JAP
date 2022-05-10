@@ -66,7 +66,8 @@ CREATE TABLE `defaultdb`.`organization_information` (
   `position_id` INT NOT NULL AUTO_INCREMENT,
   `department` VARCHAR(45) NULL,
   `position` VARCHAR(45) NULL,
-  `competencies` VARCHAR(250) NULL,
+  `competencies` VARCHAR(500) NULL,
+  `skills` text(1500) NULL,
   PRIMARY KEY (`position_id`),
   UNIQUE INDEX `position_id_UNIQUE` (`position_id` ASC) VISIBLE);
 
