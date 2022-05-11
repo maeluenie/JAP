@@ -26,7 +26,7 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.environ.get('JAP_API_SECRET_KEY')
 
-EMAIL_ADDRESS = os.environ.get('EMAIL_USER')    
+EMAIL_ADDRESS = os.environ.get('EMAIL_USER') # None   
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASS')    
 EMAIL_ADMIN_RECEIVER = os.environ.get('EMAIL_ADMIN_RECEIVER')
 EMAIL_APPLICANT_RECEIVER = os.environ.get('EMAIL_APPLICANT_RECEIVER')
@@ -583,6 +583,7 @@ def uploadApplication():
         if j in str(list_q_id):
             qa_pairing['question_id'] = j
             qa_pairing['answer'] = data[str(j)]
+            qa_pairing['selected'] = 1
             query = db.insert(answers)
             conn.execute(query,qa_pairing)
 
@@ -901,7 +902,6 @@ def editJob(current_user,job_id):
                 conn.execute(int_query)
             elif isinstance(job_data[i], str):
                 str_query = 'UPDATE job_information SET ' + str(i) + " = '" + str(data[i]) + "' WHERE job_id = " + str(job_id)
-                print(str_query)
                 conn.execute(str_query)
             
     # examples of the namings.
@@ -1230,7 +1230,6 @@ def selectQuestions(current_user,application_id):
 
     query = "SELECT question_id FROM questions_answered WHERE application_id = " + str(application_id)
     all_q_id = conn.execute(query).fetchall()
-    print(all_q_id)
 
     specific_q_id = []
     output = []
@@ -1241,17 +1240,32 @@ def selectQuestions(current_user,application_id):
         question_type = question_data.question_type
         if question_type == 'specific':
             specific_q_id.append(i.question_id)
-        print(specific_q_id)
+    
 
     # specific_q_id will be 2 and 7
 
     for j in specific_q_id:
         if j in selection:
-            print(j)
             query2 = "UPDATE questions_answered SET selected = 1 WHERE question_id = " + str(j) + " and application_id = " + str(application_id)
             conn.execute(query2)
             output.append(j)
-            
+
+        # UPDATE questions_answered SET answer = 'test2' WHERE application_id not in (2,3) and question_id = '2';
+        # SELECT * FROM questions_answered WHERE application_id = 99 and selected != 1;
+
+    query_for_all_questions = "SELECT question_id FROM questions_answered WHERE application_id = " + str(application_id) + " and selected != 1"
+    all_q_a_to_del = conn.execute(query_for_all_questions).fetchall()
+    del_id  = []
+    for k in all_q_a_to_del:
+        if k not in del_id:
+            del_id.append(k[0])
+
+
+    print( "DELETE FROM questions_answered WHERE application_id = " + str(application_id) + " and selected != 1 and question_id in "+ str(tuple(del_id)) )
+    conn.execute("DELETE FROM questions_answered WHERE application_id = " + str(application_id) + " and selected != 1 and question_id in "+ str(tuple(del_id)) )        
+    #print(all_q_a_to_del)
+
+
     return jsonify({'q_id selected for application '+ str(application_id) : output } )
 
 @app.route('/displaySelectedQuestions', methods=['GET'])  
@@ -1266,13 +1280,13 @@ def displaySelectedSpecificQuestions(current_user):
 
     user_data = jwt.decode(token, app.config['SECRET_KEY'],algorithms=["HS256"])
 
+
     application_id = user_data['application_id']
 
     conn = engine.connect()
 
     query = "SELECT question_id FROM questions_answered WHERE application_id = " + str(application_id)
     all_q_id = conn.execute(query).fetchall()
-    print(all_q_id)
     selected_q_id = []
     output = []
 
@@ -1295,9 +1309,6 @@ def displaySelectedSpecificQuestions(current_user):
         output.append(data)
 
     return jsonify({'questions': output } )
-
-
-
 
 
 @app.route('/validation/<application_id>', methods=['POST'])  
