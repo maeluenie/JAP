@@ -21,12 +21,14 @@ import bcrypt
 from password_generator import PasswordGenerator
 import datetime
 import time
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+CORS(app)
 
 app.config['SECRET_KEY'] = os.environ.get('JAP_API_SECRET_KEY')
 
-EMAIL_ADDRESS = os.environ.get('EMAIL_USER') # None   
+EMAIL_ADDRESS = os.environ.get('EMAIL_USER')
 EMAIL_PASSWORD = os.environ.get('EMAIL_PASS')    
 EMAIL_ADMIN_RECEIVER = os.environ.get('EMAIL_ADMIN_RECEIVER')
 EMAIL_APPLICANT_RECEIVER = os.environ.get('EMAIL_APPLICANT_RECEIVER')
@@ -40,6 +42,7 @@ pwo.minlen = 8
 pwo.maxlen = 12
 
 #organization_conn.close()
+
 
 def token_required(f):
     @wraps(f)
@@ -75,7 +78,9 @@ def token_required(f):
     return decorated
 
 
-@app.route('/login', methods=['GET'])
+
+@app.route('/login', methods=['POST'])
+@cross_origin()
 def login():
 
     data = { 'username': request.json['username'], 'password': request.json['password']}    # get the information from front-end login section.
@@ -118,16 +123,24 @@ def login():
             token = jwt.encode( { 'application_id':user_data['application_id'], 'applicant_id':user_data['applicant_id'], 'fullname':user_data['applicant_fullname'], 'user':user_data['username'], 'role':user_data['role'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=3) } , app.config['SECRET_KEY'] )
             
         conn.close()
-        return jsonify( { 'access-token' : token } )
+
+        response = jsonify( { 'access-token' : token } )
+        response.headers.add("Access-Control-Allow-Origin","*")
+
+        return response
 
     except:
         conn.close()
-        return make_response('Could not verify as there are no selected user within the database', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
+
+
+        response = jsonify( { 'Response' : 'Could not verify as there are no selected user within the database, 401'} )
+        response.headers.add("Access-Control-Allow-Origin","*")
+
+        return response
     
-    conn.close()
-    return make_response('Could not verify due to incorrect information', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
 @app.route('/logout', methods=['DELETE'])
+@cross_origin()
 @token_required
 def logout(current_user):
 
@@ -144,9 +157,14 @@ def logout(current_user):
     query = db.insert(blacklisted_table)
     conn.execute(query,values)
 
-    return jsonify({'Message':'You have successfully logged out'})
+    response = jsonify({'Message':'You have successfully logged out'})
+    response.headers.add("Access-Control-Allow-Origin","*")
+
+    return response
+
 
 @app.route('/userinfo', methods=['GET'])
+@cross_origin()
 @token_required
 def userinfo(current_user):
 
@@ -158,16 +176,21 @@ def userinfo(current_user):
 
     data = jwt.decode(token, app.config['SECRET_KEY'],algorithms=["HS256"])
 
+    data.headers.add("Access-Control-Allow-Origin","*")
     return data
 
+
+
 @app.route('/getAllApplicants', methods=['GET'])
+@cross_origin()
 @token_required
 def getAllApplicants(current_user):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
-
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     conn = engine.connect()
     metadata = db.MetaData()
@@ -210,15 +233,23 @@ def getAllApplicants(current_user):
         output.insert(0,data)
 
     conn.close()
-    return jsonify(output)
+
+    response = jsonify(output)
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+
+
 
 @app.route('/getApplication/<application_id>', methods=['GET'])   # this is used to retrieve one information related to an applicant's application.
+@cross_origin()
 @token_required
 def getApplication(current_user, application_id):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     conn = engine.connect()
     metadata = db.MetaData()
@@ -372,10 +403,15 @@ def getApplication(current_user, application_id):
         set_answered_questions = None
 
     conn.close()
-    return jsonify( {'Application': set_application_data , 'Applicant':set_applicant_data,'Emergency':set_emergency_data,'Skill':set_skill_data, 'Partner': set_partner_data, 'Job':set_job_data,'Manager':set_employee_data,'Organization':set_organization_data, 'Questions':set_answered_questions})
+    
+    response = jsonify( {'Application': set_application_data , 'Applicant':set_applicant_data,'Emergency':set_emergency_data,'Skill':set_skill_data, 'Partner': set_partner_data, 'Job':set_job_data,'Manager':set_employee_data,'Organization':set_organization_data, 'Questions':set_answered_questions})
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+
 
 
 @app.route('/uploadApplication', methods=['GET','POST'])
+@cross_origin()
 def uploadApplication(): 
 
     conn = engine.connect()
@@ -631,10 +667,15 @@ def uploadApplication():
     
     conn.close()
 
-    return jsonify({'Action': 'An application has been uploaded into the system, please check your email for more details.' })
+
+    response = jsonify({'Action': 'An application has been uploaded into the system, please check your email for more details.' })
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+
 
 
 @app.route('/getAllJobs', methods=['GET'])
+@cross_origin()
 @token_required
 def getAllJobs(current_user):
 
@@ -703,9 +744,14 @@ def getAllJobs(current_user):
 
     conn.close()
 
-    return jsonify({'Jobs': whole_data })
+    response = jsonify({'Jobs': whole_data })
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+
+
 
 @app.route('/getSingleJob/<job_id>', methods=['GET'])
+@cross_origin()
 @token_required
 def getSingleJob(current_user,job_id):
 
@@ -792,15 +838,22 @@ def getSingleJob(current_user,job_id):
 
     conn.close()
 
-    return jsonify({'Jobs': data })
+    response = jsonify({'Jobs': data })
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+
+
 
 @app.route('/addNewJob', methods=['POST'])  
+@cross_origin()
 @token_required
 def addNewJob(current_user):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     data = request.json
 
@@ -867,18 +920,24 @@ def addNewJob(current_user):
 
     result_text = str(data['position']) + ' has been added into the database'
 
+    response = jsonify({'Message':result_text})
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
 
-    return jsonify({'Message':result_text})
+
 
 @app.route('/editJob/<job_id>', methods=['POST'])  # this function will work only by having the same keys as in the field name in the DB.
                                                    # for instance, in the field name is "educational_degree_required"
                                                    # the json input here must also be the same.
+@cross_origin()
 @token_required
 def editJob(current_user,job_id):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     data = request.json
 
@@ -933,17 +992,21 @@ def editJob(current_user,job_id):
     #             'time_registered' : time.strftime('%Y-%m-%d %H:%M:%S')
     #           }
 
-
-    return jsonify({'Message':'The job has been updated'})
+    response = jsonify({'Message':'The job has been updated'})
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
 
 
 @app.route('/addNewQuestion', methods=['POST'])
+@cross_origin()
 @token_required
 def addNewQuestion(current_user):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     data = request.json
 
@@ -967,9 +1030,14 @@ def addNewQuestion(current_user):
     conn.execute(query,values)
     conn.close()
     
-    return jsonify({'Message': 'New Question Added'})
+    response = jsonify({'Jobs': 'New Question Added' })
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+
+
 
 @app.route('/postSpecificQuestions', methods=['POST'])  # this is for applicants to answer their personalized
+@cross_origin()
 @token_required
 def postSpecificQuestions(current_user):
 
@@ -990,12 +1058,15 @@ def postSpecificQuestions(current_user):
         query = "UPDATE questions_answered SET answer = '" + answers[str(i)] + "' WHERE application_id = " + str(data['application_id']) + " and question_id = '" + str(i) + "'"
         conn.execute(query)
 
-    return jsonify({'Jobs': 'Answers submitted successfully' })
 
+    response = jsonify({'Jobs': 'Answers submitted successfully' })
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
 
 
 
 @app.route('/getAllQuestions/<question_category>/<question_difficulty>', methods=['GET'])
+@cross_origin()
 def getAllQuestions(question_category,question_difficulty):
 
     conn = engine.connect()
@@ -1029,15 +1100,23 @@ def getAllQuestions(question_category,question_difficulty):
         output.append(data)
 
     conn.close()
-    return jsonify({'Applicants':output})
+
+    response = jsonify({'Applicants':output})
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+
+
 
 @app.route('/getAllGeneralQuestions', methods=['GET'])
+@cross_origin()
 @token_required
 def getGeneralQuestions(current_user):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     conn = engine.connect()
     metadata = db.MetaData()
@@ -1062,15 +1141,23 @@ def getGeneralQuestions(current_user):
         output.append(data)
 
     conn.close()
-    return jsonify(output)
+
+    response = jsonify(output)
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+    
+
 
 @app.route('/getSingleQuestion/<question_id>', methods=['GET'])
+@cross_origin()
 @token_required
 def getSingleQuestions(current_user, question_id):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     conn = engine.connect()
     #all_questions = db.Table('questions', metadata, autoload=True, autoload_with=engine)
@@ -1093,11 +1180,18 @@ def getSingleQuestions(current_user, question_id):
     conn.close()
     
     if data == {}:
-        return make_response('No question with this ID in the database')
+        response = jsonify({'Response':'No question with this ID in the database'})
+        response.headers.add("Access-Control-Allow-Origin","*")
+        return response
 
-    return jsonify({'Question':data})
+    response = jsonify({'Question':data})
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+
+
 
 @app.route('/getSetOfJobQuestions/<job_id>', methods=['GET'])  
+@cross_origin()
 @token_required
 def getQuestionsAccordingToJobs(current_user,job_id):
 
@@ -1128,11 +1222,18 @@ def getQuestionsAccordingToJobs(current_user,job_id):
     conn.close()
     
     if data == {}:
-        return make_response('No question with this ID in the database')
+        response = jsonify({'Response':'No question with this ID in the database'})
+        response.headers.add("Access-Control-Allow-Origin","*")
+        return response
 
-    return jsonify(questions_set )
+    response = jsonify(questions_set)
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+
+
 
 @app.route('/pairSelectedQuestions', methods=['POST'])  
+@cross_origin()
 @token_required
 def pairSelectedQuestions(current_user):
 
@@ -1144,7 +1245,10 @@ def pairSelectedQuestions(current_user):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
+
 
     q_id_json = request.json['q_id']
     a_id_json = request.json['application_id']
@@ -1181,17 +1285,26 @@ def pairSelectedQuestions(current_user):
     conn.close()
     
     if dummy_data == {}:
-        return make_response('No question with this ID in the database')
+        response = jsonify({'Response': 'No question with this ID in the database' } )
+        response.headers.add("Access-Control-Allow-Origin","*")
+        return response
 
-    return jsonify({'questions': 'The suggested questions are being recorded, pending selection' } )
+    response = jsonify({'Response': 'The suggested questions are being recorded, pending selection' } )
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+
+
 
 @app.route('/displayAllSpecificQuestions/<application_id>', methods=['GET'])
+@cross_origin()
 @token_required
 def displaySpecificQuestions(current_user,application_id):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     conn = engine.connect()
 
@@ -1215,15 +1328,22 @@ def displaySpecificQuestions(current_user,application_id):
         data['question'] = conn.execute(query2).fetchall()[0].question
         output.append(data)
 
-    return jsonify(output)
+    response = jsonify(output)
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+
+
 
 @app.route('/selectSpecificQuestions/<application_id>', methods=['POST'])  
+@cross_origin()
 @token_required
 def selectQuestions(current_user,application_id):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     selection = request.json['selected_q_id']   # 2 and 7
     conn = engine.connect()
@@ -1240,7 +1360,6 @@ def selectQuestions(current_user,application_id):
         question_type = question_data.question_type
         if question_type == 'specific':
             specific_q_id.append(i.question_id)
-    
 
     # specific_q_id will be 2 and 7
 
@@ -1261,14 +1380,17 @@ def selectQuestions(current_user,application_id):
             del_id.append(k[0])
 
 
-    print( "DELETE FROM questions_answered WHERE application_id = " + str(application_id) + " and selected != 1 and question_id in "+ str(tuple(del_id)) )
     conn.execute("DELETE FROM questions_answered WHERE application_id = " + str(application_id) + " and selected != 1 and question_id in "+ str(tuple(del_id)) )        
     #print(all_q_a_to_del)
 
+    response = jsonify({'q_id selected for application '+ str(application_id) : output } )
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+    
 
-    return jsonify({'q_id selected for application '+ str(application_id) : output } )
 
 @app.route('/displaySelectedQuestions', methods=['GET'])  
+@cross_origin()
 @token_required
 def displaySelectedSpecificQuestions(current_user):
 
@@ -1308,16 +1430,23 @@ def displaySelectedSpecificQuestions(current_user):
         #print(data)
         output.append(data)
 
-    return jsonify({'questions': output } )
+
+    response = jsonify({'questions': output } )
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+
 
 
 @app.route('/validation/<application_id>', methods=['POST'])  
+@cross_origin()
 @token_required
 def validation(current_user,application_id):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     conn = engine.connect()
 
@@ -1329,17 +1458,27 @@ def validation(current_user,application_id):
         stmt2 =  " UPDATE application SET validated_time = '" + str(time.strftime('%Y-%m-%d %H:%M:%S')) + "' WHERE application_id = " + str(application_id) 
         conn.execute(stmt2)
     else:
-        return make_response('This application is already validated')
+        response = jsonify({ 'Response': 'This application is already validated' })
+        response.headers.add("Access-Control-Allow-Origin","*")
+        return response
 
-    return jsonify({ 'Response': 'Application ' + str(application_id) + ' is now validated' })
+
+    response = jsonify({ 'Response': 'Application ' + str(application_id) + ' is now validated' })
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
+
+
 
 @app.route('/devalidation/<application_id>', methods=['POST'])   
+@cross_origin()
 @token_required
 def devalidation(current_user, application_id):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     conn = engine.connect()
 
@@ -1348,18 +1487,27 @@ def devalidation(current_user, application_id):
     if validation_check == 1 :
         stmt = " UPDATE application SET validation = 0 WHERE application_id = " + str(application_id)
         conn.execute(stmt)
-        return jsonify({ 'Response': 'Application ' + str(application_id) + ' is now devalidated' })
+        response = jsonify({ 'Response': 'Application ' + str(application_id) + ' is now devalidated' })
+        response.headers.add("Access-Control-Allow-Origin","*")
+        return response
+        
     else:
-        return make_response('This application has not yet been validated')
+        response = jsonify({ 'Response': 'This application has not yet been validated' })
+        response.headers.add("Access-Control-Allow-Origin","*")
+        return response
+
 
 
 @app.route('/sent_offer/<application_id>', methods=['POST']) 
+@cross_origin()
 @token_required  
 def sentOffer(current_user, application_id):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
+            response = jsonify({ 'Response': 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     conn = engine.connect()
 
@@ -1402,15 +1550,23 @@ def sentOffer(current_user, application_id):
             conn.execute(stmt)
 
             conn.close()
-        
-            return jsonify({ 'Response': 'Offer has been sent to the applicant in Application ' + str(application_id) })
+            response = jsonify({ 'Response': 'Offer has been sent to the applicant in Application ' + str(application_id) })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
         else:
-            return make_response('Job offer has already been sent to the applicant.')
+            response = jsonify({ 'Response': 'Job offer has already been sent to the applicant.' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
     else:
-        return make_response('This application has not yet been validated')
+        response = jsonify({ 'Response': 'This application has not yet been validated' })
+        response.headers.add("Access-Control-Allow-Origin","*")
+        return response
+
+
 
 @app.route('/sentQuestions/<application_id>', methods=['POST'])  
+@cross_origin()
 @token_required
 def sentQuestion(current_user,application_id):
 
@@ -1428,10 +1584,14 @@ def sentQuestion(current_user,application_id):
         print(type(question_progress))
 
         if question_progress == 'Submitted':
-            return jsonify({ 'Response': 'Questions has already been informed to the applicant in Application ' + str(application_id) })
+            response = jsonify({ 'Response': 'Questions has already been informed to the applicant in Application ' + str(application_id) })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
         
         elif question_progress == 'Preparing':
-            return jsonify({ 'Response': 'Questions are currently being prepared' + str(application_id) })
+            response = jsonify({ 'Response': 'Questions are currently being prepared' + str(application_id) })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
         
         elif question_progress == 'Ready':
             job_id = conn.execute(application_query).fetchall()[0].job_id  
@@ -1468,10 +1628,15 @@ def sentQuestion(current_user,application_id):
                 conn.execute(stmt)
 
             conn.close()
-            return jsonify({ 'Response': 'Questions has been informed to the applicant in Application ' + str(application_id) })
+            response = jsonify({ 'Response': 'Questions has been informed to the applicant in Application ' + str(application_id) })
+            response.headers.add("Access-Control-Allow-Origin","*")
+
+            return response
 
     else:
-        return jsonify({ 'Response': 'Application ' + str(application_id) +  ' has not yet been validated' })
+        response = jsonify({ 'Response': 'Application ' + str(application_id) +  ' has not yet been validated' })
+        response.headers.add("Access-Control-Allow-Origin","*")
+        return response
 
 
 
