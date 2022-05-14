@@ -47,9 +47,11 @@ pwo.maxlen = 12
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+
         token = None
-        if 'access-token' in request.headers:
-            token = request.headers['access-token']
+
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization']
 
         if not token:
             return jsonify({'Message':'Token is missing'}), 401
@@ -78,12 +80,14 @@ def token_required(f):
     return decorated
 
 
-
+# rechecked
 @app.route('/login', methods=['POST'])
 @cross_origin()
 def login():
 
     data = { 'username': request.json['username'], 'password': request.json['password']}    # get the information from front-end login section.
+
+    print('This is the data submitted from front-end', data)
 
     conn = engine.connect()
     metadata = db.MetaData()
@@ -96,6 +100,8 @@ def login():
 
     new_user = conn.execute(db.select(applicants).where(applicants.columns.username == data['username']))
     
+    print(new_user)
+
     if not new_user:
         conn.close()
         return make_response('Could not verify as there are no selected user within the database', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
@@ -121,31 +127,33 @@ def login():
     try:    
         if bcrypt.checkpw(bytes(data['password'],'utf-8'),bytes(user_data['password'],'utf-8')):     
             token = jwt.encode( { 'application_id':user_data['application_id'], 'applicant_id':user_data['applicant_id'], 'fullname':user_data['applicant_fullname'], 'user':user_data['username'], 'role':user_data['role'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=3) } , app.config['SECRET_KEY'] )
-            
+
+        print("Token =",token)
+
         conn.close()
 
-        response = jsonify( { 'access-token' : token } )
+        response = jsonify( { 'accessToken' : token } )
         response.headers.add("Access-Control-Allow-Origin","*")
-
+        
         return response
 
     except:
         conn.close()
 
-
         response = jsonify( { 'Response' : 'Could not verify as there are no selected user within the database, 401'} )
         response.headers.add("Access-Control-Allow-Origin","*")
+        print(response)
 
         return response
     
-
+# rechecked
 @app.route('/logout', methods=['DELETE'])
 @cross_origin()
 @token_required
 def logout(current_user):
 
-    if 'access-token' in request.headers:
-            token = request.headers['access-token']
+    if 'Authorization' in request.headers:
+            token = request.headers['Authorization']
 
     conn = engine.connect()
     metadata = db.MetaData()
@@ -162,25 +170,33 @@ def logout(current_user):
 
     return response
 
-
+# rechecked
 @app.route('/userinfo', methods=['GET'])
 @cross_origin()
 @token_required
 def userinfo(current_user):
 
-    if 'access-token' in request.headers:
-            token = request.headers['access-token']
+    if 'Authorization' in request.headers:
+            token = request.headers['Authorization']
 
     if not token:
         return make_response("Token is not being provided",401)
 
+    print("Token =" ,token)
+
     data = jwt.decode(token, app.config['SECRET_KEY'],algorithms=["HS256"])
 
-    data.headers.add("Access-Control-Allow-Origin","*")
-    return data
+    print("Data =",data)
+
+    response =  jsonify(data)
+    response.headers.add("Access-Control-Allow-Origin","*")
+
+    print(response)
+
+    return response
 
 
-
+# rechecked
 @app.route('/getAllApplicants', methods=['GET'])
 @cross_origin()
 @token_required
@@ -239,7 +255,7 @@ def getAllApplicants(current_user):
     return response
 
 
-
+# rechecked
 @app.route('/getApplication/<application_id>', methods=['GET'])   # this is used to retrieve one information related to an applicant's application.
 @cross_origin()
 @token_required
@@ -409,7 +425,7 @@ def getApplication(current_user, application_id):
     return response
 
 
-
+# rechecked
 @app.route('/uploadApplication', methods=['GET','POST'])
 @cross_origin()
 def uploadApplication(): 
@@ -417,10 +433,12 @@ def uploadApplication():
     conn = engine.connect()
     metadata = db.MetaData()
 
-    data = request.form.to_dict() 
+    data = request.form.to_dict()
+    print(data)
 
     check_query = "SELECT number_of_applicants FROM job_information WHERE job_id = " + str(data['job_id'])
-    num_of_applicant_check = conn.execute(check_query).fetchall()[0].number_of_applicants  
+    num_of_applicant_check = conn.execute(check_query).fetchall()[0].number_of_applicants 
+     
     if num_of_applicant_check <= 0:
         return make_response('This job has stopped accepting applicants now.')
 
@@ -673,11 +691,10 @@ def uploadApplication():
     return response
 
 
-
+# rechecked
 @app.route('/getAllJobs', methods=['GET'])
 @cross_origin()
-@token_required
-def getAllJobs(current_user):
+def getAllJobs():
 
     conn = engine.connect()
     metadata = db.MetaData()
@@ -752,8 +769,7 @@ def getAllJobs(current_user):
 
 @app.route('/getSingleJob/<job_id>', methods=['GET'])
 @cross_origin()
-@token_required
-def getSingleJob(current_user,job_id):
+def getSingleJob(job_id):
 
     conn = engine.connect()
 
@@ -843,7 +859,7 @@ def getSingleJob(current_user,job_id):
     return response
 
 
-
+# rechecked
 @app.route('/addNewJob', methods=['POST'])  
 @cross_origin()
 @token_required
@@ -996,7 +1012,7 @@ def editJob(current_user,job_id):
     response.headers.add("Access-Control-Allow-Origin","*")
     return response
 
-
+# rechecked
 @app.route('/addNewQuestion', methods=['POST'])
 @cross_origin()
 @token_required
@@ -1041,8 +1057,8 @@ def addNewQuestion(current_user):
 @token_required
 def postSpecificQuestions(current_user):
 
-    if 'access-token' in request.headers:
-            token = request.headers['access-token']
+    if 'Authorization' in request.headers:
+            token = request.headers['Authorization']
 
     if not token:
         return make_response("Token is not being provided",401)
@@ -1067,7 +1083,14 @@ def postSpecificQuestions(current_user):
 
 @app.route('/getAllQuestions/<question_category>/<question_difficulty>', methods=['GET'])
 @cross_origin()
-def getAllQuestions(question_category,question_difficulty):
+@token_required
+def getAllQuestions(current_user,question_category,question_difficulty):
+
+    for i in current_user:
+        if i.role != 'admin':
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     conn = engine.connect()
     metadata = db.MetaData()
@@ -1237,8 +1260,8 @@ def getQuestionsAccordingToJobs(current_user,job_id):
 @token_required
 def pairSelectedQuestions(current_user):
 
-    if 'access-token' in request.headers:
-            token = request.headers['access-token']
+    if 'Authorization' in request.headers:
+            token = request.headers['Authorization']
 
     if not token:
         return make_response("Token is not being provided",401)
@@ -1394,8 +1417,8 @@ def selectQuestions(current_user,application_id):
 @token_required
 def displaySelectedSpecificQuestions(current_user):
 
-    if 'access-token' in request.headers:
-        token = request.headers['access-token']
+    if 'Authorization' in request.headers:
+        token = request.headers['Authorization']
 
     if not token:
         return jsonify({'Message':'Token is missing'}), 401
@@ -1572,7 +1595,9 @@ def sentQuestion(current_user,application_id):
 
     for i in current_user:
         if i.role != 'admin':
-            return make_response('Unauthorized', 401)
+            response = jsonify({ 'Response': 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     conn = engine.connect()
 
@@ -1581,7 +1606,6 @@ def sentQuestion(current_user,application_id):
     question_progress = conn.execute(application_query).fetchall()[0].question_progress
 
     if validation_check == 1 :
-        print(type(question_progress))
 
         if question_progress == 'Submitted':
             response = jsonify({ 'Response': 'Questions has already been informed to the applicant in Application ' + str(application_id) })
