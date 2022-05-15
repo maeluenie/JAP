@@ -434,7 +434,6 @@ def uploadApplication():
     metadata = db.MetaData()
 
     data = request.form.to_dict()
-    print(data)
 
     check_query = "SELECT number_of_applicants FROM job_information WHERE job_id = " + str(data['job_id'])
     num_of_applicant_check = conn.execute(check_query).fetchall()[0].number_of_applicants 
@@ -472,8 +471,12 @@ def uploadApplication():
         'address' : data['partner_address'],
         'time_registered' : time.strftime('%Y-%m-%d %H:%M:%S')
     }
+    print('This is partner_values ==>',partner_values, flush=True)
     partner_query = db.insert(partner)
     conn.execute(partner_query,partner_values)
+    
+
+
 
     emergency = db.Table('emergency_contact', metadata, autoload=True, autoload_with=engine)
     last_emerg_cont_id = engine.execute(text("select emergencycont_id from emergency_contact ORDER BY time_registered DESC LIMIT 1;")).fetchall()
@@ -509,7 +512,10 @@ def uploadApplication():
         emergcont_values['additional_relationship'] = data['additional_relationship']
 
     emergency_query = db.insert(emergency)
+    print('This is emergcont_values ==>',emergcont_values, flush=True)
     conn.execute(emergency_query,emergcont_values)
+    
+
 
     workexp = db.Table('working_experiences', metadata, autoload=True, autoload_with=engine)
     last_workexp_id = engine.execute(text("select workingexp_id from working_experiences ORDER BY time_registered DESC LIMIT 1;")).fetchall()
@@ -540,6 +546,7 @@ def uploadApplication():
         'time_registered' : time.strftime('%Y-%m-%d %H:%M:%S')
     }
     workexp_query = db.insert(workexp)
+    print('This is workexp_values ==>',workexp_values, flush=True)
     conn.execute(workexp_query,workexp_values)
 
     applicants = db.Table('applicant_information', metadata, autoload=True, autoload_with=engine)
@@ -590,6 +597,7 @@ def uploadApplication():
     }
 
     applicants_query = db.insert(applicants)
+    print('This is applicant values ==>',applicant_values, flush=True)
     conn.execute(applicants_query,applicant_values)
 
     application = db.Table('application', metadata, autoload=True, autoload_with=engine)
@@ -605,6 +613,7 @@ def uploadApplication():
     }
 
     application_query = db.insert(application)
+    print('This is application values ==>',application_values,flush=True)
     conn.execute(application_query,application_values)
 
     job = db.Table('job_information', metadata, autoload=True, autoload_with=engine)
@@ -640,8 +649,12 @@ def uploadApplication():
             qa_pairing['selected'] = 1
             query = db.insert(answers)
             conn.execute(query,qa_pairing)
+            print('This is qa_pairing ',qa_pairing,flush=True)
+
 
     resume = request.files['pdf'] 
+    print('This is resume file ======>', resume, flush=True)
+
     resume.filename = new_id + '.pdf'
     resume.save(os.path.join(upload_path,resume.filename))
 
@@ -1484,7 +1497,6 @@ def validation(current_user,application_id):
         response = jsonify({ 'Response': 'This application is already validated' })
         response.headers.add("Access-Control-Allow-Origin","*")
         return response
-
 
     response = jsonify({ 'Response': 'Application ' + str(application_id) + ' is now validated' })
     response.headers.add("Access-Control-Allow-Origin","*")
