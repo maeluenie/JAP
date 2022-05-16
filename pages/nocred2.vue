@@ -272,7 +272,6 @@
         </v-btn>
         <!-- Dialog 1 -->
         <v-dialog
-          v-if="role===true"
           v-model="dialog1"
           fullscreen
           hide-overlay
@@ -286,7 +285,6 @@
               class="ml-1 mr-4 my-2"
               v-bind="attrs"
               v-on="on"
-              v-if="role===true"
             >
               APPLY
             </v-btn>
@@ -302,7 +300,7 @@
               <v-toolbar-title>Application form for {{ this.jobDetails.jobName }} </v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn dark text @click="dialog1 = false"> Submit </v-btn>
+                <v-btn dark text @click="dialog1 = false; submit()"> Submit </v-btn>
                 <!-- this line must link a function to submit the data to the database -->
               </v-toolbar-items>
             </v-toolbar>
@@ -332,31 +330,6 @@
                 <v-form class="mx-8 mt-5 align-content-center"> 
                 
                     <v-row>
-
-                      <v-col cols="20" sm="20" md="3">
-                        <div class="text-center justify-center" >
-                          
-                          <input
-                            type="file"
-                            accept=".jpeg,.jpg,.png,image/jpeg,image/png"
-                            label="upload image button"
-                            @change="selectedFile"
-                            ref="fileInput"
-                            style="display: none"
-                          />
-
-                          <img
-                            icon
-                            @click="$refs.fileInput.click()"
-                            width="200"
-                            height="200"
-                            src="~assets/upload.png"
-                          />
-                          <p class="mb-1 text-center">Upload your profile image.</p>
-
-                        </div>
-                      </v-col>
-                        
                       <v-col>
                         <v-row>
                           <v-col cols="20" sm="20" md="12">
@@ -375,7 +348,27 @@
                   
                           </v-col>
                         </v-row>
+                      </v-col>
+                      <v-col>
+                        <v-row>
+                          <v-col cols="20" sm="20" md="12">
+                            <v-text class="font"
+                              ><h5 class="mx-1 mb-2 text-left">Citizen ID/ Passport ID</h5></v-text
+                            >
 
+                            <v-text-field
+                              v-model="citizenID"
+                              :rules="citizenID_Rules"
+                              label="Citizen ID/ Passport ID"
+                              required
+                              outlined
+                              dense
+                            ></v-text-field>
+                  
+                          </v-col>
+                        </v-row>
+                      </v-col>
+                      <v-col>
                         <v-row>
                           <v-col>
                             <v-text class="font"
@@ -390,22 +383,15 @@
                               outlined
                               dense
                             ></v-text-field>
-
-                            <v-text class="font"
-                              ><h5 class="mx-1 mb-2 text-left">Nationality</h5></v-text
-                            >
-
-                            <v-select
-                              v-model="nationality"
-                              :items="nationalitySelection"
-                              :rules="nameRules"
-                              label="Nationality"
-                              required
-                              outlined
-                              dense
-                            >
-                            </v-select>
+                  
                           </v-col>
+                        </v-row>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col>
+
+                        <v-row>
                           <v-col>
                             <v-text class="font"
                               ><h5 class="mx-1 mb-2 text-left">Email Address</h5></v-text
@@ -434,27 +420,41 @@
                               dense
                             ></v-select>
                           </v-col>
-                        </v-row>
-                      </v-col>
-
-                      <v-col>
-                        <v-row>
-                          <v-col cols="20" sm="20" md="12">
+                          <v-col>
+                            
+                            
                             <v-text class="font"
-                              ><h5 class="mx-1 mb-2 text-left">Citizen ID/ Passport ID</h5></v-text
+                              ><h5 class="mx-1 mb-2 text-left">Nationality</h5></v-text
+                            >
+
+                            <v-select
+                              v-model="nationality"
+                              :items="nationalitySelection"
+                              :rules="nameRules"
+                              label="Nationality"
+                              required
+                              outlined
+                              dense
+                            >
+                            </v-select>
+                            
+                            <v-text class="font"
+                              ><h5 class="mx-1 mb-2 text-left">University</h5></v-text
                             >
 
                             <v-text-field
-                              v-model="citizenID"
-                              :rules="citizenID_Rules"
-                              label="Citizen ID/ Passport ID"
+                              v-model="university"
+                              :rules="nameRules"
+                              label="University"
                               required
                               outlined
                               dense
                             ></v-text-field>
-                  
                           </v-col>
                         </v-row>
+                      </v-col>
+
+                      <v-col>
                         
                         <v-row>
                           <v-col>
@@ -472,14 +472,14 @@
                             ></v-text-field>
 
                             <v-text class="font"
-                              ><h5 class="mx-1 mb-2 text-left">Degree</h5></v-text
+                              ><h5 class="mx-1 mb-2 text-left">Faculty</h5></v-text
                             >
 
                             <v-select
-                              v-model="degree"
-                              :items="degreeSelection"
+                              v-model="faculty"
+                              :items="facultySelection"
                               :rules="nameRules"
-                              label="Degree"
+                              label="faculty"
                               required
                               outlined
                               dense
@@ -566,20 +566,20 @@
                           <label for="Male">
                             <input
                               type="radio"
-                              name="radio"
+                              name="radio1"
                               value="Male"
                               id="Male"
-                              @change="$emit('input', 'Male')"
+                              v-model="gender"
                             />
                             Male
                           </label>
                           <label for="Female">
                             <input class="mx-2"
                               type="radio"
-                              name="radio"
+                              name="radio1"
                               value="Female"
                               id="Female"
-                              @change="$emit('input', 'Female')"
+                              v-model="gender"
                             />
                             Female</label
                           >
@@ -587,10 +587,10 @@
                           <label for="Non-Binary">
                             <input class="mx-2"
                               type="radio"
-                              name="radio"
+                              name="radio1"
                               value="Yes"
-                              id="Yes"
-                              @change="$emit('input', 'Yes')"
+                              id="Nonbinary"
+                              v-model="gender"
                             />
                             Non-Binary
                           </label>
@@ -600,30 +600,50 @@
                             ><h5 class="mx-1 mb-2 text-left">Marital Status</h5></v-text
                           >
 
-                          <v-select
+                          <label for="Yes1">
+                          <input class="mx-2"
+                            type="radio"
+                            name="radio2"
+                            value= 1
+                            id="Yes1"
                             v-model="maritalStatus"
-                            :items="maritalSelection"
-                            :rules="nameRules"
-                            label="Marital Status"
-                            required
-                            outlined
-                            dense
-                          ></v-select>
+                          />
+                          Yes
+                        </label>
+                        <label for="No1">
+                          <input class="mx-2"
+                            type="radio"
+                            name="radio2"
+                            value= 0
+                            id="No1"
+                            v-model="maritalStatus"
+                          />
+                          No</label> 
                         </v-col>  
                         <v-col>
                           <v-text class="font"
                             ><h5 class="mx-1 mb-2 text-left">Military Status</h5></v-text
                           >
 
-                          <v-select
+                          <label for="Yes2">
+                          <input class="mx-2"
+                            type="radio"
+                            name="radio3"
+                            value= 1
+                            id="Yes2"
                             v-model="militaryStatus"
-                            :items="militarySelection"
-                            :rules="nameRules"
-                            label="Military Status"
-                            required
-                            outlined
-                            dense
-                          ></v-select>
+                          />
+                          Yes
+                        </label>
+                        <label for="No2">
+                          <input class="mx-2"
+                            type="radio"
+                            name="radio3"
+                            value= 0
+                            id="No2"
+                            v-model="militaryStatus"
+                          />
+                          No</label>
                         </v-col>
                       </v-row>
                     
@@ -638,48 +658,23 @@
 
                 <v-form class="mx-8 mt-2 align-content-center">
                   <v-row>
-                    <v-col cols="16" sm="8" md="4">
+                    <v-col cols="20" sm="26" md="12">
                       <v-text class="font"
-                        ><h5 class="mx-1 mb-2 text-left">First Name</h5></v-text
+                        ><h5 class="mx-1 mb-2 text-left">Full Name</h5></v-text
                       >
 
                       <v-text-field
-                        v-model="partnerFirst"
+                        v-model="partnerFullname"
                         :rules="nameRules"
-                        label="FirstName"
+                        label="Full Name"
                         required
                         outlined
                         dense
                       ></v-text-field>
                     </v-col>
-                    <v-col cols="16" sm="8" md="4">
-                      <v-text class="font"
-                        ><h5 class="mx-1 mb-2 text-left">Middle Name</h5></v-text
-                      >
-
-                      <v-text-field
-                        v-model="partnerMiddle"
-                        :rules="nameRules"
-                        label="Middle Name"
-                        required
-                        outlined
-                        dense
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="16" sm="8" md="4">
-                      <v-text class="font"
-                        ><h5 class="mx-1 mb-2 text-left">Last Name</h5></v-text
-                      >
-
-                      <v-text-field
-                        v-model="partnerLast"
-                        :rules="nameRules"
-                        label="Last Name"
-                        required
-                        outlined
-                        dense
-                      ></v-text-field>
-                    </v-col>
+                  </v-row>
+                  <v-row>
+                    
                     <v-col cols="16" sm="8" md="4">
                       <v-text class="font"
                           ><h5 class="mx-1 mb-2 text-left">Occupation</h5></v-text
@@ -801,7 +796,7 @@
               <v-toolbar-title>Application form for {{ this.jobDetails.jobName }} </v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn dark text @click="dialog2 = false"> Submit </v-btn>
+                <v-btn dark text @click="dialog2 = false; submit()"> Submit </v-btn>
                 <!-- this line must link a function to submit the data to the database -->
               </v-toolbar-items>
             </v-toolbar>
@@ -837,13 +832,16 @@
                         ><h5 class="mx-1 mb-2 text-left">Resume/CV</h5></v-text
                       >
                     
-                        <v-file-input
+                        <input
                           accept=".pdf"
+                          type="file"
+                          id="file"
                           :rules="[(v) => !!v || 'This field is required']"
                           label="No file chosen"
                           outlined
                           dense
-                        ></v-file-input>
+                          @change ="handleFile"
+                        />
                         
                       <v-text class="font"
                       ><h5 class="mx-1 mb-2 text-left">
@@ -861,18 +859,6 @@
                       maxlength="250"
                       ></v-textarea>
 
-
-                      <v-text class="font"
-                        ><h5 class="mx-1 mb-2 text-left">Additional Achievements and Certificates</h5></v-text
-                      >
-
-                      <v-file-input
-                          accept=".pdf"
-                          :rules="[(v) => !!v || 'This field is required']"
-                          label="No file chosen"
-                          outlined
-                          dense
-                      ></v-file-input>
                       
                       <v-row>
                         
@@ -883,9 +869,9 @@
                           <input
                             type="radio"
                             name="radio1"
-                            value="Yes1"
+                            value= 1
                             id="Yes1"
-                            @change="$emit('input', 'Yes1')"
+                            v-model="haveLicense"
                           />
                           Yes
                         </label>
@@ -893,9 +879,9 @@
                           <input class="mx-2"
                             type="radio"
                             name="radio1"
-                            value="No1"
+                            value= 0
                             id="No1"
-                            @change="$emit('input', 'No1')"
+                            v-model="haveLicense"
                           />
                           No</label
                         >
@@ -907,9 +893,9 @@
                           <input class="mx-2"
                             type="radio"
                             name="radio2"
-                            value="Yes2"
+                            value= 1
                             id="Yes2"
-                            @change="$emit('input', 'Yes2')"
+                            v-model="haveCar"
                           />
                           Yes
                         </label>
@@ -917,9 +903,9 @@
                           <input class="mx-2"
                             type="radio"
                             name="radio2"
-                            value="No2"
+                            value= 0
                             id="No2"
-                            @change="$emit('input', 'No2')"
+                            v-model="haveCar"
                           />
                           No</label
                         >
@@ -930,9 +916,9 @@
                           <input 
                             type="radio"
                             name="radio3"
-                            value="Yes3"
+                            value= 1 
                             id="Yes3"
-                            @change="$emit('input', 'Yes3')"
+                            v-model="havePC"
                           />
                           Yes
                         </label>
@@ -940,9 +926,9 @@
                           <input class="mx-2"
                             type="radio"
                             name="radio3"
-                            value="No3"
+                            value= 0
                             id="No3"
-                            @change="$emit('input', 'No3')"
+                            v-model="havePC"
                           />
                           No</label
                         >
@@ -1078,15 +1064,6 @@
                         dense
                         outlined
                       >
-                      </v-text-field><v-text-field
-                        v-model="emergencyNum3"
-                        :rules="numRules"
-                        type="number"
-                        label="Contact Number"
-                        required
-                        dense
-                        outlined
-                      >
                       </v-text-field>
                       </v-col>
                   
@@ -1108,15 +1085,6 @@
                         >
                       <v-select 
                         v-model= "familyStatus2"
-                        :items="statusSelection"
-                        :rules="[(v) => !!v || 'This field is required']"
-                        label="Family Status"
-                        required
-                        outlined
-                        dense
-                      ></v-select>
-                      <v-select 
-                        v-model= "familyStatus3"
                         :items="statusSelection"
                         :rules="[(v) => !!v || 'This field is required']"
                         label="Family Status"
@@ -1159,7 +1127,7 @@
               <v-toolbar-title>Application form for {{ this.jobDetails.jobName }} </v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn dark text @click="dialog3 = false"> Submit </v-btn>
+                <v-btn dark text @click="dialog3 = false , submit()"> Submit </v-btn>
                 <!-- this line must link a function to submit the data to the database -->
               </v-toolbar-items>
             </v-toolbar>
@@ -1285,7 +1253,7 @@
                         <v-btn align="end" color="natural dark-grey" @click="AP2();">  
                           Back
                         </v-btn>
-                        <v-btn align="end" color="primary darken-3" @click="dialog3=false"> 
+                        <v-btn align="end" color="primary darken-3" @click="submit();dialog3=false"> 
                           Submit
                         </v-btn>
                       </v-col>
@@ -1304,10 +1272,12 @@
 </template>
 
 <script>
+import axios from 'axios'
+import qs from 'qs'
 export default {
   name: "Job Details",
   data: () => ({
-    return: { selectedFile: null }, // must return the data gathered from different entries and wrap up into json file.
+    
     dialog1: false,
     dialog2: false,
     dialog3: false,
@@ -1362,19 +1332,17 @@ export default {
         "User experience (UX) designers are among the most in-demand professionals in the creative industry right now. As businesses update their websites, mobile apps and more to interact with customers in new ways, people who can help conceive and build intuitive and engaging digital experiences are needed across the country. The UX designer creates satisfying and compelling experiences for users of a product, often drawing on results from user research and workflow analysis. Generally, UX designers need to possess strong creative, technical and problem-solving skills. Areas of focus may include content, controls, visual design and development, information architecture, user research, branding, and customer/technical support.",
     },
 
-    role: true,
     
     //Dialog 1 
     
     fullName: "",
     nationality: "",
     statement: "",
-    partnerFirst:"",
-    partnerMiddle:"",
-    partnerLast:"",
+    partnerFullname:"",
     partnerAddress:"",
     workingCompany:"",
     address:"",
+    gender:"",
     
     email: "",
     partnerEmail:"",
@@ -1433,13 +1401,13 @@ export default {
     ],
 
     select: null,
-    degree: "",
-    degreeSelection: [
-      "Associate Degree", "Bachelor’s Degree", "Master’s Degree", "Doctoral Degree"
+    faculty: "",
+    facultySelection: [
+      "Faculty of Engineering", "Faculty of Economics", "Faculty of Arts", "Chemistry","Computer Science & Information Technology"
     ],
 
     select: null,
-    maritalStatue: "",
+    maritalStatus: "",
     maritalSelection: [
       "single", "married", "widowed", "divorced", "separated"
     ],
@@ -1469,14 +1437,19 @@ export default {
 
     //Dialog 2
     //???read and pack pdf file
+    file:"",
     statement:"",
     specialAbilities:"",
     emergencyName1:"",
     emergencyName2:"",
-    emergencyName3:"",
     emergencyNum1:"",
     emergencyNum2:"",
-    emergencyNum3:"",
+    date: "",
+    university: "",
+    haveLicense:"",
+    haveCar: "",
+    havePC: "",
+
 
     select: null,
     foreignLanguage: "",
@@ -1494,9 +1467,6 @@ export default {
     familyStatus2: "",
     statusSelection: ["Partner", "Legal Guardian", "Aunt", "Brother", "Cousin", "Father", "Mother", "Grandfather", "Grandmother", "Other"],
     
-    select: null,
-    familyStatus3: "",
-    statusSelection: ["Partner", "Legal Guardian", "Aunt", "Brother", "Cousin", "Father", "Mother", "Grandfather", "Grandmother", "Other"],
     
     //common rules
     nameRules: [(v) => !!v || "This field is required"],
@@ -1512,6 +1482,12 @@ export default {
     },
   },
   methods: {
+
+    handleFile(event){
+      
+      this.file=event.target.files[0];
+      },
+
     save(date) {
       this.$refs.menu.save(date);
     },
@@ -1534,65 +1510,70 @@ export default {
       this.dialog4= false;
     },
 
-    
+    async submit(){
+      let formData = new FormData();
+      formData.append('pdf',this.file);
+      formData.append('applicant_fullname',this.fullName);
+      formData.append('applicant_citizen_id',this.citizenID);
+      formData.append('applicant_contact_number',this.contactNum);
+      formData.append('applicant_email',this.email);
+      formData.append('age',this.age); 
+      formData.append('DOB',this.date);
+      formData.append('nationality',this.nationality);
+      formData.append('religion',this.religious);
+      formData.append('university',this.university);
+      formData.append('degree',this.faculty);
+      formData.append('GPA',this.gpa);
+      formData.append('address',this.address);
+      formData.append('gender',this.gender);
+      formData.append('marital_status',this.maritalStatus);
+      formData.append('military_status',this.militaryStatus);
+      formData.append('partner_fullname',this.partnerFullname);
+      formData.append('partner_occupation',this.occupation);
+      formData.append('number_of_children',this.numChild);
+      formData.append('partner_contact_number',this.partnerNum);
+      formData.append('partner_email',this.partnerEmail);
+      formData.append('partner_address',this.partnerAddress);
+      formData.append('partner_company',this.workingCompany);
+      formData.append('emergency_fullname',this.emergencyName1);
+      formData.append('emergency_contact_number',this.emergencyNum1);
+      formData.append('emergency_relationship',this.familyStatus1);
+      formData.append('additional_fullname',this.emergencyName2);
+      formData.append('additional_contact_number',this.emergencyNum2);
+      formData.append('additional_relationship',this.familyStatus2);
+      formData.append('statement_of_purpose',this.statement);
+      formData.append('driving_license',this.haveLicense);
+      formData.append('car_possession',this.haveCar);
+      formData.append('pc_possession',this.havePC);
+      formData.append('foreign_language',this.foreignLanguage);
+      formData.append('proficiency',this.proficiencyLevel);
+      formData.append('special_ability',this.specialAbilities);
+      formData.append('job_id',3);
+      formData.append('questions_id_1',1);
+      formData.append('questions_id_2',2);
+      formData.append('questions_id_3',3);
+      
+      // http://rienru.tk/foo/catchparams.php
+      // http://143.198.77.144:8000/uploadApplication
+      await axios.post('http://143.198.77.144:8000/uploadApplication', formData,{
+        
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        
+        }})
 
-
-
-    selectedFile(event) {
-      // this is the function used to upload images for the profile picture.
-      console.log(event);
-      console.log("Image uploaded successfully");
-      this.selectedFile = event.target.files[0]; // this is use to access the actual image file in and store it in the "selectedFile" section.
+      // }))
+      // .then(response => {
+      //   console.log('success')
+      // })
+      // .catch(err => {
+      //   console.log(err)
+      // })
     },
+
     testPrint(){
       console.log(this.fullName)
     },
-
-    //pdf file in dialog2
-    async selectFile1(e) {
-      const file = e.target.files[0];
-
-      /* Make sure file exists */
-      if (!file) return;
-
-      /* create a reader */
-      const readData = (f) =>  new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(f);
-      });
-
-      /* Read data */
-      const data = await readData(file);
-
-      // /* upload the converted data */
-      // const instance = this.$cloudinary.upload(data, {
-      //   folder: 'upload-examples',
-      //   uploadPreset: 'your-upload-preset',
-      // })
-    },
-    async selectFile2(e) {
-      const file = e.target.files[0];
-
-      /* Make sure file exists */
-      if (!file) return;
-
-      /* create a reader */
-      const readData = (f) =>  new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(f);
-      });
-
-      /* Read data */
-      const data = await readData(file);
-
-      // /* upload the converted data */
-      // const instance = this.$cloudinary.upload(data, {
-      //   folder: 'upload-examples',
-      //   uploadPreset: 'your-upload-preset',
-      // })
-    }
   },
 };
 </script>
