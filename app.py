@@ -1450,11 +1450,46 @@ def selectQuestions(current_user,application_id):
             del_id.append(k[0])
 
 
-    conn.execute("DELETE FROM questions_answered WHERE application_id = " + str(application_id) + " and selected != 1 and question_id in "+ str(tuple(del_id)) )        
-    #print(all_q_a_to_del)
+    conn.execute("DELETE FROM questions_answered WHERE application_id = " + str(application_id) + " and selected != 1 and question_id in "+ str(tuple(del_id)) )     
+       
+    application_query = "SELECT * FROM application WHERE application_id = " + str(application_id)
 
-    response = jsonify({'q_id selected for application '+ str(application_id) : output } )
+    job_id = conn.execute(application_query).fetchall()[0].job_id  
+    applicant_id = conn.execute(application_query).fetchall()[0].applicant_id
+
+    applicant_query = "SELECT * FROM applicant_information WHERE applicant_id = '" + str(applicant_id) + "'"
+    applicant_name = conn.execute(applicant_query).fetchall()[0].fullname
+    applicant_email = conn.execute(applicant_query).fetchall()[0].email
+
+    job_query = "SELECT * FROM job_information WHERE job_id = " + str(job_id)
+    job_role_applied = conn.execute(job_query).fetchall()[0].position
+    application_deadline = conn.execute(job_query).fetchall()[0].application_deadline
+
+    applicant_inform_email = EmailMessage()
+    applicant_inform_email['Subject'] = "Company A Online Application : Personalized Evaluation Test"
+    applicant_inform_email['From'] = EMAIL_ADDRESS    # jobapplicationplatform@gmail.com
+    applicant_inform_email['To'] = applicant_email
+            # retrieved from the database ( the applicant's email )
+    content = open("inform_applicant_for_questions.html").read().format(applicant_name=applicant_name, 
+                                                        job_role=job_role_applied, 
+                                                        app_deadline=application_deadline)
+
+    applicant_inform_email.set_content(content,subtype="html")
+
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:   # to the actual email, required smtp.ehlo() and smtp.starttls() code
+
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        smtp.send_message(applicant_inform_email)
+        print("A confirmation email has been sent to", applicant_name, "( via SSL Connection ) ")
+            
+    stmt = " UPDATE application SET question_progress = 'Submitted' WHERE application_id = " + str(application_id)
+    conn.execute(stmt)
+
+    conn.close()
+    response = jsonify({ 'Response': 'Questions has been informed to the applicant in Application ' + str(application_id) , 'q_id selected for application '+ str(application_id) : output  })
     response.headers.add("Access-Control-Allow-Origin","*")
+
     return response
     
 
@@ -1582,55 +1617,47 @@ def sentOffer(current_user, application_id):
 
     application_query = "SELECT * FROM application WHERE application_id = " + str(application_id)
     offered_check = conn.execute(application_query).fetchall()[0].sent_offer
-    validation_check = conn.execute(application_query).fetchall()[0].validation  
 
-    if validation_check == 1 :
 
-        if offered_check != 1 : 
 
-            job_id = conn.execute(application_query).fetchall()[0].job_id  
-            applicant_id = conn.execute(application_query).fetchall()[0].applicant_id
+    if offered_check != 1 : 
 
-            applicant_query = "SELECT * FROM applicant_information WHERE applicant_id = '" + str(applicant_id) + "'"
-            applicant_name = conn.execute(applicant_query).fetchall()[0].fullname
-            applicant_email = conn.execute(applicant_query).fetchall()[0].email
+        job_id = conn.execute(application_query).fetchall()[0].job_id  
+        applicant_id = conn.execute(application_query).fetchall()[0].applicant_id
 
-            job_query = "SELECT position FROM job_information WHERE job_id = " + str(job_id)
+        applicant_query = "SELECT * FROM applicant_information WHERE applicant_id = '" + str(applicant_id) + "'"
+        applicant_name = conn.execute(applicant_query).fetchall()[0].fullname
+        applicant_email = conn.execute(applicant_query).fetchall()[0].email
 
-            job_details = conn.execute(job_query).fetchall()[0]
+        job_query = "SELECT position FROM job_information WHERE job_id = " + str(job_id)
+
+        job_details = conn.execute(job_query).fetchall()[0]
             
-            applicant_inform_email = EmailMessage()
-            applicant_inform_email['Subject'] = "Company A Online Application : Job Offer"
-            applicant_inform_email['From'] = EMAIL_ADDRESS    # jobapplicationplatform@gmail.com
-            applicant_inform_email['To'] = applicant_email
-            content = open("job_offer_email.html").read().format(applicant_name=applicant_name, 
+        applicant_inform_email = EmailMessage()
+        applicant_inform_email['Subject'] = "Company A Online Application : Job Offer"
+        applicant_inform_email['From'] = EMAIL_ADDRESS    # jobapplicationplatform@gmail.com
+        applicant_inform_email['To'] = applicant_email
+        content = open("job_offer_email.html").read().format(applicant_name=applicant_name, 
                                                     job_role=job_details.position
                                                     )
-            applicant_inform_email.set_content(content,subtype="html")
+        applicant_inform_email.set_content(content,subtype="html")
 
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:   # to the actual email, required smtp.ehlo() and smtp.starttls() code
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:   # to the actual email, required smtp.ehlo() and smtp.starttls() code
 
-                smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-                smtp.send_message(applicant_inform_email)
+            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            smtp.send_message(applicant_inform_email)
 
-                print("A confirmation email has been sent to", applicant_name, "( via SSL Connection ) ")
+            print("A confirmation email has been sent to", applicant_name, "( via SSL Connection ) ")
         
-            stmt = " UPDATE application SET sent_offer = 1 WHERE application_id = " + str(application_id)
-            conn.execute(stmt)
+        stmt = " UPDATE application SET sent_offer = 1 WHERE application_id = " + str(application_id)
+        conn.execute(stmt)
 
-            conn.close()
-            response = jsonify({ 'Response': 'Offer has been sent to the applicant in Application ' + str(application_id) })
-            response.headers.add("Access-Control-Allow-Origin","*")
-            return response
-
-        else:
-            response = jsonify({ 'Response': 'Job offer has already been sent to the applicant.' })
-            response.headers.add("Access-Control-Allow-Origin","*")
-            return response
-    else:
-        response = jsonify({ 'Response': 'This application has not yet been validated' })
+        conn.close()
+        response = jsonify({ 'Response': 'Offer has been sent to the applicant in Application ' + str(application_id) })
         response.headers.add("Access-Control-Allow-Origin","*")
         return response
+
+
 
 
 
@@ -1648,67 +1675,52 @@ def sentQuestion(current_user,application_id):
     conn = engine.connect()
 
     application_query = "SELECT * FROM application WHERE application_id = " + str(application_id)
-    validation_check = conn.execute(application_query).fetchall()[0].validation 
     question_progress = conn.execute(application_query).fetchall()[0].question_progress
 
-    if validation_check == 1 :
 
-        if question_progress == 'Submitted':
-            response = jsonify({ 'Response': 'Questions has already been informed to the applicant in Application ' + str(application_id) })
-            response.headers.add("Access-Control-Allow-Origin","*")
-            return response
-        
-        elif question_progress == 'Preparing':
-            response = jsonify({ 'Response': 'Questions are currently being prepared' + str(application_id) })
-            response.headers.add("Access-Control-Allow-Origin","*")
-            return response
-        
-        elif question_progress == 'Ready':
-            job_id = conn.execute(application_query).fetchall()[0].job_id  
-            applicant_id = conn.execute(application_query).fetchall()[0].applicant_id
-
-            applicant_query = "SELECT * FROM applicant_information WHERE applicant_id = '" + str(applicant_id) + "'"
-            applicant_name = conn.execute(applicant_query).fetchall()[0].fullname
-            applicant_email = conn.execute(applicant_query).fetchall()[0].email
-
-            job_query = "SELECT * FROM job_information WHERE job_id = " + str(job_id)
-            job_role_applied = conn.execute(job_query).fetchall()[0].position
-            application_deadline = conn.execute(job_query).fetchall()[0].application_deadline
-
-            applicant_inform_email = EmailMessage()
-            applicant_inform_email['Subject'] = "Company A Online Application : Personalized Evaluation Test"
-            applicant_inform_email['From'] = EMAIL_ADDRESS    # jobapplicationplatform@gmail.com
-            applicant_inform_email['To'] = applicant_email
-            # retrieved from the database ( the applicant's email )
-            content = open("inform_applicant_for_questions.html").read().format(applicant_name=applicant_name, 
-                                                        job_role=job_role_applied, 
-                                                        app_deadline=application_deadline)
-
-            applicant_inform_email.set_content(content,subtype="html")
-
-
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:   # to the actual email, required smtp.ehlo() and smtp.starttls() code
-
-                smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-                smtp.send_message(applicant_inform_email)
-
-                print("A confirmation email has been sent to", applicant_name, "( via SSL Connection ) ")
-            
-                stmt = " UPDATE application SET question_progress = 'Submitted' WHERE application_id = " + str(application_id)
-                conn.execute(stmt)
-
-            conn.close()
-            response = jsonify({ 'Response': 'Questions has been informed to the applicant in Application ' + str(application_id) })
-            response.headers.add("Access-Control-Allow-Origin","*")
-
-            return response
-
-    else:
-        response = jsonify({ 'Response': 'Application ' + str(application_id) +  ' has not yet been validated' })
+    if question_progress == 'Submitted':
+        response = jsonify({ 'Response': 'Questions has already been informed to the applicant in Application ' + str(application_id) })
         response.headers.add("Access-Control-Allow-Origin","*")
         return response
+       
+    elif question_progress == 'Preparing':
+        response = jsonify({ 'Response': 'Questions are currently being prepared' + str(application_id) })
+        response.headers.add("Access-Control-Allow-Origin","*")
+        return response
+        
+    elif question_progress == 'Ready':
+        job_id = conn.execute(application_query).fetchall()[0].job_id  
+        applicant_id = conn.execute(application_query).fetchall()[0].applicant_id
+
+        applicant_query = "SELECT * FROM applicant_information WHERE applicant_id = '" + str(applicant_id) + "'"
+        applicant_name = conn.execute(applicant_query).fetchall()[0].fullname
+        applicant_email = conn.execute(applicant_query).fetchall()[0].email
+
+        job_query = "SELECT * FROM job_information WHERE job_id = " + str(job_id)
+        job_role_applied = conn.execute(job_query).fetchall()[0].position
+        application_deadline = conn.execute(job_query).fetchall()[0].application_deadline
+
+        applicant_inform_email = EmailMessage()
+        applicant_inform_email['Subject'] = "Company A Online Application : Personalized Evaluation Test"
+        applicant_inform_email['From'] = EMAIL_ADDRESS    # jobapplicationplatform@gmail.com
+        applicant_inform_email['To'] = applicant_email
+                # retrieved from the database ( the applicant's email )
+        content = open("inform_applicant_for_questions.html").read().format(applicant_name=applicant_name, 
+                                                            job_role=job_role_applied, 
+                                                            app_deadline=application_deadline)
+
+        applicant_inform_email.set_content(content,subtype="html")
 
 
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:   # to the actual email, required smtp.ehlo() and smtp.starttls() code
+
+            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            smtp.send_message(applicant_inform_email)
+            print("A confirmation email has been sent to", applicant_name, "( via SSL Connection ) ")
+
+    response = jsonify({ 'Response': 'Questions has been informed to the applicant in Application ' + str(application_id)})
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response
 
 if __name__ == "__main__":
     app.run(debug=True)
