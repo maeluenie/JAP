@@ -1,4 +1,5 @@
 from calendar import month
+from cgi import test
 from email.mime import application
 from lib2to3.pgen2 import token
 import re
@@ -10,7 +11,7 @@ from sqlalchemy.orm import load_only
 import os
 from flask import Flask, request, jsonify, make_response , render_template
 import sqlalchemy as db
-from sqlalchemy import engine_from_config, text, update
+from sqlalchemy import engine_from_config, insert, text, update
 import jwt
 import ssl
 import datetime
@@ -209,48 +210,61 @@ def getAllApplicants(current_user):
             return response
 
     conn = engine.connect()
-    metadata = db.MetaData()
 
-    application = db.Table('application', metadata, autoload=True, autoload_with=engine)
+    selection_query = """
+    SELECT application.application_id, application.applicant_id, application.job_id, application.validation, 
+    application.validated_time, application.sent_offer, application.question_progress,
+    applicant_information.fullname, applicant_information.contact_number, applicant_information.email,
+    job_information.position, job_information.department, job_information.working_location, job_information.application_deadline
+    """
+    from_query = """FROM application 
+    INNER JOIN applicant_information ON application.applicant_id = applicant_information.applicant_id 
+    INNER JOIN job_information  ON application.job_id = job_information.job_id"""
     
-    output = []
+    test_string = selection_query + from_query
+    
+    all_values = conn.execute(test_string).fetchall()
+    
+    # output = []
+    # metadata = db.MetaData()
+    # application = db.Table('application', metadata, autoload=True, autoload_with=engine)
 
-    application_data = conn.execute(db.select(application))
-    #print(application_data, type(application_data))
+    # application_data = conn.execute(db.select(application))
 
-    for i in application_data:
-        #print(i)
-        data = {}
-        data['application_id'] = i.application_id
-        data['applicant_id'] = i.applicant_id
-        data['job_id'] = i.job_id
-        data['validation'] = i.validation
-        data['validated_time'] = i.validated_time
-        data['sent_offer'] = i.sent_offer
-        data['question_progress'] = i.question_progress
+    # for i in application_data:
+    #     #print(i)
+    #     data = {}
+    #     data['application_id'] = i.application_id
+    #     data['applicant_id'] = i.applicant_id
+    #     data['job_id'] = i.job_id
+    #     data['validation'] = i.validation
+    #     data['validated_time'] = i.validated_time
+    #     data['sent_offer'] = i.sent_offer
+    #     data['question_progress'] = i.question_progress
 
-        applicant = db.Table('applicant_information', metadata, autoload=True, autoload_with=engine)
-        applicant_data = conn.execute(db.select(applicant).where(applicant.columns.applicant_id == data['applicant_id']))
+    #     applicant = db.Table('applicant_information', metadata, autoload=True, autoload_with=engine)
+    #     applicant_data = conn.execute(db.select(applicant).where(applicant.columns.applicant_id == data['applicant_id']))
         
-        for i in applicant_data:
-            data['applicant_fullname'] = i.fullname
-            data['contact_number'] = i.contact_number
-            data['email'] = i.email
+    #     for i in applicant_data:
+    #         data['applicant_fullname'] = i.fullname
+    #         data['contact_number'] = i.contact_number
+    #         data['email'] = i.email
 
-        job = db.Table('job_information', metadata, autoload=True, autoload_with=engine)
-        job_data = conn.execute(db.select(job).where(job.columns.job_id == data['job_id']))
+    #     job = db.Table('job_information', metadata, autoload=True, autoload_with=engine)
+    #     job_data = conn.execute(db.select(job).where(job.columns.job_id == data['job_id']))
 
-        for j in job_data:
-            data['position'] = j.position
-            data['department'] = j.department
-            data['working_location'] = j.working_location
-            data['application_deadline'] = j.application_deadline
+    #     for j in job_data:
+    #         data['position'] = j.position
+    #         data['department'] = j.department
+    #         data['working_location'] = j.working_location
+    #         data['application_deadline'] = j.application_deadline
 
-        output.insert(0,data)
+    #     output.insert(0,data)
 
     conn.close()
 
-    response = jsonify(output)
+    response = jsonify([dict(row) for row in all_values])
+    # response = jsonify({'result': output})
     response.headers.add("Access-Control-Allow-Origin","*")
     return response
 
@@ -471,12 +485,9 @@ def uploadApplication():
         'address' : data['partner_address'],
         'time_registered' : time.strftime('%Y-%m-%d %H:%M:%S')
     }
-    print('This is partner_values ==>',partner_values, flush=True)
+
     partner_query = db.insert(partner)
     conn.execute(partner_query,partner_values)
-    
-
-
 
     emergency = db.Table('emergency_contact', metadata, autoload=True, autoload_with=engine)
     last_emerg_cont_id = engine.execute(text("select emergencycont_id from emergency_contact ORDER BY time_registered DESC LIMIT 1;")).fetchall()
@@ -512,11 +523,8 @@ def uploadApplication():
         emergcont_values['additional_relationship'] = data['additional_relationship']
 
     emergency_query = db.insert(emergency)
-    print('This is emergcont_values ==>',emergcont_values, flush=True)
     conn.execute(emergency_query,emergcont_values)
     
-
-
     workexp = db.Table('working_experiences', metadata, autoload=True, autoload_with=engine)
     last_workexp_id = engine.execute(text("select workingexp_id from working_experiences ORDER BY time_registered DESC LIMIT 1;")).fetchall()
     
@@ -546,7 +554,6 @@ def uploadApplication():
         'time_registered' : time.strftime('%Y-%m-%d %H:%M:%S')
     }
     workexp_query = db.insert(workexp)
-    print('This is workexp_values ==>',workexp_values, flush=True)
     conn.execute(workexp_query,workexp_values)
 
     applicants = db.Table('applicant_information', metadata, autoload=True, autoload_with=engine)
@@ -597,7 +604,6 @@ def uploadApplication():
     }
 
     applicants_query = db.insert(applicants)
-    print('This is applicant values ==>',applicant_values, flush=True)
     conn.execute(applicants_query,applicant_values)
 
     application = db.Table('application', metadata, autoload=True, autoload_with=engine)
@@ -613,7 +619,6 @@ def uploadApplication():
     }
 
     application_query = db.insert(application)
-    print('This is application values ==>',application_values,flush=True)
     conn.execute(application_query,application_values)
 
     job = db.Table('job_information', metadata, autoload=True, autoload_with=engine)
@@ -630,35 +635,46 @@ def uploadApplication():
     
     application_id = engine.execute(text("select application_id from application ORDER BY registered_datetime DESC LIMIT 1;")).fetchall()[0].application_id
 
-    job_questions = db.Table('job_questions', metadata, autoload=True, autoload_with=engine)
     answers = db.Table('questions_answered', metadata, autoload=True, autoload_with=engine)
-    all_questions = conn.execute(db.select(job_questions).where(job_questions.columns.job_id == data['job_id']))
     
-    list_q_id = []
-    for i in all_questions:
-        list_q_id.append(i.question_id)
-    provided_id = data.keys()
+    q_id_array = list(data['q_id_array'][1:-1].split(","))
+    answer_array = list(data['answer_array'][1:-1].split(","))
+    
+    print(q_id_array , type(q_id_array))
+    print(answer_array, type(answer_array))
+    
+    inserted_values = {}
+    inserted_values['application_id'] = application_id
+    inserted_values['selected'] = 1
 
-    qa_pairing = {}
-    qa_pairing['application_id'] = application_id
+    for i in range(len(q_id_array)):
+        inserted_values['question_id'] = q_id_array[i]
+        inserted_values['answer'] = answer_array[i]
+        query = db.insert(answers)
+        conn.execute(query,inserted_values)
 
-    for j in provided_id:
-        if j in str(list_q_id):
-            qa_pairing['question_id'] = j
-            qa_pairing['answer'] = data[str(j)]
-            qa_pairing['selected'] = 1
-            query = db.insert(answers)
-            conn.execute(query,qa_pairing)
-            print('This is qa_pairing ',qa_pairing,flush=True)
+    # this section has to be modified, so that it will accept two arrays, questions_id and answers
+    # list_q_id = []
+    # for i in all_questions:
+    #     list_q_id.append(i.question_id)
+    # provided_id = data.keys()
 
+    # qa_pairing = {}
+    # qa_pairing['application_id'] = application_id
+
+    # for j in provided_id:
+    #     if j in str(list_q_id):
+    #         qa_pairing['question_id'] = j
+    #         qa_pairing['answer'] = data[str(j)]
+    #         qa_pairing['selected'] = 1
+    #         query = db.insert(answers)
+    #         conn.execute(query,qa_pairing)
 
     resume = request.files['pdf'] 
-    print('This is resume file ======>', resume, flush=True)
 
     resume.filename = new_id + '.pdf'
     resume.save(os.path.join(upload_path,resume.filename))
 
-    # for testing purposes, this will be the developer's email.
     applicant_email = applicant_values['email']
 
     applicant_inform_email = EmailMessage()
@@ -710,71 +726,90 @@ def uploadApplication():
 def getAllJobs():
 
     conn = engine.connect()
-    metadata = db.MetaData()
-
-    job_applied = db.Table('job_information', metadata, autoload=True, autoload_with=engine)
-    job_applied_data = conn.execute(db.select(job_applied))
-
-    whole_data = []
+    selection_query = """
+    SELECT job_information.job_id, job_information.position_id, job_information.approx_salary, job_information.number_of_applicants,
+    job_information.start_date, job_information.application_deadline, job_information.educational_degree_required, job_information.working_location,
+    job_information.required_experiences, job_information.required_skills, job_information.status, job_information.working_time_details,
+    job_information.job_description, job_information.job_description, job_information.accommodations, job_information.bonus,
+    job_information.transportation, job_information.transportation_allowances, job_information.ot_per_hour, job_information.leave_quota,
+    job_information.laptop_provision, job_information.other_provision, job_information.insurance_provision, job_information.insurance_provision,
+    job_information.insurance_level,job_information.additional_benefits_welfare, organization_information.department,organization_information.position,
+    organization_information.competencies,employee_information.fullname,employee_information.role
+    """
+    from_query = """FROM job_information
+    INNER JOIN organization_information ON organization_information.position_id = job_information.job_id
+    INNER JOIN employee_information ON employee_information.employee_id = job_information.line_manager_id"""
     
-    for i in job_applied_data:
-        data = {}
-        data['job_id'] = i.job_id
-        data['position_id'] = i.position_id
-        data['approx_salary'] = i.approx_salary
-        data['number_of_applicants'] = i.number_of_applicants
-        data['start_date'] = i.start_date
-        data['application_deadline'] = i.application_deadline
-        data['line_manager_id'] = i.line_manager_id
-        data['working_location'] = i.working_location
-        data['educational_degree_required'] = i.educational_degree_required
-        data['required_experiences'] = i.required_experiences
-        data['required_skills'] = i.required_skills      
+    test_string = selection_query + from_query
+    # print(test_string)
+    all_values = conn.execute(test_string).fetchall()
 
-        # for the best possible way, get the data into this form in the json data submitted.    
-        # "required_skills": [
-        #     "Human-Centred Design",
-        #     "Customer Psychology",
-        #     "User Experience Theorie"
-        # ],        
+    # metadata = db.MetaData()
 
-        data['status'] = i.status
-        data['working_time_details'] = i.working_time_details
-        data['job_description'] = i.job_description
-        data['accommodations'] = i.accommodations
-        data['bonus'] = i.bonus
-        data['transportation'] = i.transportation
-        data['transportation_allowances'] = i.transportation_allowances
-        data['ot_per_hour'] = i.ot_per_hour
-        data['leave_quota'] = i.leave_quota
-        data['laptop_provision'] = i.laptop_provision
-        data['other_provision'] = i.other_provision
-        data['insurance_provision'] = i.insurance_provision
-        data['insurance_level'] = i.insurance_level
-        data['additional_benefits_welfare'] = i.additional_benefits_welfare
+    # job_applied = db.Table('job_information', metadata, autoload=True, autoload_with=engine)
+    # job_applied_data = conn.execute(db.select(job_applied))
 
-        organization_info = db.Table('organization_information', metadata, autoload=True, autoload_with=engine)
-        organization_info_data = conn.execute(db.select(organization_info).where(organization_info.columns.position_id == data['position_id']))
+    # whole_data = []
+    
+    # for i in job_applied_data:
+    #     data = {}
+    #     data['job_id'] = i.job_id
+    #     data['position_id'] = i.position_id
+    #     data['approx_salary'] = i.approx_salary
+    #     data['number_of_applicants'] = i.number_of_applicants
+    #     data['start_date'] = i.start_date
+    #     data['application_deadline'] = i.application_deadline
+    #     data['line_manager_id'] = i.line_manager_id
+    #     data['working_location'] = i.working_location
+    #     data['educational_degree_required'] = i.educational_degree_required
+    #     data['required_experiences'] = i.required_experiences
+    #     data['required_skills'] = i.required_skills      
 
-        for i in organization_info_data:
-            data['position_id'] = data['job_id']
-            data['department'] = i.department
-            data['position'] = i.position
-            data['competencies'] = i.competencies
+    #     # for the best possible way, get the data into this form in the json data submitted.    
+    #     # "required_skills": [
+    #     #     "Human-Centred Design",
+    #     #     "Customer Psychology",
+    #     #     "User Experience Theorie"
+    #     # ],        
 
-        employee_info = db.Table('employee_information', metadata, autoload=True, autoload_with=engine)
-        employee_info_data = conn.execute(db.select(employee_info).where(employee_info.columns.employee_id == data['line_manager_id']))
+    #     data['status'] = i.status
+    #     data['working_time_details'] = i.working_time_details
+    #     data['job_description'] = i.job_description
+    #     data['accommodations'] = i.accommodations
+    #     data['bonus'] = i.bonus
+    #     data['transportation'] = i.transportation
+    #     data['transportation_allowances'] = i.transportation_allowances
+    #     data['ot_per_hour'] = i.ot_per_hour
+    #     data['leave_quota'] = i.leave_quota
+    #     data['laptop_provision'] = i.laptop_provision
+    #     data['other_provision'] = i.other_provision
+    #     data['insurance_provision'] = i.insurance_provision
+    #     data['insurance_level'] = i.insurance_level
+    #     data['additional_benefits_welfare'] = i.additional_benefits_welfare
 
-        for i in employee_info_data:
-            data['manager_id'] = data['line_manager_id']
-            data['manager_fullname'] = i.fullname
-            data['manager_role'] = i.role
+    #     organization_info = db.Table('organization_information', metadata, autoload=True, autoload_with=engine)
+    #     organization_info_data = conn.execute(db.select(organization_info).where(organization_info.columns.position_id == data['position_id']))
 
-        whole_data.append(data)
+    #     for i in organization_info_data:
+    #         data['position_id'] = data['job_id']
+    #         data['department'] = i.department
+    #         data['position'] = i.position
+    #         data['competencies'] = i.competencies
 
-    conn.close()
+    #     employee_info = db.Table('employee_information', metadata, autoload=True, autoload_with=engine)
+    #     employee_info_data = conn.execute(db.select(employee_info).where(employee_info.columns.employee_id == data['line_manager_id']))
 
-    response = jsonify({'Jobs': whole_data })
+    #     for i in employee_info_data:
+    #         data['manager_id'] = data['line_manager_id']
+    #         data['manager_fullname'] = i.fullname
+    #         data['manager_role'] = i.role
+
+    #     whole_data.append(data)
+
+    # conn.close()
+
+    response = jsonify([dict(row) for row in all_values])
+    # response = jsonify(whole_data)
     response.headers.add("Access-Control-Allow-Origin","*")
     return response
 
@@ -1228,7 +1263,6 @@ def getSingleQuestions(current_user, question_id):
 
 @app.route('/getSetOfJobQuestions/<job_id>', methods=['GET'])  
 @cross_origin()
-@token_required
 def getQuestionsAccordingToJobs(current_user,job_id):
 
     conn = engine.connect()
