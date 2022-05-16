@@ -1891,6 +1891,10 @@
                             dense
                             placeholder=" Enter Question"     
                           />
+
+                        <button>
+                          Add
+                        </button>
                         <!--          Add Svg Icon-->
                         <svg
 
@@ -2257,7 +2261,7 @@ export default {
 
     statement:'',
     totalcharacter : 0,
-    role: true,
+    role: false,
 
     valid: true,
     citizenID: "",
