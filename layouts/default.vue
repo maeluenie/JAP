@@ -9,16 +9,18 @@
       fixed
       app
     >
-      <v-list>
-        <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          :to="item.to"
-          router
-          exact
-          dense
-          color="primary darken-3"
-        >
+
+    <v-list>
+      <v-list-item
+        v-for="(item, i) in items"
+        :key="i"
+        :to="item.to"
+        router
+        exact
+        dense
+        color="primary darken-3"
+      >
+  
           <!-- Looping through the imported list of item declared from line 138-158 -->
 
           <v-list-item-action>
@@ -26,6 +28,7 @@
           </v-list-item-action>
 
           <v-list-item-content>
+            
             <v-list-item-title v-text="item.title" />
           </v-list-item-content>
         </v-list-item>
@@ -52,6 +55,13 @@
       <v-btn icon @click.stop="rightDrawer = !rightDrawer">
         <v-icon>mdi-menu</v-icon>
       </v-btn>
+        <div v-if="$auth.loggedIn">
+          {{$auth.user.username}}
+          <v-btn text>Logout</v-btn>
+        </div>
+        <div v-else>
+          <v-btn text to="/login">Login</v-btn>
+        </div>
     </v-app-bar>
 
     <!-- this marks the end of the top navigation bar -->
