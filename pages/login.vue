@@ -11,10 +11,10 @@
               <v-card-text>
                 <v-form>
                   <v-text-field
-                    name="email"
-                    label="Email"
+                    name="username"
+                    label="Username"
                     type="text"
-                    v-model="email"
+                    v-model="username"
                   ></v-text-field>
                   <v-text-field
                     id="password"
@@ -30,7 +30,9 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <!-- v-if role=admin go to listofjobs while else go to userQA page -->
-                <v-btn color="primary" nuxt to="/list_of_jobs" @click="loginHandler">Login</v-btn>
+                <!-- <v-btn color="primary" @click="loginHandler" v-if="$auth.data=='admin'" nuxt to="/list_of_jobs">Login</v-btn> -->
+                <!-- <v-btn color="primary" v-else nuxt to="/userQA" @click="loginHandler">Login</v-btn> -->
+                <v-btn color="primary" @click="loginHandler">Login</v-btn>
               </v-card-actions>
             </v-card>
           </v-flex>
@@ -49,16 +51,35 @@ export default {
   name: "Login",
   data() {
     return {
-      email: null,
-      password: null,
+      username: 'admin',
+      password: 'test12345',
+      // username: 'AP126TAGUNJIVASITTHIKUL',
+      // password: '4)B3J2?ZgL',
       value: String,
+      //role: true,
     };
   },
   methods:{
-    loginHandler(){
-      const login = {'email': this.email, 'password': this.password}
-      console.log(login);
-    },
+
+    async loginHandler(){
+      try{
+        const response = await this.$auth.loginWith("local",{
+          data: {'username': this.username, 'password': this.password}
+        });
+        console.log(this.$auth.user);
+        if (this.$auth.user=='admin') {
+        this.$router.replace({ name: "list_of_jobs" });
+        }
+        else {
+          this.$router.replace({name: "userQA"});
+        }
+
+      } catch (err) {
+        //console.log(this.username,this.password)
+        console.log(err);
+      }
+      },
+
     switchVisibility(){
       this.passwordFieldType = this.passwordFieldType == "password" ? "text" :"password";
     }
