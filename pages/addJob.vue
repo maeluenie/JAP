@@ -1,3 +1,4 @@
+
 <template>
   <v-app>
     <v-card>
@@ -391,55 +392,45 @@
                 <v-row>
                   <v-col cols="1" sm="1" md="12">
 
-                    <div class="form-group">
-                      <div
-                        v-for="(input, index) in Questions"
-                        :key="`ques-${index}`"
-                        class="input wrapper flex items-center"
-                      >
-                          <v-textarea 
-                          v-model="input.ques"
-                          type="text" 
-                          required
-                          outlined
-                          dense
-                          placeholder=" Enter Question"     
-                        />
-                      <!--          Add Svg Icon-->
-                      <svg
+                    <div align="left">
+                        <div class="my-2" v-for="(q, i) in questions" :key="q">
+                          Question {{i+1}}.{{q.name}}
+                          <v-text-field
+                            v-model="questions[i]" 
+                            required
+                            outlined
+                            dense
+                            placeholder="Enter Question"     
+                          />
+                    
+                          
+                          <v-btn
+                          color="error"
+                          @click="rmq()"
+                          class=" white--text"
+                          >
+                          <v-icon
+                          >
+                            mdi-delete
+                          </v-icon>Remove
+                          </v-btn>
 
-                        @click="addField(input, Questions)"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width="24"
-                        height="24"
-                        class="ml-2 cursor-pointer"
-                      >
-                        <path fill="none" d="M0 0h24v24H0z" />
-                        <path
-                          fill="green"
-                          d="M11 11V7h2v4h4v2h-4v4h-2v-4H7v-2h4zm1 11C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"
-                        />
-                      </svg>
+                          </div>
 
-                      <!--          Remove Svg Icon-->
-                      <svg
-                        v-show="Questions.length > 1"
-                        @click="removeField(index, Questions)"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        width="24"
-                        height="24"
-                        class="ml-2 cursor-pointer"
-                      >
-                        <path fill="none" d="M0 0h24v24H0z" />
-                        <path
-                          fill="red"
-                          d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm0-9.414l2.828-2.829 1.415 1.415L13.414 12l2.829 2.828-1.415 1.415L12 13.414l-2.828 2.829-1.415-1.415L10.586 12 7.757 9.172l1.415-1.415L12 10.586z"
-                        />
-                      </svg>
+                          <v-btn
+                            @click="addQ()"
+                            color="primary darken"
+                            class="my-2 white--text"
+                          >
+                          <v-icon
+                          >
+                            mdi-plus
+                          </v-icon>
+                          Add Question
+                          </v-btn>
                       </div>
-                    </div>
+                      
+
                   </v-col>
 
 
@@ -719,7 +710,7 @@ export default {
     widgets: false,
 
     //addjob dialog 2
-    Questions: [{ ques: "" }],
+    questions: [],
 
     valid: true,
     citizenID: "",
@@ -868,6 +859,7 @@ export default {
       "Thonglor",
     ],
   }),
+
   watch: {
     //calendar1
     menu1(val) {
@@ -909,11 +901,12 @@ export default {
       this.requiredSkills = [...this.requiredSkills];
     },
     //addjob dialog 2 left select used question and send/recieve
-    addField(value, fieldType) {
-      fieldType.push({ value: "" });
+    addQ() {
+      this.questions.push('')
+      console.log(this.questions)
     },
-    removeField(index, fieldType) {
-      fieldType.splice(index, 1);
+    rmq(i) {
+      this.questions.splice(i, 1)
     },
 
     testPrint(){
