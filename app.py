@@ -11,7 +11,7 @@ from sqlalchemy.orm import load_only
 import os
 from flask import Flask, request, jsonify, make_response , render_template
 import sqlalchemy as db
-from sqlalchemy import engine_from_config, insert, text, update
+from sqlalchemy import engine_from_config, insert, null, text, update
 import jwt
 import ssl
 import datetime
@@ -924,11 +924,8 @@ def addNewJob(current_user):
     conn = engine.connect()
     metadata = db.MetaData()
 
-    organization_info = db.Table('organization_information', metadata, autoload=True, autoload_with=engine)
-    organization_info_data = conn.execute(db.select(organization_info).where(organization_info.columns.position_id == data['position_id']))
-
     values = {
-                'position' : data['position'],
+                'position' : data['role_name'],    # this role_name go into job_information position field.
                 'approx_salary' : data['approx_salary'],
                 'number_of_applicants': data['number_of_applicants'],
                 'start_date': data['start_date'],
@@ -937,7 +934,7 @@ def addNewJob(current_user):
                 'working_location' : data['working_location'],
                 'educational_degree_required': data['educational_degree_required'],
                 'required_experiences': data['required_experiences'],
-                'required_skills': data['required_skills'], # pending , hoping for an array in the end.
+                'required_skills': str(data['required_skills']), # pending , hoping for an array in the end.
                 'status': data['status'],
                 'working_time_details' : data['working_time_details'],
                 'job_description': data['job_description'],
@@ -955,34 +952,71 @@ def addNewJob(current_user):
                 'time_registered' : time.strftime('%Y-%m-%d %H:%M:%S')
               }
 
-    if organization_info_data:
-        for i in organization_info_data:
-            values['position_id'] = i.position_id  # will be taken from the input from front-end after providing the manager dropdown both their id and names, ( controversial )
-            values['department'] = i.department
+
+    organization_info = db.Table('organization_information', metadata, autoload=True, autoload_with=engine)
+    organization_info_data = conn.execute(db.select(organization_info).where(organization_info.columns.position == data['position'])).fetchall()[0]
+   
+    if organization_info_data != None:
+        values['position_id'] = organization_info_data.position_id  # will be taken from the input from front-end after providing the manager dropdown both their id and names, ( controversial )
+        values['department'] = organization_info_data.department
     else: 
         return make_response('No position available', 404)
 
     job = db.Table('job_information', metadata, autoload=True, autoload_with=engine)
     query = db.insert(job)
+    conn.execute(query,values)  # execute to add new job, next to the questions.
 
-    conn.execute(query,values)
-    
-    
+    list_of_questions = list( str(data['question_array'])[1:-1].split(",") )
+    questions = db.Table('questions', metadata, autoload=True, autoload_with=engine)
     job_questions = db.Table('job_questions', metadata, autoload=True, autoload_with=engine)
-    query = db.insert(job_questions)
-    last_job_id = engine.execute(text("select job_id from job_information ORDER BY time_registered DESC LIMIT 1;")).fetchall()[0].job_id
 
-    for q_id in data['selected_questions_id']:   # accepting [1,2,3,4,5,6] without any spaces between integers or the brackets at all.
-        jq_values = {
-                'question_id' : q_id,
-                'job_id' : last_job_id  
+    recent_q_id_list = []
+
+    for i in list_of_questions:
+        new_question_values = {
+                'question' : i[1:-1].translate({ ord("'"): None }),
+                'question_type' : 'general',
+                'question_category': 'category A',
+                'question_difficulty': 'general',
+                'question_position' : values['department'],
+                'question_keywords' : data['required_skills'],     
         }
-        conn.execute(query,jq_values)
+        add_question_query = db.insert(questions)
+        conn.execute(add_question_query,new_question_values)
+        
+        latest_job_id = conn.execute("SELECT job_id FROM job_information ORDER BY job_id DESC LIMIT 1").fetchall()[0].job_id
+        latest_q_id = conn.execute("SELECT question_id FROM questions ORDER BY question_id DESC LIMIT 1").fetchall()[0].question_id
+
+        recent_q_id_list.append(latest_q_id)
+
+        question_job_link = {
+            'job_id' : latest_job_id,
+            'question_id' : latest_q_id
+        }
+
+        print('this is the question job link variable',question_job_link)
+        job_questions_query = db.insert(job_questions)
+        conn.execute(job_questions_query,question_job_link)
+
+
+    # questions will be submitted in an array of strings for tagun to add it into db first, then get it linked together.
+
+
+    # job_questions = db.Table('job_questions', metadata, autoload=True, autoload_with=engine)
+    # query = db.insert(job_questions)
+    # last_job_id = engine.execute(text("select job_id from job_information ORDER BY time_registered DESC LIMIT 1;")).fetchall()[0].job_id
+
+    # for q_id in data['selected_questions_id']:   # accepting [1,2,3,4,5,6] without any spaces between integers or the brackets at all.
+    #     jq_values = {
+    #             'question_id' : q_id,
+    #             'job_id' : last_job_id  
+    #     }
+    #     conn.execute(query,jq_values)
 
     conn.close()
 
 
-    result_text = str(data['position']) + ' has been added into the database'
+    result_text = str(data['role_name']) + ' has been added into the database and questions with the ID of ' + str(recent_q_id_list) + ' are added into the system'
 
     response = jsonify({'Message':result_text})
     response.headers.add("Access-Control-Allow-Origin","*")
@@ -1017,15 +1051,19 @@ def editJob(current_user,job_id):
 
     #for i in job_data.keys():
     #    print( i, job_data[i] , type(job_data[i]), end="\n")
-
     for i in keys:
-        if data[i] != job_data[i]:
-            if isinstance(job_data[i], int):
-                int_query = "UPDATE job_information SET " + str(i) + " = " + str(data[i]) + " WHERE job_id = " + str(job_id)
-                conn.execute(int_query)
-            elif isinstance(job_data[i], str):
-                str_query = 'UPDATE job_information SET ' + str(i) + " = '" + str(data[i]) + "' WHERE job_id = " + str(job_id)
-                conn.execute(str_query)
+        if i in ['department','position_id']:
+            response = jsonify({'Message':'The field could not be modified.'})
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
+        else:
+            if data[i] != job_data[i]:
+                if isinstance(job_data[i], int):
+                    int_query = "UPDATE job_information SET " + str(i) + " = " + str(data[i]) + " WHERE job_id = " + str(job_id)
+                    conn.execute(int_query)
+                elif isinstance(job_data[i], str):
+                    str_query = 'UPDATE job_information SET ' + str(i) + " = '" + str(data[i]) + "' WHERE job_id = " + str(job_id)
+                    conn.execute(str_query)
             
     # examples of the namings.
     # values = {
@@ -1056,7 +1094,7 @@ def editJob(current_user,job_id):
     #             'time_registered' : time.strftime('%Y-%m-%d %H:%M:%S')
     #           }
 
-    response = jsonify({'Message':'The job has been updated'})
+    response = jsonify({'Message':'The job has been updated specifically '+ str(keys)})
     response.headers.add("Access-Control-Allow-Origin","*")
     return response
 
