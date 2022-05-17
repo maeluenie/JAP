@@ -218,8 +218,8 @@ def getAllApplicants(current_user):
     job_information.position, job_information.department, job_information.working_location, job_information.application_deadline
     """
     from_query = """FROM application 
-    INNER JOIN applicant_information ON application.applicant_id = applicant_information.applicant_id 
-    INNER JOIN job_information  ON application.job_id = job_information.job_id"""
+    LEFT JOIN applicant_information ON application.applicant_id = applicant_information.applicant_id 
+    LEFT JOIN job_information  ON application.job_id = job_information.job_id"""
     
     test_string = selection_query + from_query
     
@@ -637,38 +637,36 @@ def uploadApplication():
 
     answers = db.Table('questions_answered', metadata, autoload=True, autoload_with=engine)
     
-    q_id_array = list(data['q_id_array'][1:-1].split(","))
-    answer_array = list(data['answer_array'][1:-1].split(","))
+    for i in data['all_questions']:
+        i['application_id'] = application_id,
+        i['selected'] = 1
+        target_table = db.insert(answers)
+        conn.execute(target_table)
+
+    # format of data['all_questions'] is
+    #   questions : {
+    #       {
+    #           "question_id": x,
+    #            "answer" : "answerForQuestion1"
+    #       }
+  
+    # q_id_array = list(data['q_id_array'][1:-1].split(","))
+    # answer_array = list(data['answer_array'][1:-1].split(","))
     
-    print(q_id_array , type(q_id_array))
-    print(answer_array, type(answer_array))
+    # print(q_id_array , type(q_id_array))
+    # print(answer_array, type(answer_array))
     
-    inserted_values = {}
-    inserted_values['application_id'] = application_id
-    inserted_values['selected'] = 1
+    # inserted_values = {}
+    # inserted_values['application_id'] = application_id
+    # inserted_values['selected'] = 1
+ 
+    # for i in range(len(q_id_array)):
+    #     inserted_values['question_id'] = q_id_array[i]
+    #     inserted_values['answer'] = answer_array[i]
+    #     query = db.insert(answers)
+    #     conn.execute(query,inserted_values)
 
-    for i in range(len(q_id_array)):
-        inserted_values['question_id'] = q_id_array[i]
-        inserted_values['answer'] = answer_array[i]
-        query = db.insert(answers)
-        conn.execute(query,inserted_values)
 
-    # this section has to be modified, so that it will accept two arrays, questions_id and answers
-    # list_q_id = []
-    # for i in all_questions:
-    #     list_q_id.append(i.question_id)
-    # provided_id = data.keys()
-
-    # qa_pairing = {}
-    # qa_pairing['application_id'] = application_id
-
-    # for j in provided_id:
-    #     if j in str(list_q_id):
-    #         qa_pairing['question_id'] = j
-    #         qa_pairing['answer'] = data[str(j)]
-    #         qa_pairing['selected'] = 1
-    #         query = db.insert(answers)
-    #         conn.execute(query,qa_pairing)
 
     resume = request.files['pdf'] 
 
@@ -737,12 +735,25 @@ def getAllJobs():
     organization_information.competencies,employee_information.fullname,employee_information.role
     """
     from_query = """FROM job_information
-    INNER JOIN organization_information ON organization_information.position_id = job_information.job_id
-    INNER JOIN employee_information ON employee_information.employee_id = job_information.line_manager_id"""
+    JOIN organization_information ON organization_information.position_id = job_information.job_id
+    JOIN employee_information ON employee_information.employee_id = job_information.line_manager_id"""
     
     test_string = selection_query + from_query
     # print(test_string)
     all_values = conn.execute(test_string).fetchall()
+    test = [dict(row) for row in all_values][-2]
+    print(test)
+
+
+    test2 = []
+    for row in all_values:
+        test2.append(dict(row))
+    
+    for i in test2:
+        i['required_skills'] = list(i['required_skills'][1:-1].split(","))
+        print(i['required_skills'], end="\n")
+    
+    print(len(test),len(test2),len(all_values))
 
     # metadata = db.MetaData()
 
@@ -808,7 +819,7 @@ def getAllJobs():
 
     # conn.close()
 
-    response = jsonify([dict(row) for row in all_values])
+    response = jsonify(test2)
     # response = jsonify(whole_data)
     response.headers.add("Access-Control-Allow-Origin","*")
     return response
@@ -924,6 +935,12 @@ def addNewJob(current_user):
     conn = engine.connect()
     metadata = db.MetaData()
 
+    str_cat = "["
+    for i in data['required_skills']:
+        str_cat += str(i)
+        str_cat += ','
+    str_cat = str_cat[0:-1]+"]"
+
     values = {
                 'position' : data['role_name'],    # this role_name go into job_information position field.
                 'approx_salary' : data['approx_salary'],
@@ -934,7 +951,7 @@ def addNewJob(current_user):
                 'working_location' : data['working_location'],
                 'educational_degree_required': data['educational_degree_required'],
                 'required_experiences': data['required_experiences'],
-                'required_skills': str(data['required_skills']), # pending , hoping for an array in the end.
+                'required_skills': str_cat , # pending , hoping for an array in the end.
                 'status': data['status'],
                 'working_time_details' : data['working_time_details'],
                 'job_description': data['job_description'],
@@ -952,19 +969,23 @@ def addNewJob(current_user):
                 'time_registered' : time.strftime('%Y-%m-%d %H:%M:%S')
               }
 
+    print(data['position'])
 
-    organization_info = db.Table('organization_information', metadata, autoload=True, autoload_with=engine)
-    organization_info_data = conn.execute(db.select(organization_info).where(organization_info.columns.position == data['position'])).fetchall()[0]
+    organization_info_data = conn.execute("SELECT position_id, department FROM organization_information WHERE position = '" + str(data['position']) + "'").fetchall()
    
+    print(organization_info_data)
+
     if organization_info_data != None:
-        values['position_id'] = organization_info_data.position_id  # will be taken from the input from front-end after providing the manager dropdown both their id and names, ( controversial )
-        values['department'] = organization_info_data.department
+        for i in organization_info_data:
+            print(i, i.position_id, i.department)
+            values['position_id'] = i.position_id  # will be taken from the input from front-end after providing the manager dropdown both their id and names, ( controversial )
+            values['department'] = i.department
     else: 
         return make_response('No position available', 404)
 
     job = db.Table('job_information', metadata, autoload=True, autoload_with=engine)
     query = db.insert(job)
-    conn.execute(query,values)  # execute to add new job, next to the questions.
+    conn.execute(query,values)  # execute to add new job, next to the questions  
 
     list_of_questions = list( str(data['question_array'])[1:-1].split(",") )
     questions = db.Table('questions', metadata, autoload=True, autoload_with=engine)
@@ -979,7 +1000,7 @@ def addNewJob(current_user):
                 'question_category': 'category A',
                 'question_difficulty': 'general',
                 'question_position' : values['department'],
-                'question_keywords' : data['required_skills'],     
+                'question_keywords' : str_cat,     
         }
         add_question_query = db.insert(questions)
         conn.execute(add_question_query,new_question_values)
@@ -1052,10 +1073,13 @@ def editJob(current_user,job_id):
     #for i in job_data.keys():
     #    print( i, job_data[i] , type(job_data[i]), end="\n")
     for i in keys:
+
         if i in ['department','position_id']:
+            
             response = jsonify({'Message':'The field could not be modified.'})
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
+
         else:
             if data[i] != job_data[i]:
                 if isinstance(job_data[i], int):
@@ -1301,7 +1325,7 @@ def getSingleQuestions(current_user, question_id):
 
 @app.route('/getSetOfJobQuestions/<job_id>', methods=['GET'])  
 @cross_origin()
-def getQuestionsAccordingToJobs(current_user,job_id):
+def getQuestionsAccordingToJobs(job_id):
 
     conn = engine.connect()
     query = "SELECT * FROM job_questions WHERE job_id = " + str(job_id)
@@ -1328,11 +1352,6 @@ def getQuestionsAccordingToJobs(current_user,job_id):
         questions_set.append(data)
 
     conn.close()
-    
-    if data == {}:
-        response = jsonify({'Response':'No question with this ID in the database'})
-        response.headers.add("Access-Control-Allow-Origin","*")
-        return response
 
     response = jsonify(questions_set)
     response.headers.add("Access-Control-Allow-Origin","*")
