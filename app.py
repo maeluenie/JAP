@@ -214,11 +214,11 @@ def getAllApplicants(current_user):
     SELECT application.application_id, application.applicant_id, application.job_id, application.validation, 
     application.validated_time, application.sent_offer, application.question_progress,
     applicant_information.fullname, applicant_information.contact_number, applicant_information.email,
-    job_information.position, job_information.department, job_information.working_location, job_information.application_deadline
+    job_information.rolename, job_information.department, job_information.working_location, job_information.application_deadline
     """
     from_query = """FROM application 
     LEFT JOIN applicant_information ON application.applicant_id = applicant_information.applicant_id 
-    LEFT JOIN job_information  ON application.job_id = job_information.job_id"""
+    LEFT JOIN job_information ON application.job_id = job_information.job_id"""
     
     test_string = selection_query + from_query
     
@@ -373,6 +373,7 @@ def getApplication(current_user, application_id):
 
     for i in job_applied_data:
         set_job_data['job_id'] = i.job_id
+        set_job_data['rolename'] = i.rolename
         set_job_data['position_id'] = i.position_id
         set_job_data['approx_salary'] = i.approx_salary
         set_job_data['number_of_applicants'] = i.number_of_applicants
@@ -629,7 +630,7 @@ def uploadApplication():
 
     for i in job_data:
         application_deadline = i.application_deadline
-        job_role_applied = i.position
+        job_role_applied = i.rolename
         num_of_applicant = i.number_of_applicants - 1
         line_manager_id = i.line_manager_id
 
@@ -728,18 +729,20 @@ def getAllJobs():
 
     conn = engine.connect()
     selection_query = """
-    SELECT job_information.job_id, job_information.position_id, job_information.approx_salary, job_information.number_of_applicants,
-    job_information.start_date, job_information.application_deadline, job_information.educational_degree_required, job_information.working_location,
+    SELECT job_information.job_id, job_information.rolename, job_information.position_id, job_information.approx_salary, job_information.number_of_applicants,
+    job_information.start_date, job_information.application_deadline, job_information.educational_degree_required,
     job_information.required_experiences, job_information.required_skills, job_information.status, job_information.working_time_details,
     job_information.job_description, job_information.job_description, job_information.accommodations, job_information.bonus,
     job_information.transportation, job_information.transportation_allowances, job_information.ot_per_hour, job_information.leave_quota,
     job_information.laptop_provision, job_information.other_provision, job_information.insurance_provision, job_information.insurance_provision,
-    job_information.insurance_level,job_information.additional_benefits_welfare, organization_information.department,organization_information.position,
-    organization_information.competencies,employee_information.fullname,employee_information.role
+    job_information.insurance_level,job_information.additional_benefits_welfare, organization_information.department,
+    organization_information.position, organization_information.competencies,employee_information.fullname,employee_information.role
     """
+
+
     from_query = """FROM job_information
-    JOIN organization_information ON organization_information.position_id = job_information.job_id
-    JOIN employee_information ON employee_information.employee_id = job_information.line_manager_id"""
+    JOIN organization_information ON job_information.position_id = organization_information.position_id
+    JOIN employee_information ON job_information.line_manager_id = employee_information.employee_id"""
     
     test_string = selection_query + from_query
     # print(test_string)
@@ -843,6 +846,7 @@ def getSingleJob(job_id):
     data = {}
     for i in job_applied_data:
         data['job_id'] = i.job_id
+        data['rolename'] = i.rolename
         data['position_id'] = i.position_id
         data['approx_salary'] = i.approx_salary
         data['number_of_applicants'] = i.number_of_applicants
@@ -950,7 +954,7 @@ def addNewJob(current_user):
     str_cat = str_cat[0:-1]+"]"
 
     values = {
-                'position' : data['role_name'],    # this role_name go into job_information position field.
+                'rolename' : data['role_name'],    # this role_name go into job_information position field.
                 'approx_salary' : data['approx_salary'],
                 'number_of_applicants': data['number_of_applicants'],
                 'start_date': data['start_date'],
@@ -1526,7 +1530,7 @@ def selectQuestions(current_user,application_id):
     applicant_email = conn.execute(applicant_query).fetchall()[0].email
 
     job_query = "SELECT * FROM job_information WHERE job_id = " + str(job_id)
-    job_role_applied = conn.execute(job_query).fetchall()[0].position
+    job_role_applied = conn.execute(job_query).fetchall()[0].rolename
     application_deadline = conn.execute(job_query).fetchall()[0].application_deadline
 
     applicant_inform_email = EmailMessage()
@@ -1693,7 +1697,7 @@ def sentOffer(current_user, application_id):
         applicant_name = conn.execute(applicant_query).fetchall()[0].fullname
         applicant_email = conn.execute(applicant_query).fetchall()[0].email
 
-        job_query = "SELECT position FROM job_information WHERE job_id = " + str(job_id)
+        job_query = "SELECT rolename FROM job_information WHERE job_id = " + str(job_id)
 
         job_details = conn.execute(job_query).fetchall()[0]
             
@@ -1702,7 +1706,7 @@ def sentOffer(current_user, application_id):
         applicant_inform_email['From'] = EMAIL_ADDRESS    # jobapplicationplatform@gmail.com
         applicant_inform_email['To'] = applicant_email
         content = open("job_offer_email.html").read().format(applicant_name=applicant_name, 
-                                                    job_role=job_details.position
+                                                    job_role=job_details.rolename
                                                     )
         applicant_inform_email.set_content(content,subtype="html")
 
@@ -1761,7 +1765,7 @@ def sentQuestion(current_user,application_id):
         applicant_email = conn.execute(applicant_query).fetchall()[0].email
 
         job_query = "SELECT * FROM job_information WHERE job_id = " + str(job_id)
-        job_role_applied = conn.execute(job_query).fetchall()[0].position
+        job_role_applied = conn.execute(job_query).fetchall()[0].rolename
         application_deadline = conn.execute(job_query).fetchall()[0].application_deadline
 
         applicant_inform_email = EmailMessage()
