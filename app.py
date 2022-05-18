@@ -25,7 +25,7 @@ import time
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"*": {"origins": "*"}})
 
 app.config['SECRET_KEY'] = os.environ.get('JAP_API_SECRET_KEY')
 
@@ -79,7 +79,6 @@ def token_required(f):
         return f(current_user,*args, **kwargs)
 
     return decorated
-
 
 # rechecked
 @app.route('/login', methods=['POST'])
@@ -453,10 +452,14 @@ def uploadApplication():
     num_of_applicant_check = conn.execute(check_query).fetchall()[0].number_of_applicants 
      
     if num_of_applicant_check <= 0:
-        return make_response('This job has stopped accepting applicants now.')
+        response = jsonify({'Action': 'This job has stopped accepting applicants now.' })
+        response.headers.add("Access-Control-Allow-Origin","*")
+        return response
 
     if not data:
-        return make_response('No Data Available', 404)
+        response = jsonify({'Action': 'No Data Available' })
+        response.headers.add("Access-Control-Allow-Origin","*")
+        return response
 
     partner = db.Table('partner_information', metadata, autoload=True, autoload_with=engine)
     last_partner_id = engine.execute(text("select partnerinfo_id from partner_information ORDER BY time_registered DESC LIMIT 1;")).fetchall()
@@ -825,20 +828,19 @@ def getAllJobs():
     return response
 
 
-
 @app.route('/getSingleJob/<job_id>', methods=['GET'])
-@cross_origin()
 def getSingleJob(job_id):
 
     conn = engine.connect()
-
+    # list(i.required_skills[1:-1].split(","))
     metadata = db.MetaData()
-    
+    print("getSingleJob job_id   ", job_id , flush=True)
     job_applied = db.Table('job_information', metadata, autoload=True, autoload_with=engine)
+    
     job_applied_data = conn.execute(db.select(job_applied).where(job_applied.columns.job_id == job_id))
+    print("getSingleJob get_job_applied_data    " , job_applied_data , flush=True)
 
     data = {}
-
     for i in job_applied_data:
         data['job_id'] = i.job_id
         data['position_id'] = i.position_id
@@ -889,7 +891,10 @@ def getSingleJob(job_id):
 
 
     if data == {}:
-        return make_response('No question with this ID in the database')
+
+        response = jsonify({'Response': 'No question with this ID in the database'})
+        response.headers.add("Access-Control-Allow-Origin","*")
+        return response
 
     data['list_of_questions'] = questions_set
 
@@ -911,10 +916,13 @@ def getSingleJob(job_id):
         data['manager_fullname'] = i.fullname
         data['manager_role'] = i.role
 
+    print("getSingleJob single_job_data_json    " , data , flush=True)
+
     conn.close()
 
     response = jsonify({'Jobs': data })
     response.headers.add("Access-Control-Allow-Origin","*")
+    print(response)
     return response
 
 
@@ -1045,9 +1053,7 @@ def addNewJob(current_user):
 
 
 
-@app.route('/editJob/<job_id>', methods=['POST'])  # this function will work only by having the same keys as in the field name in the DB.
-                                                   # for instance, in the field name is "educational_degree_required"
-                                                   # the json input here must also be the same.
+@app.route('/editJob/<job_id>', methods=['POST']) 
 @cross_origin()
 @token_required
 def editJob(current_user,job_id):
@@ -1501,13 +1507,14 @@ def selectQuestions(current_user,application_id):
 
     query_for_all_questions = "SELECT question_id FROM questions_answered WHERE application_id = " + str(application_id) + " and selected != 1"
     all_q_a_to_del = conn.execute(query_for_all_questions).fetchall()
+
     del_id  = []
     for k in all_q_a_to_del:
         if k not in del_id:
             del_id.append(k[0])
 
-
-    conn.execute("DELETE FROM questions_answered WHERE application_id = " + str(application_id) + " and selected != 1 and question_id in "+ str(tuple(del_id)) )     
+    for i in del_id:
+        conn.execute("DELETE FROM questions_answered WHERE application_id = " + str(application_id) + " and selected != 1 and question_id in "+ str(i) )     
        
     application_query = "SELECT * FROM application WHERE application_id = " + str(application_id)
 
@@ -1661,7 +1668,7 @@ def devalidation(current_user, application_id):
 
 @app.route('/sent_offer/<application_id>', methods=['POST']) 
 @cross_origin()
-@token_required  
+@token_required 
 def sentOffer(current_user, application_id):
 
     for i in current_user:
