@@ -732,7 +732,7 @@ def getAllJobs():
     SELECT job_information.job_id, job_information.rolename, job_information.position_id, job_information.approx_salary, job_information.number_of_applicants,
     job_information.start_date, job_information.application_deadline, job_information.educational_degree_required,
     job_information.required_experiences, job_information.required_skills, job_information.status, job_information.working_time_details,
-    job_information.job_description, job_information.job_description, job_information.accommodations, job_information.bonus,
+    job_information.job_description, job_information.job_description, job_information.working_location, job_information.accommodations, job_information.bonus,
     job_information.transportation, job_information.transportation_allowances, job_information.ot_per_hour, job_information.leave_quota,
     job_information.laptop_provision, job_information.other_provision, job_information.insurance_provision, job_information.insurance_provision,
     job_information.insurance_level,job_information.additional_benefits_welfare, organization_information.department,
@@ -758,8 +758,6 @@ def getAllJobs():
     for i in test2:
         i['required_skills'] = list(i['required_skills'][1:-1].split(","))
         print(i['required_skills'], end="\n")
-    
-    print(len(test),len(test2),len(all_values))
 
     # metadata = db.MetaData()
 
@@ -952,7 +950,7 @@ def addNewJob(current_user):
         str_cat += str(i)
         str_cat += ','
     str_cat = str_cat[0:-1]+"]"
-
+    print(str_cat)
     values = {
                 'rolename' : data['role_name'],    # this role_name go into job_information position field.
                 'approx_salary' : data['approx_salary'],
@@ -981,15 +979,12 @@ def addNewJob(current_user):
                 'time_registered' : time.strftime('%Y-%m-%d %H:%M:%S')
               }
 
-    print(data['position'])
 
     organization_info_data = conn.execute("SELECT position_id, department FROM organization_information WHERE position = '" + str(data['position']) + "'").fetchall()
    
-    print(organization_info_data)
 
     if organization_info_data != None:
         for i in organization_info_data:
-            print(i, i.position_id, i.department)
             values['position_id'] = i.position_id  # will be taken from the input from front-end after providing the manager dropdown both their id and names, ( controversial )
             values['department'] = i.department
     else: 
@@ -1073,23 +1068,18 @@ def editJob(current_user,job_id):
     keys = list(data.keys())
 
     conn = engine.connect()
-    metadata = db.MetaData()
+    metadata = db.MetaData() 
+ 
 
     job_information = db.Table('job_information', metadata, autoload=True, autoload_with=engine)
     job_data = conn.execute(db.select(job_information).where(job_information.columns.job_id == job_id)).fetchall()[0]
 
-    #print(job_data)
-
-    #for i in job_data.keys():
-    #    print( i, job_data[i] , type(job_data[i]), end="\n")
     for i in keys:
 
-        if i in ['department','position_id']:
-            
-            response = jsonify({'Message':'The field could not be modified.'})
-            response.headers.add("Access-Control-Allow-Origin","*")
-            return response
-
+        if i in ['department','position_id','position']:
+            pass
+        elif i in ['prev_questions','new_questions','department','position_id','required_skills']:
+            pass
         else:
             if data[i] != job_data[i]:
                 if isinstance(job_data[i], int):
@@ -1098,37 +1088,114 @@ def editJob(current_user,job_id):
                 elif isinstance(job_data[i], str):
                     str_query = 'UPDATE job_information SET ' + str(i) + " = '" + str(data[i]) + "' WHERE job_id = " + str(job_id)
                     conn.execute(str_query)
-            
-    # examples of the namings.
-    # values = {
-    #             'position' : data['position'],
-    #             'approx_salary' : data['approx_salary'],
-    #             'number_of_applicants': data['number_of_applicants'],
-    #             'start_date': data['start_date'],
-    #             'application_deadline' : data['application_deadline'],
-    #             'line_manager_id' : data['line_manager_id'],     # will be taken from the input from front-end after providing the manager dropdown both their id and names, ( controversial )
-    #             'working_location' : data['working_location'],
-    #             'educational_degree_required': data['educational_degree_required'],
-    #             'required_experiences': data['required_experiences'],
-    #             'required_skills': data['required_skills'], # pending , hoping for an array in the end.
-    #             'status': data['status'],
-    #             'working_time_details' : data['working_time_details'],
-    #             'job_description': data['job_description'],
-    #             'accommodations' : data['accommodations'],   # the data here will 
-    #             'bonus': data['bonus'],
-    #             'transportation' : data['transportation'],
-    #             'transportation_allowances' : data['transportation_allowances'],
-    #             'ot_per_hour' : data['ot_per_hour'],
-    #             'leave_quota' : data['leave_quota'],
-    #             'laptop_provision' : data['laptop_provision'],
-    #             'other_provision' : data['other_provision'],
-    #             'insurance_provision' : data['other_provision'],
-    #             'insurance_level' : data['insurance_level'],
-    #             'additional_benefits_welfare': data['additional_benefits_welfare'],
-    #             'time_registered' : time.strftime('%Y-%m-%d %H:%M:%S')
-    #           }
 
-    response = jsonify({'Message':'The job has been updated specifically '+ str(keys)})
+    if data['position']:
+        
+        organization_info_data = conn.execute("SELECT position_id, department FROM organization_information WHERE position = '" + str(data['position']) + "'").fetchall()[0]
+
+        print(organization_info_data.department)
+
+        if organization_info_data != None:
+
+            new_pos_id = organization_info_data.position_id
+            new_department = organization_info_data.department
+
+            posid_update_query = "UPDATE job_information SET position_id = " + str(new_pos_id) +  " WHERE job_id = " + str(job_id)
+            dept_update_query = "UPDATE job_information SET department = '" + new_department + "'" + " WHERE job_id = " + str(job_id)
+            
+            conn.execute(posid_update_query)  
+            conn.execute(dept_update_query)  
+        else: 
+            return make_response('No position available', 404)
+
+    if data['required_skills']:
+        prev_skills_before_conv = conn.execute("SELECT required_skills FROM job_information WHERE job_id = " + str(job_id)).fetchall()[0].required_skills
+        print("Original Data Taken from the DB is ", prev_skills_before_conv,type(prev_skills_before_conv))
+        prev_skills = conn.execute("SELECT required_skills FROM job_information WHERE job_id = " + str(job_id)).fetchall()[0].required_skills[1:-1].split(",")
+        print("Converted Data from the DB is ",prev_skills,type(prev_skills))
+
+        if data['required_skills'] != prev_skills:
+            
+            str_cat = "["
+            for i in data['required_skills']:
+                str_cat += str(i)
+                str_cat += ','
+            str_cat = str_cat[0:-1]+"]"
+
+            print(str_cat,type(str_cat))
+            skills_update_query = "UPDATE job_information SET required_skills = '" + str(str_cat) + "' WHERE job_id = " + str(job_id)
+
+            print(skills_update_query)
+            conn.execute(skills_update_query)
+
+    if len(data['prev_questions']) > 0:
+
+        questions = db.Table('questions', metadata, autoload=True, autoload_with=engine)
+        job_questions_table = db.Table('job_questions', metadata, autoload=True, autoload_with=engine)
+
+        job_question_query = '''
+        SELECT job_questions.question_id, questions.question
+        FROM job_questions
+        JOIN questions ON job_questions.question_id = questions.question_id
+        WHERE job_questions.job_id =
+        ''' + str(job_id)
+
+        job_questions_from_db = conn.execute(job_question_query).fetchall()
+            
+        question_arr_from_db = [dict(row) for row in job_questions_from_db]
+        q_id_arr_from_db = [dict(row)["question_id"] for row in job_questions_from_db]
+
+        requested_questions = [i for i in data["prev_questions"]]
+        q_id_arr_from_requested = [i["question_id"] for i in data["prev_questions"]]
+
+        print(question_arr_from_db)
+        print(q_id_arr_from_db)
+
+        print(requested_questions)
+        print(q_id_arr_from_requested)
+
+        for i in requested_questions:
+            question_record_in_db = conn.execute(db.select(questions).where(questions.columns.question_id==i['question_id'])).fetchall()[0].question
+            if i['question'] != question_record_in_db:
+                question_update_query = "UPDATE questions SET question = '" + i['question'] + "' WHERE question_id = " + str(i['question_id'])
+                conn.execute(question_update_query)
+                print("Question with the ID", i['question_id'], 'has been updated')
+
+
+        # Deleting the disappeared question from the front-end
+        for i in question_arr_from_db:
+            if i["question_id"] not in q_id_arr_from_requested:
+                print("Successfully DELETE questions with the job_id of "+str(job_id)+" AND question_id = "+str(i["question_id"]))
+                conn.execute("DELETE FROM job_questions WHERE job_id = "+str(job_id)+" AND question_id = "+str(i["question_id"]))
+
+    # adding new questions
+    arr_new_questions = data["new_questions"]   # if there's no 
+    
+    if len(data["new_questions"]) > 0:
+        for i in arr_new_questions:
+            new_question_values = {
+                    'question' : i,
+                    'question_type' : 'general',
+                    'question_category': 'category A',
+                    'question_difficulty': 'general',
+                    'question_position' : conn.execute("SELECT required_skills FROM job_information WHERE job_id = "+ str(job_id)).fetchall()[0].required_skills,
+                    'question_keywords' : 'test',     
+            }
+
+            add_question_query = db.insert(questions)
+            conn.execute(add_question_query,new_question_values)
+                
+            latest_q_id = conn.execute("SELECT question_id FROM questions ORDER BY question_id DESC LIMIT 1").fetchall()[0].question_id
+            new_question_link = {
+                    'job_id' : job_id,
+                    'question_id' : latest_q_id
+            }
+
+            print('this is the question job link variable',new_question_link)
+            conn.execute(db.insert(job_questions_table),new_question_link)
+
+    conn.close()
+    response = jsonify({'Message':'The job has been updated specifically'})
     response.headers.add("Access-Control-Allow-Origin","*")
     return response
 
@@ -1185,14 +1252,14 @@ def postSpecificQuestions(current_user):
 
     data = jwt.decode(token, app.config['SECRET_KEY'],algorithms=["HS256"])  # get the application_id.
 
-    conn = engine.connect()
-    answers = request.json
+    # conn = engine.connect()
+    answers = request.json['list_of_answers']
+    print(answers, type(answers))
 
-    q_id = list(answers.keys())
-
-    for i in q_id:
-        query = "UPDATE questions_answered SET answer = '" + answers[str(i)] + "' WHERE application_id = " + str(data['application_id']) + " and question_id = '" + str(i) + "'"
-        conn.execute(query)
+    for i in answers:
+        query = "UPDATE questions_answered SET answer = '" + str(i['answer']) + "' WHERE application_id = " + str(data['application_id']) + " and question_id = " + str(i['q_id']) + ""
+        print(query)
+        # conn.execute(query)
 
 
     response = jsonify({'Jobs': 'Answers submitted successfully' })
@@ -1534,7 +1601,7 @@ def selectQuestions(current_user,application_id):
     application_deadline = conn.execute(job_query).fetchall()[0].application_deadline
 
     applicant_inform_email = EmailMessage()
-    applicant_inform_email['Subject'] = "Company A Online Application : Personalized Evaluation Test"
+    applicant_inform_email['Subject'] = "Company A Online Application : Personalized Evaluation Test Ready"
     applicant_inform_email['From'] = EMAIL_ADDRESS    # jobapplicationplatform@gmail.com
     applicant_inform_email['To'] = applicant_email
             # retrieved from the database ( the applicant's email )
