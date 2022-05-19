@@ -1076,10 +1076,115 @@ def editJob(current_user,job_id):
 
     for i in keys:
 
-        if i in ['department','position_id','position']:
-            pass
-        elif i in ['prev_questions','new_questions','department','position_id','required_skills']:
-            pass
+        if i in ['department']:
+            continue
+        
+        elif i == 'position':
+            organization_info_data = conn.execute("SELECT position_id, department FROM organization_information WHERE position = '" + str(data['position']) + "'").fetchall()[0]
+
+            print(organization_info_data)
+
+            if organization_info_data != None:
+
+                new_pos_id = organization_info_data.position_id
+                new_department = organization_info_data.department
+
+                posid_update_query = "UPDATE job_information SET position_id = " + str(new_pos_id) +  " WHERE job_id = " + str(job_id)
+                dept_update_query = "UPDATE job_information SET department = '" + new_department + "'" + " WHERE job_id = " + str(job_id)
+                
+                conn.execute(posid_update_query)  
+                conn.execute(dept_update_query)  
+            else: 
+                pass
+
+        elif i == 'required_skills':
+
+            prev_skills_before_conv = conn.execute("SELECT required_skills FROM job_information WHERE job_id = " + str(job_id)).fetchall()[0].required_skills
+            print("Original Data Taken from the DB is ", prev_skills_before_conv,type(prev_skills_before_conv))
+            prev_skills = conn.execute("SELECT required_skills FROM job_information WHERE job_id = " + str(job_id)).fetchall()[0].required_skills[1:-1].split(",")
+            print("Converted Data from the DB is ",prev_skills,type(prev_skills))
+
+            if data['required_skills'] != prev_skills:
+                
+                str_cat = "["
+                for i in data['required_skills']:
+                    str_cat += str(i)
+                    str_cat += ','
+                str_cat = str_cat[0:-1]+"]"
+
+                print(str_cat,type(str_cat))
+                skills_update_query = "UPDATE job_information SET required_skills = '" + str(str_cat) + "' WHERE job_id = " + str(job_id)
+
+                print(skills_update_query)
+                conn.execute(skills_update_query)
+
+        elif i == 'prev_questions':
+            if len(data["new_questions"]) > 0:
+                questions = db.Table('questions', metadata, autoload=True, autoload_with=engine)
+                job_questions_table = db.Table('job_questions', metadata, autoload=True, autoload_with=engine)
+
+                job_question_query = '''
+                SELECT job_questions.question_id, questions.question
+                FROM job_questions
+                JOIN questions ON job_questions.question_id = questions.question_id
+                WHERE job_questions.job_id =
+                ''' + str(job_id)
+
+                job_questions_from_db = conn.execute(job_question_query).fetchall()
+                    
+                question_arr_from_db = [dict(row) for row in job_questions_from_db]
+                q_id_arr_from_db = [dict(row)["question_id"] for row in job_questions_from_db]
+
+                requested_questions = [i for i in data["prev_questions"]]
+                q_id_arr_from_requested = [i["question_id"] for i in data["prev_questions"]]
+
+                print(question_arr_from_db)
+                print(q_id_arr_from_db)
+
+                print(requested_questions)
+                print(q_id_arr_from_requested)
+
+                for i in requested_questions:
+                    question_record_in_db = conn.execute(db.select(questions).where(questions.columns.question_id==i['question_id'])).fetchall()[0].question
+                    if i['question'] != question_record_in_db:
+                        question_update_query = "UPDATE questions SET question = '" + i['question'] + "' WHERE question_id = " + str(i['question_id'])
+                        conn.execute(question_update_query)
+                        print("Question with the ID", i['question_id'], 'has been updated')
+
+
+            # Deleting the disappeared question from the front-end
+            for i in question_arr_from_db:
+                if i["question_id"] not in q_id_arr_from_requested:
+                    print("Successfully DELETE questions with the job_id of "+str(job_id)+" AND question_id = "+str(i["question_id"]))
+                    conn.execute("DELETE FROM job_questions WHERE job_id = "+str(job_id)+" AND question_id = "+str(i["question_id"]))
+
+
+        elif i == "new_questions":
+
+            if len(data["new_questions"]) > 0:
+                arr_new_questions = data["new_questions"]  
+                for i in arr_new_questions:
+                    new_question_values = {
+                            'question' : i,
+                            'question_type' : 'general',
+                            'question_category': 'category A',
+                            'question_difficulty': 'general',
+                            'question_position' : conn.execute("SELECT required_skills FROM job_information WHERE job_id = "+ str(job_id)).fetchall()[0].required_skills,
+                            'question_keywords' : 'test',     
+                    }
+
+                    add_question_query = db.insert(questions)
+                    conn.execute(add_question_query,new_question_values)
+                        
+                    latest_q_id = conn.execute("SELECT question_id FROM questions ORDER BY question_id DESC LIMIT 1").fetchall()[0].question_id
+                    new_question_link = {
+                            'job_id' : job_id,
+                            'question_id' : latest_q_id
+                    }
+
+                    print('this is the question job link variable',new_question_link)
+                    conn.execute(db.insert(job_questions_table),new_question_link)
+
         else:
             if data[i] != job_data[i]:
                 if isinstance(job_data[i], int):
@@ -1088,112 +1193,7 @@ def editJob(current_user,job_id):
                 elif isinstance(job_data[i], str):
                     str_query = 'UPDATE job_information SET ' + str(i) + " = '" + str(data[i]) + "' WHERE job_id = " + str(job_id)
                     conn.execute(str_query)
-
-    if data['position']:
-        
-        organization_info_data = conn.execute("SELECT position_id, department FROM organization_information WHERE position = '" + str(data['position']) + "'").fetchall()[0]
-
-        print(organization_info_data.department)
-
-        if organization_info_data != None:
-
-            new_pos_id = organization_info_data.position_id
-            new_department = organization_info_data.department
-
-            posid_update_query = "UPDATE job_information SET position_id = " + str(new_pos_id) +  " WHERE job_id = " + str(job_id)
-            dept_update_query = "UPDATE job_information SET department = '" + new_department + "'" + " WHERE job_id = " + str(job_id)
-            
-            conn.execute(posid_update_query)  
-            conn.execute(dept_update_query)  
-        else: 
-            return make_response('No position available', 404)
-
-    if data['required_skills']:
-        prev_skills_before_conv = conn.execute("SELECT required_skills FROM job_information WHERE job_id = " + str(job_id)).fetchall()[0].required_skills
-        print("Original Data Taken from the DB is ", prev_skills_before_conv,type(prev_skills_before_conv))
-        prev_skills = conn.execute("SELECT required_skills FROM job_information WHERE job_id = " + str(job_id)).fetchall()[0].required_skills[1:-1].split(",")
-        print("Converted Data from the DB is ",prev_skills,type(prev_skills))
-
-        if data['required_skills'] != prev_skills:
-            
-            str_cat = "["
-            for i in data['required_skills']:
-                str_cat += str(i)
-                str_cat += ','
-            str_cat = str_cat[0:-1]+"]"
-
-            print(str_cat,type(str_cat))
-            skills_update_query = "UPDATE job_information SET required_skills = '" + str(str_cat) + "' WHERE job_id = " + str(job_id)
-
-            print(skills_update_query)
-            conn.execute(skills_update_query)
-
-    if len(data['prev_questions']) > 0:
-
-        questions = db.Table('questions', metadata, autoload=True, autoload_with=engine)
-        job_questions_table = db.Table('job_questions', metadata, autoload=True, autoload_with=engine)
-
-        job_question_query = '''
-        SELECT job_questions.question_id, questions.question
-        FROM job_questions
-        JOIN questions ON job_questions.question_id = questions.question_id
-        WHERE job_questions.job_id =
-        ''' + str(job_id)
-
-        job_questions_from_db = conn.execute(job_question_query).fetchall()
-            
-        question_arr_from_db = [dict(row) for row in job_questions_from_db]
-        q_id_arr_from_db = [dict(row)["question_id"] for row in job_questions_from_db]
-
-        requested_questions = [i for i in data["prev_questions"]]
-        q_id_arr_from_requested = [i["question_id"] for i in data["prev_questions"]]
-
-        print(question_arr_from_db)
-        print(q_id_arr_from_db)
-
-        print(requested_questions)
-        print(q_id_arr_from_requested)
-
-        for i in requested_questions:
-            question_record_in_db = conn.execute(db.select(questions).where(questions.columns.question_id==i['question_id'])).fetchall()[0].question
-            if i['question'] != question_record_in_db:
-                question_update_query = "UPDATE questions SET question = '" + i['question'] + "' WHERE question_id = " + str(i['question_id'])
-                conn.execute(question_update_query)
-                print("Question with the ID", i['question_id'], 'has been updated')
-
-
-        # Deleting the disappeared question from the front-end
-        for i in question_arr_from_db:
-            if i["question_id"] not in q_id_arr_from_requested:
-                print("Successfully DELETE questions with the job_id of "+str(job_id)+" AND question_id = "+str(i["question_id"]))
-                conn.execute("DELETE FROM job_questions WHERE job_id = "+str(job_id)+" AND question_id = "+str(i["question_id"]))
-
-    # adding new questions
-    arr_new_questions = data["new_questions"]   # if there's no 
     
-    if len(data["new_questions"]) > 0:
-        for i in arr_new_questions:
-            new_question_values = {
-                    'question' : i,
-                    'question_type' : 'general',
-                    'question_category': 'category A',
-                    'question_difficulty': 'general',
-                    'question_position' : conn.execute("SELECT required_skills FROM job_information WHERE job_id = "+ str(job_id)).fetchall()[0].required_skills,
-                    'question_keywords' : 'test',     
-            }
-
-            add_question_query = db.insert(questions)
-            conn.execute(add_question_query,new_question_values)
-                
-            latest_q_id = conn.execute("SELECT question_id FROM questions ORDER BY question_id DESC LIMIT 1").fetchall()[0].question_id
-            new_question_link = {
-                    'job_id' : job_id,
-                    'question_id' : latest_q_id
-            }
-
-            print('this is the question job link variable',new_question_link)
-            conn.execute(db.insert(job_questions_table),new_question_link)
-
     conn.close()
     response = jsonify({'Message':'The job has been updated specifically'})
     response.headers.add("Access-Control-Allow-Origin","*")
