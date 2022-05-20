@@ -1,0 +1,40 @@
+<body>
+    <p> Dear {manager_name}, </p>
+    <p>
+        here is a new application submitted by {applicant_name}, applying into the role of
+        <strong style="font-weight: bold">{job_role}</strong>. which belonged to in the team of <strong style="font-weight: bold">{position} in 
+        {department} department</strong>
+    </p>
+
+    <p> The score of {applicant_name}'s resume evaluation for {job_role} role is <strong style="font-weight: bold">{suitability_score}%</strong></p>
+    <p> He appears to be best suited for <strong style="font-weight: bold">{suitable_pos}</strong> in <strong style="font-weight: bold">{suitable_dep}</strong> department</p>
+
+    <p>
+        However, in order to complete the application, it is required to complete the personalized evaluation made up of questions that you can choose to select according to that applicant which required to be submitted within <strong style="font-weight: bold">{app_deadline}</strong>.
+    </p>
+    <p>
+        Please login into the system via the link provided <a href="http://localhost:3000/"> http://localhost:3000/ </a> to select a set of questions suggested by the system for the applicant to answer and evaluate their skills.
+    </p>
+
+    <p>
+        Of which, there will be an email with access and their application credentials, submitted to the applicant through their provided email address to answer those selected questions after confirming the questions.
+    </p>
+
+    <p>
+        Best Regards, <br /> Auto-Generated Email
+    </p>
+</body>
+
+
+
+<!-- 
+manager_name= application_data.employee_fullname,
+applicant_name= application_data.fullname, 
+job_role = application_data.rolename,
+position = application_data.position,
+department = application_data.department,
+app_deadline = application_data.application_deadline,
+suitability_score = suitability_score,
+suitable_pos = suitable_pos,
+suitable_dep = suitable_dep, 
+-->

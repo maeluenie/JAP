@@ -25,26 +25,34 @@ import time
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+
+# CROSS-ORIGIN RESOURCE SHARING must be provided to allow different domains to pass data to each other.
 CORS(app, resources={r"*": {"origins": "*"}})
 
+# import "the secret key" for jwt.token encode/decode procedures.
 app.config['SECRET_KEY'] = os.environ.get('JAP_API_SECRET_KEY')
 
+# provide the email and password for the system's automated email
 EMAIL_ADDRESS = os.environ.get('EMAIL_USER')
-EMAIL_PASSWORD = os.environ.get('EMAIL_PASS')    
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASS')  
+
+# this is used initially to test for the email targeted
 EMAIL_ADMIN_RECEIVER = os.environ.get('EMAIL_ADMIN_RECEIVER')
 EMAIL_APPLICANT_RECEIVER = os.environ.get('EMAIL_APPLICANT_RECEIVER')
 
+# the directory path for the resume files to be submitted via HTTP POST Request.
 upload_path = os.environ.get('RESUME_UPLOAD_PATH')
 
+# create the engine to prepare and call specify the database where it will get from.
+# the variable in db.create_engine must be mysql://<username>:<password>@<hostname>:<port_number>/<schema_name>
 engine = db.create_engine(os.environ.get('JAP_DB_URL'))
 
+# use to generate randomized password
 pwo = PasswordGenerator()
 pwo.minlen = 8
 pwo.maxlen = 12
 
-#organization_conn.close()
-
-
+# this is the middleware for the API to prevent users without credentials to interact with the data.
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -209,6 +217,7 @@ def getAllApplicants(current_user):
             return response
 
     conn = engine.connect()
+    # establish the connection to the database as declared.
 
     selection_query = """
     SELECT application.application_id, application.applicant_id, application.job_id, application.validation, 
@@ -223,7 +232,34 @@ def getAllApplicants(current_user):
     test_string = selection_query + from_query
     
     all_values = conn.execute(test_string).fetchall()
-    
+
+    # for conn.execute function, you can provide the queries as usable in MySQL Workbench.
+    # or either, this example from the /userinfo function.
+    # 
+    # This below line notates the declaration of database table name before being used to search in the conn.execute() function.
+    # applicants = db.Table('applicant_information', metadata, autoload=True, autoload_with=engine)
+    # 
+    # On line 243, will select things from the table declared as "applicants" and the .where method is used to select the criteria.           
+    # On line 243, applicants.columns.username is to specify the username column in the "applicants" table declared.
+    #
+    # ----> new_user = conn.execute(db.select(applicants).where(applicants.columns.username == data['username']))
+
+    # however, the conn.execute(query) will result in a LegacyRow object, of which, getting fetchall() method will get those rows into
+    # a list of dictionary pairs 
+
+    # for instance, the conn.execute(query).fetchall() will get [ ( 1 , 2 , 3 , 4 , 5 , 6 ) ] where accessing the data by using .field_name
+    # such as
+    #       fullname_of_app_id_of_123 = conn.execute("SELECT * FROM application WHERE application_id = 123").fetchall()[0].fullname
+    #       ( This will get the data where application_id is 123 as the query, getting a LegacyRow with one element.
+    #         Then, fetchall() will get the LegacyRow in list of object type "Row" so [0] will access the first element ( Row object )
+    #         after getting that row object , providing .fullname in the end, will get only the data in the field "fullname"
+    #       )
+
+    # for more documentations, search SQLAlchemy conn or either search about LegacyRow.
+
+
+
+
     # output = []
     # metadata = db.MetaData()
     # application = db.Table('application', metadata, autoload=True, autoload_with=engine)
@@ -261,15 +297,18 @@ def getAllApplicants(current_user):
     #     output.insert(0,data)
 
     conn.close()
+    # we have to close the established connection too.
 
-    response = jsonify([dict(row) for row in all_values])
-    # response = jsonify({'result': output})
+    response = jsonify([dict(row) for row in all_values]) # making those Row objects into dictionary datatype and placing those dictionary into lists so it can jsonify.
     response.headers.add("Access-Control-Allow-Origin","*")
+
     return response
 
 
-# rechecked
-@app.route('/getApplication/<application_id>', methods=['GET'])   # this is used to retrieve one information related to an applicant's application.
+# for the <application_id> in the app.route, it tells where take the parameters in the URL endpoints in front-end at the same specific position.
+# for instance https://<api_web_url>/getApplication/42 will get 42 to passed into this function.
+
+@app.route('/getApplication/<application_id>', methods=['GET'])  
 @cross_origin()
 @token_required
 def getApplication(current_user, application_id):
@@ -303,6 +342,7 @@ def getApplication(current_user, application_id):
         set_application_data['validation'] = i.validation
         set_application_data['sent_offer'] = i.sent_offer
         set_application_data['question_progress'] = i.question_progress
+        ## add PERCENTAGE OF SUITABILITY.
 
     applicant = db.Table('applicant_information', metadata, autoload=True, autoload_with=engine)
     applicant_data = conn.execute(db.select(applicant).where(applicant.columns.applicant_id == set_application_data['applicant_id']))
@@ -413,7 +453,7 @@ def getApplication(current_user, application_id):
 
     for i in employee_info_data:
         set_employee_data['manager_id'] = set_job_data['line_manager_id']
-        set_employee_data['manager_fullname'] = i.fullname
+        set_employee_data['manager_fullname'] = i.employee_fullname
         set_employee_data['manager_role'] = i.role
 
     answered_questions = db.Table('questions_answered', metadata, autoload=True, autoload_with=engine)
@@ -692,7 +732,7 @@ def uploadApplication():
     applicant_inform_email.set_content(content,subtype="html")
 
     employee_information = db.Table('employee_information', metadata, autoload=True, autoload_with=engine)
-    manager_name = conn.execute(db.select(employee_information).where(employee_information.columns.employee_id == line_manager_id)).fetchall()[0].fullname
+    manager_name = conn.execute(db.select(employee_information).where(employee_information.columns.employee_id == line_manager_id)).fetchall()[0].employee_fullname
     manager_email = conn.execute(db.select(employee_information).where(employee_information.columns.employee_id == line_manager_id)).fetchall()[0].employee_email
 
     organization_inform_email = EmailMessage()
@@ -736,7 +776,7 @@ def getAllJobs():
     job_information.transportation, job_information.transportation_allowances, job_information.ot_per_hour, job_information.leave_quota,
     job_information.laptop_provision, job_information.other_provision, job_information.insurance_provision, job_information.insurance_provision,
     job_information.insurance_level,job_information.additional_benefits_welfare, organization_information.department,
-    organization_information.position, organization_information.competencies,employee_information.fullname,employee_information.role
+    organization_information.position, organization_information.competencies,employee_information.employee_fullname,employee_information.role
     """
 
 
@@ -816,7 +856,7 @@ def getAllJobs():
 
     #     for i in employee_info_data:
     #         data['manager_id'] = data['line_manager_id']
-    #         data['manager_fullname'] = i.fullname
+    #         data['manager_fullname'] = i.employee_fullname
     #         data['manager_role'] = i.role
 
     #     whole_data.append(data)
@@ -830,6 +870,7 @@ def getAllJobs():
 
 
 @app.route('/getSingleJob/<job_id>', methods=['GET'])
+@cross_origin()
 def getSingleJob(job_id):
 
     conn = engine.connect()
@@ -915,7 +956,7 @@ def getSingleJob(job_id):
 
     for i in employee_info_data:
         data['manager_id'] = data['line_manager_id']
-        data['manager_fullname'] = i.fullname
+        data['manager_fullname'] = i.employee_fullname
         data['manager_role'] = i.role
 
     print("getSingleJob single_job_data_json    " , data , flush=True)
@@ -1078,7 +1119,7 @@ def editJob(current_user,job_id):
 
         if i in ['department']:
             continue
-        
+
         elif i == 'position':
             organization_info_data = conn.execute("SELECT position_id, department FROM organization_information WHERE position = '" + str(data['position']) + "'").fetchall()[0]
 
@@ -1119,7 +1160,7 @@ def editJob(current_user,job_id):
                 conn.execute(skills_update_query)
 
         elif i == 'prev_questions':
-            if len(data["new_questions"]) > 0:
+            if len(data["prev_questions"]) >= 0:
                 questions = db.Table('questions', metadata, autoload=True, autoload_with=engine)
                 job_questions_table = db.Table('job_questions', metadata, autoload=True, autoload_with=engine)
 
@@ -1161,7 +1202,7 @@ def editJob(current_user,job_id):
 
         elif i == "new_questions":
 
-            if len(data["new_questions"]) > 0:
+            if len(data["new_questions"]) >= 0:
                 arr_new_questions = data["new_questions"]  
                 for i in arr_new_questions:
                     new_question_values = {
@@ -1438,28 +1479,35 @@ def getQuestionsAccordingToJobs(job_id):
 
 @app.route('/pairSelectedQuestions', methods=['POST'])  
 @cross_origin()
-@token_required
-def pairSelectedQuestions(current_user):
-
-    if 'Authorization' in request.headers:
-            token = request.headers['Authorization']
-
-    if not token:
-        return make_response("Token is not being provided",401)
-
-    for i in current_user:
-        if i.role != 'admin':
-            response = jsonify({ 'Unauthorized, 401' })
-            response.headers.add("Access-Control-Allow-Origin","*")
-            return response
-
-
-    q_id_json = request.json['q_id']
-    a_id_json = request.json['application_id']
+def pairSelectedQuestions():
 
     conn = engine.connect()
     metadata = db.MetaData()
 
+    q_id_json = request.json['q_id']
+    a_id_json = request.json['application_id']
+
+    # pending validation with data analytics section.
+    suitable_dep = request.json['suited_dept']
+    suitable_pos = request.json['suited_pos']
+    suitability_score = request.json['score']
+
+
+    application_values_query = '''
+    SELECT application.applicant_id, application.job_id, applicant_information.fullname, job_information.rolename, 
+    job_information.position_id, job_information.department, job_information.application_deadline, organization_information.position, job_information.line_manager_id,
+    employee_information.employee_fullname, employee_information.role, employee_information.employee_email
+    FROM application
+    INNER JOIN applicant_information ON application.applicant_id = applicant_information.applicant_id
+    INNER JOIN job_information ON application.job_id = job_information.job_id
+    INNER JOIN organization_information ON job_information.position_id = organization_information.position_id
+    INNER JOIN employee_information ON job_information.line_manager_id = employee_information.employee_id
+    WHERE application_id = 
+    '''
+
+    application_data = conn.execute(application_values_query+str(a_id_json)).fetchall()[0]
+    print(application_data)
+    
     update_q_progress_query = "UPDATE application SET question_progress = 'Ready' WHERE application_id = " + str(a_id_json)
     conn.execute(update_q_progress_query)
 
@@ -1486,6 +1534,32 @@ def pairSelectedQuestions(current_user):
         
         questions_set.append(dummy_data)
 
+
+    organization_inform_email = EmailMessage()
+    organization_inform_email['Subject'] = "Company A Online Application : Questions ready to be selected in the system"
+    organization_inform_email['From'] = EMAIL_ADDRESS   
+    organization_inform_email['To'] = application_data.employee_email
+    org_content = open("questions_ready_to_be_selected.html").read().format( 
+                                            manager_name= application_data.employee_fullname,
+                                            applicant_name= application_data.fullname, 
+                                            job_role = application_data.rolename,
+                                            position = application_data.position,
+                                            department = application_data.department,
+                                            app_deadline = application_data.application_deadline,
+                                            suitability_score = suitability_score,
+                                            suitable_pos = suitable_pos,
+                                            suitable_dep = suitable_dep
+                                            )
+    organization_inform_email.set_content(org_content,subtype="html")
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:   # to the actual email, required smtp.ehlo() and smtp.starttls() code
+
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        
+        smtp.send_message(organization_inform_email)
+
+        print("An email has been sent to while the questions selection emails are being submmitted to", application_data.employee_email )
+    
     conn.close()
     
     if dummy_data == {}:
@@ -1836,7 +1910,7 @@ def sentQuestion(current_user,application_id):
         application_deadline = conn.execute(job_query).fetchall()[0].application_deadline
 
         applicant_inform_email = EmailMessage()
-        applicant_inform_email['Subject'] = "Company A Online Application : Personalized Evaluation Test"
+        applicant_inform_email['Subject'] = "Company A Online Application : Question Inform"
         applicant_inform_email['From'] = EMAIL_ADDRESS    # jobapplicationplatform@gmail.com
         applicant_inform_email['To'] = applicant_email
                 # retrieved from the database ( the applicant's email )
