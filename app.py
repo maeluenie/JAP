@@ -1504,6 +1504,7 @@ def pairSelectedQuestions():
     print(request.json, type(request.json), flush=True)
 
     q_id_json = request.json['q_id']
+
     a_id_json = request.json['applicant_id']
 
     # pending validation with data analytics section.
@@ -1523,11 +1524,13 @@ def pairSelectedQuestions():
     INNER JOIN employee_information ON job_information.line_manager_id = employee_information.employee_id
     WHERE application.applicant_id = '""" + str(a_id_json) + "'"
 
-    application_data = conn.execute(application_values_query+str(a_id_json)).fetchall()[0]
+    print(application_values_query, flush=True)
+
+    application_data = conn.execute(application_values_query).fetchall()
+
     print(application_data, flush=True)
     
-    update_q_progress_query = "UPDATE application SET question_progress = 'Ready' WHERE application_id = " + str(a_id_json)
-    conn.execute(update_q_progress_query)
+    application_data = application_data[0]
 
     if type(q_id_json) == int:
         q_id_json = list(q_id_json)
@@ -1535,23 +1538,48 @@ def pairSelectedQuestions():
     elif type(q_id_json) == str:
         q_id_json = list(q_id_json[1:-1].split(","))
 
-    questions_set = []
+    if len(q_id_json) != 0:
 
-    for i in q_id_json:
+        questions_set = []
 
-        dummy_data = {}
-        dummy_data['application_id'] = application_data.application_id
+        for i in q_id_json:
 
-        questions_answered = db.Table('questions_answered', metadata, autoload=True, autoload_with=engine)
-                    
-        dummy_data['question_id'] = int(i)
-        dummy_data['selected'] = 0
+            dummy_data = {}
+            dummy_data['application_id'] = application_data.application_id
+
+            questions_answered = db.Table('questions_answered', metadata, autoload=True, autoload_with=engine)
+                        
+            dummy_data['question_id'] = int(i)
+            dummy_data['selected'] = 0
+                
+            query = db.insert(questions_answered)
+            conn.execute(query,dummy_data)
             
-        query = db.insert(questions_answered)
-        conn.execute(query,dummy_data)
-        
-        questions_set.append(dummy_data)
+            questions_set.append(dummy_data)
 
+    else:
+
+        all_ques_for_pos = conn.execute("SELECT question_id FROM questions WHERE question_position = '" + str(application_data.position) + "'").fetchall()
+
+        questions_set = []
+
+        for i in all_ques_for_pos:
+
+            dummy_data = {}
+            dummy_data['application_id'] = application_data.application_id
+
+            questions_answered = db.Table('questions_answered', metadata, autoload=True, autoload_with=engine)
+                        
+            dummy_data['question_id'] = int(i.question_id)
+            dummy_data['selected'] = 0
+                
+            query = db.insert(questions_answered)
+            conn.execute(query,dummy_data)
+            
+            questions_set.append(dummy_data)
+
+    update_q_progress_query = "UPDATE application SET question_progress = 'Ready' WHERE application_id = " + str(application_data.application_id)
+    conn.execute(update_q_progress_query)
 
     organization_inform_email = EmailMessage()
     organization_inform_email['Subject'] = "Company A Online Application : Questions ready to be selected in the system"
