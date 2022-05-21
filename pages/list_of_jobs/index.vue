@@ -27,15 +27,15 @@
             clearable
           ></v-combobox>
         </v-flex>
-        <v-btn @click="printSelect" color="primary darken-3" justify-center>
+        <!-- <v-btn @click="printSelect" color="primary darken-3" justify-center>
           <v-icon> mdi-magnify </v-icon>
-        </v-btn>
+        </v-btn> -->
         
         <!-- v-btn above must include the feature to select the roles accordingly. -->
       </v-layout>
-
+    
       <Jobs 
-        v-for="(job,i) in jobs" :key="i" 
+        v-for="(job,i) in filteredjobs" :key="i" 
         :id="job.job_id.toString()" 
         :rolename="job.rolename"
         :department="job.department"
@@ -152,10 +152,10 @@ export default {
     },
   },
   computed:{
-    filteredjobs: function(){
-      return this.jobs.filter((jobs)=>{
-        return boolean;
-      })
+    filteredjobs(){
+      return this.jobs.filter(job => job.rolename && job.rolename.includes(this.selectedRole))
+
+    
     }
   }      
 };
