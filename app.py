@@ -227,7 +227,8 @@ def getAllApplicants(current_user):
     """
     from_query = """FROM application 
     LEFT JOIN applicant_information ON application.applicant_id = applicant_information.applicant_id 
-    LEFT JOIN job_information ON application.job_id = job_information.job_id"""
+    LEFT JOIN job_information ON application.job_id = job_information.job_id
+    WHERE applicant_information.role != 'admin'"""
     
     test_string = selection_query + from_query
     
@@ -348,6 +349,7 @@ def getApplication(current_user, application_id):
     applicant_data = conn.execute(db.select(applicant).where(applicant.columns.applicant_id == set_application_data['applicant_id']))
     
     for j in applicant_data:
+        set_applicant_data['application_id'] = i.application_id
         set_applicant_data['applicant_id'] = set_application_data['applicant_id']
         set_applicant_data['fullname'] = j.fullname
         set_applicant_data['citizen_id'] = j.citizen_id
@@ -992,13 +994,18 @@ def addNewJob(current_user):
         str_cat += ','
     str_cat = str_cat[0:-1]+"]"
     print(str_cat)
+
+
+    line_manager_id = conn.execute("SELECT employee_id FROM employee_information WHERE employee_fullname = "+data['manager_name'])
+
+
     values = {
                 'rolename' : data['role_name'],    # this role_name go into job_information position field.
                 'approx_salary' : data['approx_salary'],
                 'number_of_applicants': data['number_of_applicants'],
                 'start_date': data['start_date'],
                 'application_deadline' : data['application_deadline'],
-                'line_manager_id' : data['line_manager_id'],     # will be taken from the input from front-end after providing the manager dropdown both their id and names, ( controversial )
+                'line_manager_id' : line_manager_id,     # will be taken from the input from front-end after providing the manager dropdown both their id and names, ( controversial )
                 'working_location' : data['working_location'],
                 'educational_degree_required': data['educational_degree_required'],
                 'required_experiences': data['required_experiences'],
@@ -1023,7 +1030,6 @@ def addNewJob(current_user):
 
     organization_info_data = conn.execute("SELECT position_id, department FROM organization_information WHERE position = '" + str(data['position']) + "'").fetchall()
    
-
     if organization_info_data != None:
         for i in organization_info_data:
             values['position_id'] = i.position_id  # will be taken from the input from front-end after providing the manager dropdown both their id and names, ( controversial )
@@ -1107,7 +1113,7 @@ def editJob(current_user,job_id):
     data = request.json
 
     keys = list(data.keys())
-
+    print("This is keys in the dict from data requested",keys)
     conn = engine.connect()
     metadata = db.MetaData() 
  
@@ -1116,27 +1122,35 @@ def editJob(current_user,job_id):
     job_data = conn.execute(db.select(job_information).where(job_information.columns.job_id == job_id)).fetchall()[0]
 
     for i in keys:
-
+        print("This is each keys while looping in the dict from data requested",i)
         if i in ['department']:
             continue
 
         elif i == 'position':
-            organization_info_data = conn.execute("SELECT position_id, department FROM organization_information WHERE position = '" + str(data['position']) + "'").fetchall()[0]
 
-            print(organization_info_data)
 
-            if organization_info_data != None:
+            query = "SELECT position_id, department FROM organization_information WHERE position = '" + str(data['position']) + "'"
+            print(query, 'position query')
+            print(data['position'], type(data['position']),flush=True)
 
-                new_pos_id = organization_info_data.position_id
-                new_department = organization_info_data.department
+            organization_information = db.Table('organization_information', metadata, autoload=True, autoload_with=engine)
+            organization_info_data = conn.execute(db.select(organization_information).where(organization_information.columns.position == data['position'])).fetchall()
+            # organization_info_data = conn.execute("SELECT position_id, department FROM organization_information WHERE position = '" + str(data['position']) + "'").fetchall()
 
-                posid_update_query = "UPDATE job_information SET position_id = " + str(new_pos_id) +  " WHERE job_id = " + str(job_id)
-                dept_update_query = "UPDATE job_information SET department = '" + new_department + "'" + " WHERE job_id = " + str(job_id)
+            print("This is organization_info_data ",organization_info_data, flush=True)
+        
+
+            new_pos_id = organization_info_data[0].position_id
+            print("this is new position_id ",new_pos_id, flush=True)
+            new_department = organization_info_data[0].department
+            print("this is new_department ",new_department, flush=True)
+
+            posid_update_query = "UPDATE job_information SET position_id = " + str(new_pos_id) +  " WHERE job_id = " + str(job_id)
+            dept_update_query = "UPDATE job_information SET department = '" + new_department + "'" + " WHERE job_id = " + str(job_id)
                 
-                conn.execute(posid_update_query)  
-                conn.execute(dept_update_query)  
-            else: 
-                pass
+            conn.execute(posid_update_query)  
+            conn.execute(dept_update_query)  
+            
 
         elif i == 'required_skills':
 
@@ -1176,8 +1190,8 @@ def editJob(current_user,job_id):
                 question_arr_from_db = [dict(row) for row in job_questions_from_db]
                 q_id_arr_from_db = [dict(row)["question_id"] for row in job_questions_from_db]
 
-                requested_questions = [i for i in data["prev_questions"]]
-                q_id_arr_from_requested = [i["question_id"] for i in data["prev_questions"]]
+                requested_questions = [p for p in data["prev_questions"]]
+                q_id_arr_from_requested = [k["q_id"] for k in data["prev_questions"]]
 
                 print(question_arr_from_db)
                 print(q_id_arr_from_db)
@@ -1185,28 +1199,28 @@ def editJob(current_user,job_id):
                 print(requested_questions)
                 print(q_id_arr_from_requested)
 
-                for i in requested_questions:
-                    question_record_in_db = conn.execute(db.select(questions).where(questions.columns.question_id==i['question_id'])).fetchall()[0].question
-                    if i['question'] != question_record_in_db:
-                        question_update_query = "UPDATE questions SET question = '" + i['question'] + "' WHERE question_id = " + str(i['question_id'])
+                for m in requested_questions:
+                    question_record_in_db = conn.execute(db.select(questions).where(questions.columns.question_id==m['q_id'])).fetchall()[0].question
+                    if m['question'] != question_record_in_db:
+                        question_update_query = "UPDATE questions SET question = '" + m['question'] + "' WHERE question_id = " + str(m['q_id'])
                         conn.execute(question_update_query)
-                        print("Question with the ID", i['question_id'], 'has been updated')
+                        print("Question with the ID", m['q_id'], 'has been updated')
 
 
             # Deleting the disappeared question from the front-end
-            for i in question_arr_from_db:
-                if i["question_id"] not in q_id_arr_from_requested:
-                    print("Successfully DELETE questions with the job_id of "+str(job_id)+" AND question_id = "+str(i["question_id"]))
-                    conn.execute("DELETE FROM job_questions WHERE job_id = "+str(job_id)+" AND question_id = "+str(i["question_id"]))
+            for q in question_arr_from_db:
+                if q["question_id"] not in q_id_arr_from_requested:
+                    print("Successfully DELETE questions with the job_id of "+str(job_id)+" AND question_id = "+str(q["question_id"]))
+                    conn.execute("DELETE FROM job_questions WHERE job_id = "+str(job_id)+" AND question_id = "+str(q["question_id"]))
 
-
+        
         elif i == "new_questions":
 
             if len(data["new_questions"]) >= 0:
                 arr_new_questions = data["new_questions"]  
-                for i in arr_new_questions:
+                for b in arr_new_questions:
                     new_question_values = {
-                            'question' : i,
+                            'question' : b,
                             'question_type' : 'general',
                             'question_category': 'category A',
                             'question_difficulty': 'general',
@@ -1227,6 +1241,9 @@ def editJob(current_user,job_id):
                     conn.execute(db.insert(job_questions_table),new_question_link)
 
         else:
+            print("This is the current key of this iteration",i, flush=True)
+            print(data[i])
+            print(job_data[i])
             if data[i] != job_data[i]:
                 if isinstance(job_data[i], int):
                     int_query = "UPDATE job_information SET " + str(i) + " = " + str(data[i]) + " WHERE job_id = " + str(job_id)
@@ -1234,7 +1251,7 @@ def editJob(current_user,job_id):
                 elif isinstance(job_data[i], str):
                     str_query = 'UPDATE job_information SET ' + str(i) + " = '" + str(data[i]) + "' WHERE job_id = " + str(job_id)
                     conn.execute(str_query)
-    
+                    
     conn.close()
     response = jsonify({'Message':'The job has been updated specifically'})
     response.headers.add("Access-Control-Allow-Origin","*")
@@ -1930,6 +1947,25 @@ def sentQuestion(current_user,application_id):
     response = jsonify({ 'Response': 'Questions has been informed to the applicant in Application ' + str(application_id)})
     response.headers.add("Access-Control-Allow-Origin","*")
     return response
+
+
+
+@app.route('/editKeywords', methods=['POST'])  
+def editKeywords():
+
+    conn = engine.connect()
+
+    keywords_list = conn.execute("SELECT question_id, question_keywords FROM questions WHERE question_id > 173").fetchall()
+
+    print(keywords_list[0])
+
+    for record in keywords_list:
+        print(record.question_keywords)
+        if record.question_keywords[0] == "[" and record.question_keywords[-1] == "]":
+            conn.execute("UPDATE questions SET question_keywords = '" + str(record.question_keywords[1:-1]) + "' WHERE question_id = " + str(record.question_id))
+    
+    return "done"
+
 
 if __name__ == "__main__":
     app.run(debug=True)
