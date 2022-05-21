@@ -43,11 +43,14 @@ export default {
     axios: {
         baseURL: 'https://api.job-application.duckdns.org'
       },
+    // router:{
+    //   middleware:['auth']
+    // },
     auth:{
     redirect:{
-        login:'/login',
+        login:'/',
         logout:'/',
-        home:'/list_of_jobs',
+        home:'/',
     },
       strategies:{
         local: {
@@ -82,9 +85,9 @@ export default {
               secure: false
              }
             }
+        }
       }
-    }
-},
+    },
 // auth: {
 //     strategies: {
 //         'local': {
