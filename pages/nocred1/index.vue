@@ -33,7 +33,14 @@
         
         <!-- v-btn above must include the feature to select the roles accordingly. -->
       </v-layout>
-
+      <v-layout
+        row
+        wrap
+        align-center
+        align-content-center
+        justify-center
+        class="mx-4"
+      >
       <Jobsnocred 
         v-for="(job,i) in filteredjobs" :key="i" 
         :id="job.job_id.toString()" 
@@ -45,7 +52,7 @@
         :start_date="job.start_date"
         :approx_salary="job.approx_salary"
       />
-
+      </v-layout>
     </v-container>
   </div>
 </template>
