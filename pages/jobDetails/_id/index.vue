@@ -242,8 +242,8 @@
             bottom
             color="primary darken-2"
             class="mx-1"
-            v-for="item in jobDetails.competencies"
-            :key="item.skillName"
+            v-for="item in this.jobs.required_skills"
+            :key="item"
           >
             <template v-slot:activator="{ on, attrs }">
               <v-chip
@@ -252,10 +252,9 @@
                 v-on="on"
                 class="mx-1"
               >
-                {{ item.skillName }}
+                {{ item }}
               </v-chip>
             </template>
-            <span> {{ item.skillDesc }} </span>
           </v-tooltip>
         </v-item-group>
       </v-container>
