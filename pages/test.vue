@@ -5,18 +5,23 @@
   <input type="file" id="files" @change="onFileChanged" multiple>
 
    <button :disabled="!files">Upload!</button>
+  
   </form>
 
 </div>
+  
 </template>
 
 <script>
 import axios from 'axios'
 export default {
-
-  data: {
-    message: 'Upload files here:',
-    files: false
+  
+  data() {
+    return{
+      message: 'Upload files here:',
+      files: false,
+      test:[]
+    }
   },
    async created(){
     const config = {
@@ -28,7 +33,8 @@ export default {
       const res = await axios.get(
         "https://api.job-application.duckdns.org/getAllJobs", config
       );
-      console.log('hi');
+      
+      console.log(res.data);
     }catch(err){
       console.log(err);
     }
