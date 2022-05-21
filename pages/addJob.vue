@@ -18,7 +18,7 @@
             <v-toolbar-title>Add new job form</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn dark text nuxt to="/list_of_jobs"> Done </v-btn>
+              <v-btn dark text @click="submit();" nuxt to = "/list_of_jobs"> Submit </v-btn>
               <!-- this line must link a function to submit the data to the database -->
             </v-toolbar-items>
           </v-toolbar>
@@ -139,16 +139,15 @@
                     ><h5 class="mx-1 mb-1 text-left">Working Time Details</h5>
                   </v-text>
 
-                  <v-text-field
+                  <v-select
                     v-model="workingTime"
-                    :rules="numRules"
-                    type="number"
+                    :items ="timeSelection"
                     label="Working Time Details"
                     required
                     dense
                     outlined
                   >
-                  </v-text-field>
+                  </v-select>
                 </v-col>
 
                 <v-col cols="12" sm="8" md="6">
@@ -256,7 +255,7 @@
                       name="radio"
                       value="Open"
                       id="Open"
-                      @change="$emit('input', 'Open')"
+                      v-model="status"
                     />
                     Open for Application
                   </label>
@@ -266,7 +265,7 @@
                       name="radio"
                       value="Close"
                       id="Close"
-                      @change="$emit('input', 'Close')"
+                      v-model="status"
                     />
                     Close Temporarily</label
                   >
@@ -276,7 +275,7 @@
                       name="radio"
                       value="Urgent"
                       id="Urgent"
-                      @change="$emit('input', 'Urgent')"
+                      v-model="status"
                     />Urgent
                   </label>
                 </v-col>
@@ -358,7 +357,7 @@
                 <v-toolbar-title>Add new job form</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
-                  <v-btn dark text nuxt to="/list_of_jobs"> Done </v-btn>
+                  <v-btn dark text @click="submit();" nuxt to = "/list_of_jobs"> Submit </v-btn>
                   <!-- this line must link a function to submit the data to the database -->
                 </v-toolbar-items>
             </v-toolbar>
@@ -393,11 +392,11 @@
                   <v-col cols="1" sm="1" md="12">
 
                     <div align="left">
-                        <div class="my-2" v-for="(q, i) in questions" :key="q">
-                          Question {{i+1}}.{{q.name}}
+                        <div class="my-2" v-for="(q, i) in questions" :key="i">
+                          Question {{i+1}}
+                          
                           <v-text-field
                             v-model="questions[i]" 
-                            required
                             outlined
                             dense
                             placeholder="Enter Question"     
@@ -406,7 +405,7 @@
                           
                           <v-btn
                           color="error"
-                          @click="rmq()"
+                          @click="rmq(i)"
                           class=" white--text"
                           >
                           <v-icon
@@ -465,7 +464,7 @@
             <v-toolbar-title>Add new job form</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn dark text nuxt to="/list_of_jobs"> Done </v-btn>
+              <v-btn dark text @click="submit();" nuxt to = "/list_of_jobs"> Submit </v-btn>
               <!-- this line must link a function to submit the data to the database -->
             </v-toolbar-items>
           </v-toolbar>
@@ -588,7 +587,7 @@
                     v-model= "bonusAllowance"
                     :items="bonusSelection"
                     :rules="[(v) => !!v || 'This field is required']"
-                    label="Annual Bonus Minimum Allowance"
+                    label="Annual Bonus Minimum Allowance (%)"
                     required
                     outlined
                     dense
@@ -681,7 +680,7 @@
                       Back
                     </v-btn>
                     <!-- pack into json send through API -->
-                    <v-btn align="end" color="primary darken-3" nuxt to = "/list_of_jobs"> 
+                    <v-btn align="end" color="primary darken-3" @click="submit();" > 
                       Submit
                     </v-btn>
                   </v-col>
@@ -697,9 +696,12 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
+  middleware:['is-admin'],
   name: "Job Details",
   data: () => ({
+    
     return: { selectedFile: null }, // must return the data gathered from different entries and wrap up into json file.
     dialog1: true,
     dialog2: false,
@@ -708,16 +710,8 @@ export default {
     notifications: false,
     sound: true,
     widgets: false,
-
     //addjob dialog 2
     questions: [],
-
-    valid: true,
-    citizenID: "",
-    citizenID_Rules: [
-      (v) => !!v || "This field is required, receiving only integers",
-      (v) => (v && v.length == 13) || "Please fill all your Citizen ID",
-    ],
 
     //number
     valid: true,
@@ -731,7 +725,6 @@ export default {
     
     //alphabet
     roleName: "",
-    lastName: "",
     managerName: "",
     requiredExperience: "",
     jobDescription: "",
@@ -740,13 +733,8 @@ export default {
       (v) => !!v || "This field is required",
       // (v) => (v && v.length <= 10) || "Name must be less than 10 characters",
     ],
-    
-    email: "",
-    emailRules: [
-      (v) => !!v || "E-mail is required",
-      (v) => /.+@.+\..+/.test(v) || "E-mail must be valid",
-    ],
-    
+    status:"",
+
     select: null,
     workingLocation: "",
     locationSelection: ["Latkrabung", "Sathorn", "Bangsue", "Thonglor"],
@@ -755,9 +743,53 @@ export default {
     educationalDegree: "",
     degreeSelection: ["Associate Degree", "Bachelor’s Degree", "Master’s Degree", "Doctoral Degree"],
 
+    timeSelection: ['8:00 AM - 4:00 PM','9:00 AM - 7:00 PM'],
+
     select: null,
     belongedTeam: "",
-    teamSelection: ["Team A", "Team B", "Team C", "Team D"],
+    teamSelection: ["product manager",
+                    "ux/ui",
+                    "service design",
+                    "data strategy",
+                    "data governance and risk",
+                    "data science and analytics",
+                    "data reporting and visualization",
+                    "enterprise architecture",
+                    "application architecture",
+                    "infrastructure architecture",
+                    "data architecture",
+                    "integration architecture",
+                    "security architecture",
+                    "devops",
+                    "project management",
+                    "SDLC delivery",
+                    "Agile deliver",
+                    "app development",
+                    "release management",
+                    "service transition",
+                    "app management",
+                    "test management",
+                    "testing methodology",
+                    "testing tools",
+                    "testing automation",
+                    "middleware management",
+                    "application integration",
+                    "data integration",
+                    "cloud",
+                    "data centre",
+                    "server",
+                    "database",
+                    "network",
+                    "storage",
+                    "tools and monitoring",
+                    "service helpdesk and EUC",
+                    "disaster recovery",
+                    "identity and access management",
+                    "governance, risk and compliance",
+                    "cyber security",
+                    "supplier assurance",
+                    "security operations",
+                    "data engineer"],
 
     select: null,
     requiredExperience: "",
@@ -819,9 +851,9 @@ export default {
     select: null,
     bonusAllowance: "",
     bonusSelection: [
-      "5%",
-      "10%",
-      "15%",
+      "5",
+      "10",
+      "15",
       "None",
     ],
     select: null,
@@ -845,10 +877,10 @@ export default {
     select: null,
     insuranceLevel: "",
     insuranceLSelection: [
-      "Latkrabung",
-      "Sathorn",
-      "Bangsue",
-      "Thonglor",
+      "1",
+      "2",
+      "3",
+      "4",
     ],
     select: null,
     additionalProvision: "",
@@ -872,6 +904,7 @@ export default {
     },
   },
   methods: {
+
     save(date) {
       this.$refs.menu1.save(date);
       this.$refs.menu2.save(date);
@@ -908,6 +941,49 @@ export default {
     rmq(i) {
       this.questions.splice(i, 1)
     },
+    async submit(){
+      const config = {
+        headers:{
+          Authorization : this.$auth.$storage._state["_token.local"],
+
+        }
+      }
+      await axios.post('https://api.job-application.duckdns.org/addNewJob',{
+        
+        "role_name" : this.roleName,
+        "position" : this.belongedTeam,
+        "approx_salary" : this.approximateSalary,
+        "number_of_applicants" : this.numAccepting,
+        "start_date" : this.date1,
+        "application_deadline" : this.date2,
+        "line_manager_id" : 7,
+        "working_location" : this.workingLocation,
+        "educational_degree_required": this.educationalDegree,
+        "required_experiences": this.requiredExperience,
+        "required_skills": this.requiredSkills,
+        "status": this.status,
+        "working_time_details" : this.workingTime,
+        "job_description": this.jobDescription,
+        "accommodations" : this.accomodation, 
+        "bonus": this.bonusAllowance,
+        "transportation" : this.transportation,
+        "transportation_allowances" : this.transportationAllowance,
+        "ot_per_hour" : this.overTime,
+        "leave_quota" : this.leaveQuota,
+        "laptop_provision" : this.laptopProvision,
+        "other_provision" : this.additionalProvision,
+        "insurance_provision" : this.insuranceProvisiongS,
+        "insurance_level" : this.insuranceLevel,
+        "additional_benefits_welfare": this.additionalProvision,
+        "question_array" : this.questions},config)
+      .then(response => {
+        console.log('success')
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    },
+  
 
     testPrint(){
       console.log(this.fullName)
