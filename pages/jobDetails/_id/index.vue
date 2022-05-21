@@ -57,6 +57,10 @@
               <div class="font-weight-black">Start Date:</div>
               <div class="ml-2">{{ this.jobs.start_date }}</div>
             </v-layout>
+            <v-layout row class="my-2">
+              <div class="font-weight-black">Salary Range:</div>
+              <div class="ml-2">{{ this.jobs.approx_salary }}</div>
+            </v-layout>
           </v-layout>
         </v-layout>
       </v-container>
@@ -303,7 +307,7 @@
               <v-toolbar-title>Application form for {{ this.jobs.rolename }} </v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn dark text @click="submit(); dialog1 = false"> Done </v-btn>
+                <v-btn dark text @click="submit();"> Done </v-btn>
                 <!-- this line must link a function to submit the data to the database -->
               </v-toolbar-items>
             </v-toolbar>
@@ -646,7 +650,7 @@
               <v-toolbar-title>Edit form for {{ this.jobs.rolename }} </v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn dark text @click="dialog2 = false"> Done </v-btn>
+                <v-btn dark text @click="submit()"> Done </v-btn>
                 <!-- this line must link a function to submit the data to the database -->
               </v-toolbar-items>
             </v-toolbar>
@@ -780,7 +784,7 @@
               <v-toolbar-title>Edit form for {{ this.jobs.rolename }} </v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
-                <v-btn dark text @click="dialog3 = false"> Done </v-btn>
+                <v-btn dark text @click="submit()"> Done </v-btn>
                 <!-- this line must link a function to submit the data to the database -->
               </v-toolbar-items>
             </v-toolbar>
@@ -997,7 +1001,7 @@
                       </v-btn>
                       <!-- pack into json send through API -->
                       <!-- <v-btn align="end" color="primary darken-3" @click="submit(); dialog1 = false" nuxt to= "/list_of_jobs">  -->
-                      <v-btn align="end" color="primary darken-3" @click="submit(); dialog1 = false"> 
+                      <v-btn align="end" color="primary darken-3" @click="submit();"> 
                         Done
                       </v-btn>
                     </v-col>
@@ -1341,7 +1345,7 @@ export default {
         "prev_questions":this.disQues,
         "new_questions": this.newQues,
       },config)
-
+      this.$router.push({name:'list_of_jobs'})
     },
    
     save(date) {
