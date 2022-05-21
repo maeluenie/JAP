@@ -1,23 +1,17 @@
 <template>
-  <nuxt-link :to ="'jobDetails/'+id">
-    <v-layout
-        row
-        wrap
-        align-content-space-around
-        justify-start
-        class="mx-2 my-2"
-      >
+  
   
         
         <!-- for the v-card, usage of <v-for> is considerable for repetitive display of cards -->
-
+          
           <v-card
             class="ml-4 mb-4"
             width="48rem"
             hover
           >
+            <nuxt-link style="text-decoration: none;" :to ="'jobDetails/'+id">
           
-          
+            
             <v-list-item>
               <v-list-item-content>
                 <div class="text-h6 ml-4 font-weight-bold">{{ rolename }}</div>
@@ -40,12 +34,12 @@
                         <div class="ml-2">{{department}}</div>
                       </v-layout>
                       <v-layout row class="my-2">
-                        <v-icon class="mr-2" color="black">mdi-map-marker</v-icon>
-                        <!-- <div class="font-weight-bold">Location:</div> -->
+                        <!-- <v-icon class="mr-2" color="black">mdi-map-marker</v-icon> -->
+                        <div class="font-weight-bold">Location:</div>
                         <div class="ml-2">{{working_location}}</div> </v-layout
                       ><v-layout row class="my-2">
-                        <v-icon class="mr-2" color="black">mdi-clock</v-icon>
-                        <!-- <div class="font-weight-bold">Team:</div> -->
+                        <!-- <v-icon class="mr-2" color="black">mdi-clock</v-icon> -->
+                        <div class="font-weight-bold">Team:</div>
                         <div class="ml-2">{{working_time_details}}</div>
                       </v-layout>
                     </v-layout>
@@ -96,11 +90,9 @@
                 Details
               </v-btn>
             </v-col>
-
+            </nuxt-link>
           </v-card>
-
-      </v-layout>
-  </nuxt-link>
+      
 </template>
 
 <script>

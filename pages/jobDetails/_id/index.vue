@@ -25,12 +25,12 @@
               <div class="ml-2">{{ this.jobs.position }}</div>
             </v-layout>
             <v-layout row class="my-2">
-              <v-icon class="mr-2" color="black">mdi-map-marker</v-icon>
-              <!-- <div class="font-weight-bold">Location:</div> -->
+              <!-- <v-icon class="mr-2" color="black">mdi-map-marker</v-icon> -->
+              <div class="font-weight-bold">Location:</div>
               <div class="ml-2">{{ this.jobs.working_location }}</div> </v-layout
             ><v-layout row class="my-2">
-              <v-icon class="mr-2" color="black">mdi-clock</v-icon>
-              <!-- <div class="font-weight-bold">Team:</div> -->
+              <!-- <v-icon class="mr-2" color="black">mdi-clock</v-icon> -->
+              <div class="font-weight-bold">Team:</div>
               <div class="ml-2">{{ this.jobs.working_time_details }}</div>
             </v-layout>
           </v-layout>
@@ -56,10 +56,6 @@
             <v-layout row class="my-2">
               <div class="font-weight-black">Start Date:</div>
               <div class="ml-2">{{ this.jobs.start_date }}</div>
-            </v-layout>
-            <v-layout row class="my-2">
-              <div class="font-weight-black">Salary Range:</div>
-              <div class="ml-2">{{ this.jobs.approx_salary }}</div>
             </v-layout>
           </v-layout>
         </v-layout>
@@ -91,7 +87,7 @@
 
         <!-- maybe in this <v-item-group> section we can further use v-for for icon-iterations -->
         <v-item-group class="mx-4 my-2">
-          <v-tooltip bottom color="primary" v-if="jobDetails.benefits.accommodations == true">      
+          <v-tooltip bottom color="primary" v-if="this.jobs.accommodations != 'None'">      
 
             <!-- for the accommodations, vehicles the data will provide something, so check the whether is it null or not might be better such as
             v-if="jobDetails.accommodations != null" might be better, copy those characters and place it below at "Accommodations at Ladkrabang"-->
@@ -111,7 +107,7 @@
                 <v-icon dark> mdi-home </v-icon>
               </v-btn>
             </template>
-            <span>Accommodations at Ladkrabang</span> 
+            <span>Accommodations at {{ this.jobs.accommodations }}</span> 
             <!-- specifically replacing the text here to be jobDetails.accommodations, so the text will be display as an overlay after hovering -->
           </v-tooltip>
           <v-tooltip bottom color="grey" v-else>
@@ -131,7 +127,7 @@
             <span>No Accommodations Provided</span>
           </v-tooltip>
 
-          <v-tooltip bottom color="primary" v-if="jobDetails.benefits.vehicles == true">
+          <v-tooltip bottom color="primary" v-if="this.jobs.transportation != 'None'">
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 class="mx-1"
@@ -145,7 +141,7 @@
                 <v-icon dark> mdi-car </v-icon>
               </v-btn>
             </template>
-            <span> Vehicle Provisioning </span>
+            <span> {{this.jobs.transportation}} Type of Provisioning with {{ this.jobs.transportation_allowances }} </span>
           </v-tooltip>
           <v-tooltip bottom color="grey" v-else>
             <template v-slot:activator="{ on, attrs }">
@@ -164,7 +160,7 @@
             <span> No Vehicle Provided </span>
           </v-tooltip>
 
-          <v-tooltip bottom color="primary" v-if="jobDetails.benefits.laptop == true">
+          <v-tooltip bottom color="primary" v-if="this.jobs.laptop_provision != 'None'">
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 class="mx-1"
@@ -178,7 +174,7 @@
                 <v-icon dark> mdi-laptop </v-icon>
               </v-btn>
             </template>
-            <span> Laptop is provided </span>
+            <span> {{this.jobs.laptop_provision}} </span>
           </v-tooltip>
           <v-tooltip bottom color="grey" v-else>
             <template v-slot:activator="{ on, attrs }">
@@ -197,7 +193,7 @@
             <span> No Laptop Provided </span>
           </v-tooltip>
 
-          <v-tooltip bottom color="primary" v-if="jobDetails.benefits.overtime == true">
+          <v-tooltip bottom color="primary" v-if="this.jobs.bonus != 'None'">
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 class="mx-1"
@@ -211,7 +207,7 @@
                 <v-icon dark> mdi-av-timer </v-icon>
               </v-btn>
             </template>
-            <span> Overtime Bonus is provided </span>
+            <span> {{ this.jobs.bonus }}% for overtime bonus </span>
           </v-tooltip>
           <v-tooltip bottom color="grey" v-else>
             <template v-slot:activator="{ on, attrs }">
@@ -1001,7 +997,8 @@
                         Back
                       </v-btn>
                       <!-- pack into json send through API -->
-                      <v-btn align="end" color="primary darken-3" @click="submit();" nuxt to= "/list_of_jobs"> 
+                      <!-- <v-btn align="end" color="primary darken-3" @click="submit(); dialog1 = false" nuxt to= "/list_of_jobs">  -->
+                      <v-btn align="end" color="primary darken-3" @click="submit(); dialog1 = false"> 
                         Done
                       </v-btn>
                     </v-col>
@@ -1197,7 +1194,8 @@ export default {
       "Sathorn",
       "Bangsue",
       "Thonglor",
-      "Ladkrabang"
+      "Ladkrabang",
+      "None"
     ],
     select: null,
     transportation: "",
@@ -1206,6 +1204,7 @@ export default {
       "Bus Provisioning",
       "Bangsue",
       "Thonglor",
+      "None"
     ],
     select: null,
     overTime: "",

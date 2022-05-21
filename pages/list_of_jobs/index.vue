@@ -2,6 +2,13 @@
   <!-- list_of_jobs page must have the consideration of roles to see -->
 
   <div>
+    <v-layout
+        row
+        wrap
+        align-content-space-around
+        justify-start
+        class="mx-2 my-2"
+      >
     <v-container bg>
       <v-layout
         row
@@ -33,9 +40,21 @@
         
         <!-- v-btn above must include the feature to select the roles accordingly. -->
       </v-layout>
-    
-      <Jobs 
-        v-for="(job,i) in filteredjobs" :key="i" 
+
+      
+    </v-container>
+    </v-layout>
+  
+    <v-layout
+        row
+        wrap
+        align-center
+        align-content-center
+        justify-center
+        class="mx-4"
+      >
+    <Jobs 
+        v-for="(job,i) in jobs" :key="i" 
         :id="job.job_id.toString()" 
         :rolename="job.rolename"
         :department="job.department"
@@ -45,8 +64,7 @@
         :start_date="job.start_date"
         :approx_salary="job.approx_salary"
       />
-
-    </v-container>
+</v-layout>
 
 
     <v-row class="text-right">
