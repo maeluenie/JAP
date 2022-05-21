@@ -56,11 +56,10 @@
         <v-icon>mdi-menu</v-icon>
       </v-btn>
         <div v-if="$auth.loggedIn">
-          {{$auth.user.username}}
-          <v-btn text>Logout</v-btn>
+          <v-btn @click="logout()" text>Logout</v-btn>
         </div>
         <div v-else>
-          <v-btn text to="/login">Login</v-btn>
+          <v-btn text to="/">Login</v-btn>
         </div>
     </v-app-bar>
 
@@ -113,7 +112,7 @@ export default {
         {
           icon: "mdi-lock",
           title: "Login",
-          to: "/login",
+          to: "/",
         },
         {
           icon: "mdi-chart-bubble",
@@ -133,6 +132,14 @@ export default {
       rightDrawer: false,
       title: "Job Application Portal",
     };
+   
   },
+   methods: {
+      async logout () { 
+            await this.$auth.logout() 
+            this.$router.push('/');
+        }
+
+    }
 };
 </script>
