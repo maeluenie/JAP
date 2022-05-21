@@ -39,6 +39,14 @@
               <div class="font-weight-black">Manager's Name:</div>
               <div class="ml-2">{{ this.jobs.manager_fullname }}</div>
             </v-layout>
+            <v-layout row class="my-2">
+              <div class="font-weight-black">Manager's Role:</div>
+              <div class="ml-2">{{ this.jobs.manager_role }}</div>
+            </v-layout>
+            <v-layout row class="my-2">
+              <div class="font-weight-black">Required Experience:</div>
+              <div class="ml-2">{{ this.jobs.required_experiences }}</div>
+            </v-layout>
           </v-layout>
           <v-layout column align-content-start justify-start class="mx-2">
             <v-layout row class="my-2">
