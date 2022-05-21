@@ -1501,8 +1501,10 @@ def pairSelectedQuestions():
     conn = engine.connect()
     metadata = db.MetaData()
 
+    print(request.json, type(request.json), flush=True)
+
     q_id_json = request.json['q_id']
-    a_id_json = request.json['application_id']
+    a_id_json = request.json['applicant_id']
 
     # pending validation with data analytics section.
     suitable_dep = request.json['suited_dept']
@@ -1510,8 +1512,8 @@ def pairSelectedQuestions():
     suitability_score = request.json['score']
 
 
-    application_values_query = '''
-    SELECT application.applicant_id, application.job_id, applicant_information.fullname, job_information.rolename, 
+    application_values_query = """
+    SELECT application.application_id, application.applicant_id, application.job_id, applicant_information.fullname, job_information.rolename, 
     job_information.position_id, job_information.department, job_information.application_deadline, organization_information.position, job_information.line_manager_id,
     employee_information.employee_fullname, employee_information.role, employee_information.employee_email
     FROM application
@@ -1519,11 +1521,10 @@ def pairSelectedQuestions():
     INNER JOIN job_information ON application.job_id = job_information.job_id
     INNER JOIN organization_information ON job_information.position_id = organization_information.position_id
     INNER JOIN employee_information ON job_information.line_manager_id = employee_information.employee_id
-    WHERE application_id = 
-    '''
+    WHERE application.applicant_id = '""" + str(a_id_json) + "'"
 
     application_data = conn.execute(application_values_query+str(a_id_json)).fetchall()[0]
-    print(application_data)
+    print(application_data, flush=True)
     
     update_q_progress_query = "UPDATE application SET question_progress = 'Ready' WHERE application_id = " + str(a_id_json)
     conn.execute(update_q_progress_query)
@@ -1539,7 +1540,7 @@ def pairSelectedQuestions():
     for i in q_id_json:
 
         dummy_data = {}
-        dummy_data['application_id'] = a_id_json
+        dummy_data['application_id'] = application_data.application_id
 
         questions_answered = db.Table('questions_answered', metadata, autoload=True, autoload_with=engine)
                     
