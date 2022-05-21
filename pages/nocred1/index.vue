@@ -35,7 +35,7 @@
       </v-layout>
 
       <Jobsnocred 
-        v-for="(job,i) in jobs" :key="i" 
+        v-for="(job,i) in filteredjobs" :key="i" 
         :id="job.job_id.toString()" 
         :rolename="job.rolename"
         :department="job.department"
@@ -92,6 +92,11 @@ export default {
     printSelect() {
       console.log(this.selectedRole);
     },
+  },
+  computed:{
+    filteredjobs(){
+      return this.jobs.filter(job => job.rolename && job.rolename.toLowerCase().includes(this.selectedRole))
+    }
   }      
 };
 

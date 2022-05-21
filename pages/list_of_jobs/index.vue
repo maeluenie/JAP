@@ -34,9 +34,9 @@
             clearable
           ></v-combobox>
         </v-flex>
-        <!-- <v-btn @click="printSelect" color="primary darken-3" justify-center>
+        <v-btn @click="printSelect" color="primary darken-3" justify-center>
           <v-icon> mdi-magnify </v-icon>
-        </v-btn> -->
+        </v-btn>
         
         <!-- v-btn above must include the feature to select the roles accordingly. -->
       </v-layout>
@@ -171,7 +171,7 @@ export default {
   },
   computed:{
     filteredjobs(){
-      return this.jobs.filter(job => job.rolename && job.rolename.includes(this.selectedRole))
+      return this.jobs.filter(job => job.rolename && job.rolename.toLowerCase().includes(this.selectedRole))
 
     
     }
