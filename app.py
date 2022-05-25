@@ -95,7 +95,7 @@ def login():
 
     data = { 'username': request.json['username'], 'password': request.json['password']}    # get the information from front-end login section.
 
-    print('This is the data submitted from front-end', data)
+    # print('This is the data submitted from front-end', data)
 
     conn = engine.connect()
     metadata = db.MetaData()
@@ -108,7 +108,7 @@ def login():
 
     new_user = conn.execute(db.select(applicants).where(applicants.columns.username == data['username']))
     
-    print(new_user)
+    # print(new_user)
 
     if not new_user:
         conn.close()
@@ -136,7 +136,7 @@ def login():
         if bcrypt.checkpw(bytes(data['password'],'utf-8'),bytes(user_data['password'],'utf-8')):     
             token = jwt.encode( { 'application_id':user_data['application_id'], 'applicant_id':user_data['applicant_id'], 'fullname':user_data['applicant_fullname'], 'user':user_data['username'], 'role':user_data['role'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=3) } , app.config['SECRET_KEY'] )
 
-        print("Token =",token)
+        # print("Token =",token)
 
         conn.close()
 
@@ -150,7 +150,7 @@ def login():
 
         response = jsonify( { 'Response' : 'Could not verify as there are no selected user within the database, 401'} )
         response.headers.add("Access-Control-Allow-Origin","*")
-        print(response)
+        # print(response)
 
         return response
     
@@ -190,16 +190,16 @@ def userinfo(current_user):
     if not token:
         return make_response("Token is not being provided",401)
 
-    print("Token =" ,token)
+    # print("Token =" ,token)
 
     data = jwt.decode(token, app.config['SECRET_KEY'],algorithms=["HS256"])
 
-    print("Data =",data)
+    # print("Data =",data)
 
     response =  jsonify(data)
     response.headers.add("Access-Control-Allow-Origin","*")
 
-    print(response)
+    # print(response)
 
     return response
 
@@ -790,7 +790,7 @@ def getAllJobs():
     # print(test_string)
     all_values = conn.execute(test_string).fetchall()
     test = [dict(row) for row in all_values][-2]
-    print(test)
+    # print(test)
 
 
     test2 = []
@@ -799,7 +799,7 @@ def getAllJobs():
     
     for i in test2:
         i['required_skills'] = list(i['required_skills'][1:-1].split(","))
-        print(i['required_skills'], end="\n")
+        # print(i['required_skills'], end="\n")
 
     # metadata = db.MetaData()
 
@@ -878,11 +878,11 @@ def getSingleJob(job_id):
     conn = engine.connect()
     # list(i.required_skills[1:-1].split(","))
     metadata = db.MetaData()
-    print("getSingleJob job_id   ", job_id , flush=True)
+    # print("getSingleJob job_id   ", job_id , flush=True)
     job_applied = db.Table('job_information', metadata, autoload=True, autoload_with=engine)
     
     job_applied_data = conn.execute(db.select(job_applied).where(job_applied.columns.job_id == job_id))
-    print("getSingleJob get_job_applied_data    " , job_applied_data , flush=True)
+    # print("getSingleJob get_job_applied_data    " , job_applied_data , flush=True)
 
     data = {}
     for i in job_applied_data:
@@ -961,13 +961,13 @@ def getSingleJob(job_id):
         data['manager_fullname'] = i.employee_fullname
         data['manager_role'] = i.role
 
-    print("getSingleJob single_job_data_json    " , data , flush=True)
+    # print("getSingleJob single_job_data_json    " , data , flush=True)
 
     conn.close()
 
     response = jsonify({'Jobs': data })
     response.headers.add("Access-Control-Allow-Origin","*")
-    print(response)
+    # print(response)
     return response
 
 
@@ -993,7 +993,7 @@ def addNewJob(current_user):
         str_cat += str(i)
         str_cat += ','
     str_cat = str_cat[0:-1]+"]"
-    print(str_cat)
+    # print(str_cat)
 
 
     line_manager_id = conn.execute("SELECT employee_id FROM employee_information WHERE employee_fullname = '"+data['manager_name'] + "'").fetchall()[0].employee_id
@@ -1069,7 +1069,7 @@ def addNewJob(current_user):
             'question_id' : latest_q_id
         }
 
-        print('this is the question job link variable',question_job_link)
+        # print('this is the question job link variable',question_job_link)
         job_questions_query = db.insert(job_questions)
         conn.execute(job_questions_query,question_job_link)
 
@@ -1113,7 +1113,7 @@ def editJob(current_user,job_id):
     data = request.json
 
     keys = list(data.keys())
-    print("This is keys in the dict from data requested",keys)
+    # print("This is keys in the dict from data requested",keys)
     conn = engine.connect()
     metadata = db.MetaData() 
  
@@ -1122,7 +1122,7 @@ def editJob(current_user,job_id):
     job_data = conn.execute(db.select(job_information).where(job_information.columns.job_id == job_id)).fetchall()[0]
 
     for i in keys:
-        print("This is each keys while looping in the dict from data requested",i)
+        # print("This is each keys while looping in the dict from data requested",i)
         if i in ['department']:
             continue
 
@@ -1130,20 +1130,20 @@ def editJob(current_user,job_id):
 
 
             query = "SELECT position_id, department FROM organization_information WHERE position = '" + str(data['position']) + "'"
-            print(query, 'position query')
-            print(data['position'], type(data['position']),flush=True)
+            # print(query, 'position query')
+            # print(data['position'], type(data['position']),flush=True)
 
             organization_information = db.Table('organization_information', metadata, autoload=True, autoload_with=engine)
             organization_info_data = conn.execute(db.select(organization_information).where(organization_information.columns.position == data['position'])).fetchall()
             # organization_info_data = conn.execute("SELECT position_id, department FROM organization_information WHERE position = '" + str(data['position']) + "'").fetchall()
 
-            print("This is organization_info_data ",organization_info_data, flush=True)
+            # print("This is organization_info_data ",organization_info_data, flush=True)
         
 
             new_pos_id = organization_info_data[0].position_id
-            print("this is new position_id ",new_pos_id, flush=True)
+            # print("this is new position_id ",new_pos_id, flush=True)
             new_department = organization_info_data[0].department
-            print("this is new_department ",new_department, flush=True)
+            # print("this is new_department ",new_department, flush=True)
 
             posid_update_query = "UPDATE job_information SET position_id = " + str(new_pos_id) +  " WHERE job_id = " + str(job_id)
             dept_update_query = "UPDATE job_information SET department = '" + new_department + "'" + " WHERE job_id = " + str(job_id)
@@ -1155,9 +1155,9 @@ def editJob(current_user,job_id):
         elif i == 'required_skills':
 
             prev_skills_before_conv = conn.execute("SELECT required_skills FROM job_information WHERE job_id = " + str(job_id)).fetchall()[0].required_skills
-            print("Original Data Taken from the DB is ", prev_skills_before_conv,type(prev_skills_before_conv))
+            # print("Original Data Taken from the DB is ", prev_skills_before_conv,type(prev_skills_before_conv))
             prev_skills = conn.execute("SELECT required_skills FROM job_information WHERE job_id = " + str(job_id)).fetchall()[0].required_skills[1:-1].split(",")
-            print("Converted Data from the DB is ",prev_skills,type(prev_skills))
+            # print("Converted Data from the DB is ",prev_skills,type(prev_skills))
 
             if data['required_skills'] != prev_skills:
                 
@@ -1167,10 +1167,10 @@ def editJob(current_user,job_id):
                     str_cat += ','
                 str_cat = str_cat[0:-1]+"]"
 
-                print(str_cat,type(str_cat))
+                # print(str_cat,type(str_cat))
                 skills_update_query = "UPDATE job_information SET required_skills = '" + str(str_cat) + "' WHERE job_id = " + str(job_id)
 
-                print(skills_update_query)
+                # print(skills_update_query)
                 conn.execute(skills_update_query)
 
         elif i == 'prev_questions':
@@ -1193,24 +1193,24 @@ def editJob(current_user,job_id):
                 requested_questions = [p for p in data["prev_questions"]]
                 q_id_arr_from_requested = [k["q_id"] for k in data["prev_questions"]]
 
-                print(question_arr_from_db)
-                print(q_id_arr_from_db)
+                # print(question_arr_from_db)
+                # print(q_id_arr_from_db)
 
-                print(requested_questions)
-                print(q_id_arr_from_requested)
+                # print(requested_questions)
+                # print(q_id_arr_from_requested)
 
                 for m in requested_questions:
                     question_record_in_db = conn.execute(db.select(questions).where(questions.columns.question_id==m['q_id'])).fetchall()[0].question
                     if m['question'] != question_record_in_db:
                         question_update_query = "UPDATE questions SET question = '" + m['question'] + "' WHERE question_id = " + str(m['q_id'])
                         conn.execute(question_update_query)
-                        print("Question with the ID", m['q_id'], 'has been updated')
+                        # print("Question with the ID", m['q_id'], 'has been updated')
 
 
             # Deleting the disappeared question from the front-end
             for q in question_arr_from_db:
                 if q["question_id"] not in q_id_arr_from_requested:
-                    print("Successfully DELETE questions with the job_id of "+str(job_id)+" AND question_id = "+str(q["question_id"]))
+                    # print("Successfully DELETE questions with the job_id of "+str(job_id)+" AND question_id = "+str(q["question_id"]))
                     conn.execute("DELETE FROM job_questions WHERE job_id = "+str(job_id)+" AND question_id = "+str(q["question_id"]))
 
         
@@ -1237,13 +1237,13 @@ def editJob(current_user,job_id):
                             'question_id' : latest_q_id
                     }
 
-                    print('this is the question job link variable',new_question_link)
+                    # print('this is the question job link variable',new_question_link)
                     conn.execute(db.insert(job_questions_table),new_question_link)
 
         else:
-            print("This is the current key of this iteration",i, flush=True)
-            print(data[i])
-            print(job_data[i])
+            # print("This is the current key of this iteration",i, flush=True)
+            # print(data[i])
+            # print(job_data[i])
             if data[i] != job_data[i]:
                 if isinstance(job_data[i], int):
                     int_query = "UPDATE job_information SET " + str(i) + " = " + str(data[i]) + " WHERE job_id = " + str(job_id)
@@ -1312,11 +1312,11 @@ def postSpecificQuestions(current_user):
 
     # conn = engine.connect()
     answers = request.json['list_of_answers']
-    print(answers, type(answers))
+    # print(answers, type(answers))
 
     for i in answers:
         query = "UPDATE questions_answered SET answer = '" + str(i['answer']) + "' WHERE application_id = " + str(data['application_id']) + " and question_id = " + str(i['q_id']) + ""
-        print(query)
+        # print(query)
         # conn.execute(query)
 
 
@@ -1501,17 +1501,26 @@ def pairSelectedQuestions():
     conn = engine.connect()
     metadata = db.MetaData()
 
-    print(request.json, type(request.json), flush=True)
-
+    # print(request.json, type(request.json), flush=True)
+# 
     q_id_json = request.json['q_id']
 
     a_id_json = request.json['applicant_id']
 
     # pending validation with data analytics section.
-    suitable_dep = request.json['suited_dept']
-    suitable_pos = request.json['suited_pos']
-    suitability_score = request.json['score']
+    first_suitable_dep = request.json['suited_dept'][0]
+    second_suitable_dep = request.json['suited_dept'][1]
+    third_suitable_dep = request.json['suited_dept'][2]
 
+    first_suitable_pos = request.json['suited_pos'][0]
+    second_suitable_pos = request.json['suited_pos'][1]
+    third_suitable_pos = request.json['suited_pos'][2]
+
+    first_score = request.json['score'][0]
+    second_score = request.json['score'][1]
+    third_score = request.json['score'][2]
+
+    suitability_score = request.json['applied_score']
 
     application_values_query = """
     SELECT application.application_id, application.applicant_id, application.job_id, applicant_information.fullname, job_information.rolename, 
@@ -1524,11 +1533,11 @@ def pairSelectedQuestions():
     INNER JOIN employee_information ON job_information.line_manager_id = employee_information.employee_id
     WHERE application.applicant_id = '""" + str(a_id_json) + "'"
 
-    print(application_values_query, flush=True)
+    # print(application_values_query, flush=True)
 
     application_data = conn.execute(application_values_query).fetchall()
 
-    print(application_data, flush=True)
+    # print(application_data, flush=True)
     
     application_data = application_data[0]
 
@@ -1593,9 +1602,20 @@ def pairSelectedQuestions():
                                             department = application_data.department,
                                             app_deadline = application_data.application_deadline,
                                             suitability_score = suitability_score,
-                                            suitable_pos = suitable_pos,
-                                            suitable_dep = suitable_dep
+
+                                            first_suitable_pos = first_suitable_pos,
+                                            second_suitable_pos = second_suitable_pos,
+                                            third_suitable_pos = third_suitable_pos,
+
+                                            first_suitable_dep = first_suitable_dep,
+                                            second_suitable_dep = second_suitable_dep,
+                                            third_suitable_dep = third_suitable_dep,
+
+                                            first_score = first_score,
+                                            second_score = second_score,
+                                            third_score = third_score
                                             )
+
     organization_inform_email.set_content(org_content,subtype="html")
 
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:   # to the actual email, required smtp.ehlo() and smtp.starttls() code
@@ -1736,7 +1756,7 @@ def selectQuestions(current_user,application_id):
 
         smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         smtp.send_message(applicant_inform_email)
-        print("A confirmation email has been sent to", applicant_name, "( via SSL Connection ) ")
+        # print("A confirmation email has been sent to", applicant_name, "( via SSL Connection ) ")
             
     stmt = " UPDATE application SET question_progress = 'Submitted' WHERE application_id = " + str(application_id)
     conn.execute(stmt)
@@ -1986,7 +2006,7 @@ def editKeywords():
 
     keywords_list = conn.execute("SELECT question_id, question_keywords FROM questions WHERE question_id > 173").fetchall()
 
-    print(keywords_list[0])
+    # print(keywords_list[0])
 
     for record in keywords_list:
         print(record.question_keywords)
