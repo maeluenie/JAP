@@ -307,7 +307,7 @@
               <v-btn icon dark @click="dialog1 = false">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
-              <v-toolbar-title>Application form for {{ this.jobDetails.jobName }} </v-toolbar-title>
+              <v-toolbar-title>Application form for {{ this.jobs.rolename }} </v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
                 <v-btn dark text @click="dialog1 = false; submit()"> Submit </v-btn>
@@ -803,7 +803,7 @@
               <v-btn icon dark @click="dialog2 = false">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
-              <v-toolbar-title>Application form for {{ this.jobDetails.jobName }} </v-toolbar-title>
+              <v-toolbar-title>Application form for {{ this.jobs.rolename }} </v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
                 <v-btn dark text @click="dialog2 = false; submit()"> Submit </v-btn>
@@ -860,13 +860,12 @@
 
                       <v-textarea
                       v-model="statement"
-                      :rules="statement"
+                      :rules="nameRules"
                       label="Statement of Purpose"
                       required
                       outlined
                       dense
                       counter="250"
-                      maxlength="250"
                       ></v-textarea>
 
                       
@@ -1126,7 +1125,7 @@
               <v-btn icon dark @click="dialog3 = false">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
-              <v-toolbar-title>Application form for {{ this.jobDetails.jobName }} </v-toolbar-title>
+              <v-toolbar-title>Application form for {{ this.jobs.rolename }} </v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
                 <v-btn dark text @click="dialog3 = false , submit()"> Submit </v-btn>
@@ -1177,8 +1176,8 @@
                       />
                       
                     </div>
-                    <p>user's answer</p>
-                      {{ all_q2 }}
+                    
+ 
 
                   </v-col>
 
@@ -1382,7 +1381,6 @@ export default {
 
     //Dialog 2
     file:"",
-    statement:"",
     specialAbilities:"",
     emergencyName1:"",
     emergencyName2:"",
