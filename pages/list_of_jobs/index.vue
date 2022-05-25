@@ -54,7 +54,7 @@
         class="mx-4"
       >
     <Jobs 
-        v-for="(job,i) in jobs" :key="i" 
+        v-for="(job,i) in filteredjobs" :key="i" 
         :id="job.job_id.toString()" 
         :rolename="job.rolename"
         :department="job.department"
