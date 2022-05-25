@@ -996,7 +996,7 @@ def addNewJob(current_user):
     print(str_cat)
 
 
-    line_manager_id = conn.execute("SELECT employee_id FROM employee_information WHERE employee_fullname = '"+data['manager_name'] + "'")
+    line_manager_id = conn.execute("SELECT employee_id FROM employee_information WHERE employee_fullname = '"+data['manager_name'] + "'").fetchall()[0].employee_id
 
 
     values = {
