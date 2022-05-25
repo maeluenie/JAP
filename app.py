@@ -671,6 +671,7 @@ def uploadApplication():
     job_data = conn.execute(db.select(job).where(job.columns.job_id == data['job_id']))
 
     for i in job_data:
+        pos_id = i.position_id
         application_deadline = i.application_deadline
         job_role_applied = i.rolename
         num_of_applicant = i.number_of_applicants - 1
@@ -689,30 +690,7 @@ def uploadApplication():
         target_table = db.insert(answers)
         conn.execute(target_table)
 
-    # format of data['all_questions'] is
-    #   questions : {
-    #       {
-    #           "question_id": x,
-    #            "answer" : "answerForQuestion1"
-    #       }
-  
-    # q_id_array = list(data['q_id_array'][1:-1].split(","))
-    # answer_array = list(data['answer_array'][1:-1].split(","))
-    
-    # print(q_id_array , type(q_id_array))
-    # print(answer_array, type(answer_array))
-    
-    # inserted_values = {}
-    # inserted_values['application_id'] = application_id
-    # inserted_values['selected'] = 1
- 
-    # for i in range(len(q_id_array)):
-    #     inserted_values['question_id'] = q_id_array[i]
-    #     inserted_values['answer'] = answer_array[i]
-    #     query = db.insert(answers)
-    #     conn.execute(query,inserted_values)
-
-
+    position_name = conn.execute("SELECT position FROM organization_information WHERE position_id = ", str(pos_id)).fetchall()[0].position
 
     resume = request.files['pdf'] 
 
@@ -729,6 +707,7 @@ def uploadApplication():
     content = open("applicant_email.html").read().format(applicant_name=applicant_values['fullname'], 
                                             job_role=job_role_applied, 
                                             app_deadline=application_deadline,
+                                            position=position_name,
                                             username=generated_username,
                                             password=rand_pw)
     applicant_inform_email.set_content(content,subtype="html")
@@ -742,6 +721,7 @@ def uploadApplication():
     organization_inform_email['From'] = EMAIL_ADDRESS    # jobapplicationplatform@gmail.com
     organization_inform_email['To'] = manager_email 
     org_content = open("manager_email.html").read().format( manager_name= manager_name,
+                                            position= position_name,
                                             applicant_name=applicant_values['fullname'], 
                                             job_role=job_role_applied, 
                                             app_deadline=application_deadline,
@@ -1904,16 +1884,21 @@ def sentOffer(current_user, application_id):
         applicant_name = conn.execute(applicant_query).fetchall()[0].fullname
         applicant_email = conn.execute(applicant_query).fetchall()[0].email
 
-        job_query = "SELECT rolename FROM job_information WHERE job_id = " + str(job_id)
+        job_query = "SELECT position_id , rolename FROM job_information WHERE job_id = " + str(job_id)
 
         job_details = conn.execute(job_query).fetchall()[0]
+
+        pos_query = "SELECT position FROM organization_information WHERE position_id = " + str(job_details.position_id)
+
+        pos_details = conn.execute()
             
         applicant_inform_email = EmailMessage()
         applicant_inform_email['Subject'] = "Company A Online Application : Job Offer"
         applicant_inform_email['From'] = EMAIL_ADDRESS    # jobapplicationplatform@gmail.com
         applicant_inform_email['To'] = applicant_email
         content = open("job_offer_email.html").read().format(applicant_name=applicant_name, 
-                                                    job_role=job_details.rolename
+                                                    job_role=job_details.rolename,
+                                                    position=pos_details.position
                                                     )
         applicant_inform_email.set_content(content,subtype="html")
 
