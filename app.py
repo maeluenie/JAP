@@ -490,6 +490,12 @@ def uploadApplication():
     metadata = db.MetaData()
 
     data = request.form.to_dict()
+    print(data, flush=True)
+    print(data['applicant_fullname'], flush=True)
+
+    for i in data['all_questions']:
+        print(i, flush=True)
+
 
     check_query = "SELECT number_of_applicants FROM job_information WHERE job_id = " + str(data['job_id'])
     num_of_applicant_check = conn.execute(check_query).fetchall()[0].number_of_applicants 
@@ -687,13 +693,13 @@ def uploadApplication():
     print(data['all_questions'],flush=True)
     print(type(data['all_questions']),flush=True)
 
-    for i in data['all_questions']:
+    for k in data['all_questions']:
         print(i,flush=True)
         answer_values = {}
-        answer_values['application_id'] = application_id,
+        answer_values['application_id'] = application_id
         answer_values['selected'] = 1
-        answer_values['question_id'] = i.question_id
-        answer_values['answer'] =  i.answer
+        answer_values['question_id'] = k.question_id
+        answer_values['answer'] =  k.answer
         target_table = db.insert(answers)
         conn.execute(target_table,answer_values)
 
