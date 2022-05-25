@@ -684,11 +684,18 @@ def uploadApplication():
 
     answers = db.Table('questions_answered', metadata, autoload=True, autoload_with=engine)
     
+    print(data['all_questions'],flush=True)
+    print(type(data['all_questions']),flush=True)
+
     for i in data['all_questions']:
-        i['application_id'] = application_id,
-        i['selected'] = 1
+        print(i,flush=True)
+        answer_values = {}
+        answer_values['application_id'] = application_id,
+        answer_values['selected'] = 1
+        answer_values['question_id'] = i.question_id
+        answer_values['answer'] =  i.answer
         target_table = db.insert(answers)
-        conn.execute(target_table)
+        conn.execute(target_table,answer_values)
 
     position_name = conn.execute("SELECT position FROM organization_information WHERE position_id = ", str(pos_id)).fetchall()[0].position
 
