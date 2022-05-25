@@ -116,13 +116,18 @@ export default {
         },
         {
           icon: "mdi-chart-bubble",
-          title: "About us",
-          to: "/company_information",
-        },
-        {
-          icon: "mdi-chart-bubble",
           title: "Job Display",
           to: "/list_of_jobs",
+        },
+        {
+          icon: "mdi-plus",
+          title: "Add New Job",
+          to: "/addjob",
+        },
+        {
+          icon: "mdi-account",
+          title: "Applicants",
+          to: "/applicants",
         },
     
 
