@@ -99,12 +99,11 @@
                     <v-date-picker
                       v-model="date1"
                       :active-picker.sync="activePicker1"
-                      :max="
+                      :min="
                         new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
                           .toISOString()
                           .substr(0, 10)
                       "
-                      min="1950-01-01"
                       @change="save"
                     ></v-date-picker>
                   </v-menu>
@@ -112,14 +111,15 @@
                   <v-text class="font"
                     ><h5 class="mx-1 mb-2 text-left">Manager Name</h5></v-text
                   >
-                  <v-text-field
+                  <v-select
                     v-model="managerName"
                     :rules="nameRules"
+                    :items="managerSelection"
                     label="Manager Name"
                     required
                     dense
                     outlined
-                  ></v-text-field>
+                  ></v-select>
 
                   <v-text class="font"
                     ><h5 class="mx-1 mb-2 text-left">Educational Degree</h5></v-text
@@ -207,12 +207,11 @@
                     <v-date-picker
                       v-model="date2"
                       :active-picker.sync="activePicker2"
-                      :max="
+                      :min="
                         new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
                           .toISOString()
                           .substr(0, 10)
                       "
-                      min="1950-01-01"
                       @change="save"
                     ></v-date-picker>
                   </v-menu>
@@ -668,7 +667,7 @@
 
                   <v-textarea
                   v-model="additional"
-                  :rules="additional"
+                  :rules="nameRules"
                   label="Additional Benefits and Welfare"
                   required
                   outlined
@@ -743,6 +742,8 @@ export default {
     educationalDegree: "",
     degreeSelection: ["Associate Degree", "Bachelor’s Degree", "Master’s Degree", "Doctoral Degree"],
 
+    managerSelection: ["Jonathan Doe", "Josh Doe", "Jane Doe", "Jonny Foo Doe","Joshua Doe", "Jennifer Doe", "George Doe", " Giprgoe Doe"],
+    
     timeSelection: ['8:00 AM - 4:00 PM','9:00 AM - 7:00 PM'],
 
     select: null,
@@ -820,6 +821,7 @@ export default {
       "Bangsue",
       "Thonglor",
     ],
+
     select: null,
     transportation: "",
     transportationSelection: [
@@ -956,7 +958,7 @@ export default {
         "number_of_applicants" : this.numAccepting,
         "start_date" : this.date1,
         "application_deadline" : this.date2,
-        "line_manager_id" : 7,
+        "manager_name" : this.managerName,
         "working_location" : this.workingLocation,
         "educational_degree_required": this.educationalDegree,
         "required_experiences": this.requiredExperience,
@@ -972,10 +974,12 @@ export default {
         "leave_quota" : this.leaveQuota,
         "laptop_provision" : this.laptopProvision,
         "other_provision" : this.additionalProvision,
-        "insurance_provision" : this.insuranceProvisiongS,
+        "insurance_provision" : this.insuranceProvision,
         "insurance_level" : this.insuranceLevel,
         "additional_benefits_welfare": this.additionalProvision,
         "question_array" : this.questions},config)
+        this.$router.push({name:'list_of_jobs'})
+        
       .then(response => {
         console.log('success')
       })
