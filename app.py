@@ -1797,16 +1797,9 @@ def selectQuestions(current_user,application_id):
     return response
     
 
-
 @app.route('/displaySelectedQuestions', methods=['GET'])  
 @token_required
 def displaySelectedSpecificQuestions(current_user):
-
-    for i in current_user:
-        if i.role != 'admin' or i.role != 'applicant':
-            response = jsonify({ 'Response' : 'Unauthorized, 401' })
-            response.headers.add("Access-Control-Allow-Origin","*")
-            return response
 
     if 'Authorization' in request.headers:
         token = request.headers['Authorization']
@@ -1821,34 +1814,28 @@ def displaySelectedSpecificQuestions(current_user):
 
     conn = engine.connect()
 
-    query = "SELECT question_id FROM questions_answered WHERE application_id = " + str(application_id)
-    all_q_id = conn.execute(query).fetchall()
-    selected_q_id = []
+    query_for_selected_q = """SELECT questions_answered.question_id, questions.question FROM questions_answered 
+    JOIN questions ON questions_answered.question_id = questions.question_id 
+    WHERE questions.question_type = 'specific' and questions_answered.selected = 1 and questions_answered.application_id = """ + str(application_id)
+
+    spec_ques_for_application = conn.execute(query_for_selected_q).fetchall()
+    print(spec_ques_for_application[0])
+
     output = []
 
-    for i in all_q_id:
-        query = "SELECT * FROM questions WHERE question_id = " + str(i.question_id) 
-        question_data = conn.execute(query).fetchall()[0]
-        question_type = question_data.question_type
-        if question_type == 'specific' :
-            checking_query = "SELECT selected FROM questions_answered WHERE question_id = " + str(i.question_id) + " and application_id = " + str(application_id)
-            checking_value = conn.execute(checking_query).fetchall()[0].selected
-            if checking_value == 1:
-                selected_q_id.append(i.question_id)
+    for i in spec_ques_for_application:
+        pair_of_q_and_q_id = {
+            'q_id' : i.question_id,
+            'question' : i.question
+        }
+        print(pair_of_q_and_q_id)
+        output.append(pair_of_q_and_q_id)
 
-    for j in selected_q_id:
-        data = {}
-        query2 = "SELECT question FROM questions WHERE question_id = " + str(j) 
-        data['q_id'] = j
-        data['question'] = conn.execute(query2).fetchall()[0].question
-        #print(data)
-        output.append(data)
-
-
+    print( output , flush=True)
     response = jsonify({'questions': output } )
     response.headers.add("Access-Control-Allow-Origin","*")
-    return response
 
+    return response
 
 
 @app.route('/validation/<application_id>', methods=['POST'])  
