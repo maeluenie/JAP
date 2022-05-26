@@ -275,7 +275,7 @@
           class="mx-1 my-2"
           outlined
           nuxt
-          to="/list_of_jobs"
+          to="/nocred1"
         >
           BACK
         </v-btn>
