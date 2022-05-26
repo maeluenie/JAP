@@ -107,19 +107,26 @@ def login():
     if data == None or not data['username'] or not data['password']:   
         conn.close()
         return make_response('Could not verify due to lack of username and password information', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
+    
+    applicants = db.Table('applicant_information', metadata, autoload=True, autoload_with=engine)
 
-    # new_user = conn.execute(db.select(applicants).where(applicants.columns.username == data['username']))
-    new_user = conn.execute("SELECT * FROM applicant_information WHERE username = '"+str(data['username'])+"'").fetchall()[0]
+    new_user = conn.execute(db.select(applicants).where(applicants.columns.username == data['username']))
+    # new_user = conn.execute("SELECT * FROM applicant_information WHERE username = '"+str(data['username'])+"'").fetchall()[0]
     # print(new_user)
     print(new_user,flush=True)
 
-    user_data = {}
-    user_data['applicant_id'] = new_user.applicant_id
-    user_data['applicant_fullname'] = new_user.fullname
-    user_data['username'] = new_user.username
-    user_data['password'] = new_user.password
-    user_data['email'] = new_user.email
-    user_data['role'] = new_user.role
+    if not new_user:
+        conn.close()
+        return make_response('Could not verify as there are no selected user within the database', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
+
+    for user in new_user:   # these information can instead be retrieved using foreign key relationships in the database, some fields can be removed.
+        user_data = {}
+        user_data['applicant_id'] = user.applicant_id
+        user_data['applicant_fullname'] = user.fullname
+        user_data['username'] = user.username
+        user_data['password'] = user.password
+        user_data['email'] = user.email
+        user_data['role'] = user.role
     
     applications = db.Table('application', metadata, autoload=True, autoload_with=engine)
     specific_application = conn.execute(db.select(applications).where(applications.columns.applicant_id == user_data['applicant_id']))
@@ -1813,6 +1820,12 @@ def selectQuestions(current_user,application_id):
 @cross_origin()
 @token_required
 def displaySelectedSpecificQuestions(current_user):
+
+    for i in current_user:
+        if i.role != 'admin' or i.role != 'applicant':
+            response = jsonify({ 'Unauthorized, 401' })
+            response.headers.add("Access-Control-Allow-Origin","*")
+            return response
 
     if 'Authorization' in request.headers:
         token = request.headers['Authorization']
