@@ -1533,10 +1533,10 @@ export default {
       formData.append('proficiency',this.proficiencyLevel);
       formData.append('special_ability',this.specialAbilities);
       formData.append('job_id',this.jobs.job_id);
-      formData.append('all_questions',this.all_q.map(value=>{return {
+      formData.append('all_questions',JSON.stringify(this.all_q.map(value=>{return {
         question_id: value.question_id,
         answer: value.answer
-      }}));
+      }})));
       
       // http://rienru.tk/foo/catchparams.php
       // http://143.198.77.144:8000/uploadApplication
