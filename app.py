@@ -17,6 +17,7 @@ import ssl
 import datetime
 import os
 import json
+from prettytable import PrettyTable
 from functools import wraps
 import bcrypt
 from password_generator import PasswordGenerator
@@ -49,6 +50,7 @@ engine = db.create_engine(os.environ.get('JAP_DB_URL'))
 
 # use to generate randomized password
 pwo = PasswordGenerator()
+pwo.excludeschars = "$%^ " 
 pwo.minlen = 8
 pwo.maxlen = 12
 
@@ -99,29 +101,25 @@ def login():
 
     conn = engine.connect()
     metadata = db.MetaData()
-
-    applicants = db.Table('applicant_information', metadata, autoload=True, autoload_with=engine)
+    print(data,flush=True)
+    # applicants = db.Table('applicant_information', metadata, autoload=True, autoload_with=engine)
 
     if data == None or not data['username'] or not data['password']:   
         conn.close()
         return make_response('Could not verify due to lack of username and password information', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
-    new_user = conn.execute(db.select(applicants).where(applicants.columns.username == data['username']))
-    
+    # new_user = conn.execute(db.select(applicants).where(applicants.columns.username == data['username']))
+    new_user = conn.execute("SELECT * FROM applicant_information WHERE username = '"+str(data['username'])+"'").fetchall()[0]
     # print(new_user)
+    print(new_user,flush=True)
 
-    if not new_user:
-        conn.close()
-        return make_response('Could not verify as there are no selected user within the database', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
-
-    for user in new_user:   # these information can instead be retrieved using foreign key relationships in the database, some fields can be removed.
-        user_data = {}
-        user_data['applicant_id'] = user.applicant_id
-        user_data['applicant_fullname'] = user.fullname
-        user_data['username'] = user.username
-        user_data['password'] = user.password
-        user_data['email'] = user.email
-        user_data['role'] = user.role
+    user_data = {}
+    user_data['applicant_id'] = new_user.applicant_id
+    user_data['applicant_fullname'] = new_user.fullname
+    user_data['username'] = new_user.username
+    user_data['password'] = new_user.password
+    user_data['email'] = new_user.email
+    user_data['role'] = new_user.role
     
     applications = db.Table('application', metadata, autoload=True, autoload_with=engine)
     specific_application = conn.execute(db.select(applications).where(applications.columns.applicant_id == user_data['applicant_id']))
@@ -496,11 +494,6 @@ def uploadApplication():
     check_query = "SELECT number_of_applicants FROM job_information WHERE job_id = " + str(data['job_id'])
     num_of_applicant_check = conn.execute(check_query).fetchall()[0].number_of_applicants 
      
-    if num_of_applicant_check <= 0:
-        response = jsonify({'Action': 'This job has stopped accepting applicants now.' })
-        response.headers.add("Access-Control-Allow-Origin","*")
-        return response
-
     if not data:
         response = jsonify({'Action': 'No Data Available' })
         response.headers.add("Access-Control-Allow-Origin","*")
@@ -621,7 +614,7 @@ def uploadApplication():
         
         new_id = 'AP' + str(int(dummy_id) + 1)
 
-    generated_username = new_id +data['applicant_fullname'].replace(" ","").upper()
+    generated_username = new_id + data['applicant_fullname'].replace(" ","").upper()
 
     rand_pw = pwo.generate()
     hashed_pw = bcrypt.hashpw(bytes(str(rand_pw),'utf-8'),bcrypt.gensalt(12)) 
@@ -703,7 +696,9 @@ def uploadApplication():
         target_table = db.insert(answers)
         conn.execute(target_table,answer_values)
 
+
     position_name = conn.execute("SELECT position FROM organization_information WHERE position_id = " + str(pos_id)).fetchall()[0].position
+    department_name = conn.execute("SELECT department FROM organization_information WHERE position_id = " + str(pos_id)).fetchall()[0].department
 
     resume = request.files['pdf'] 
 
@@ -721,6 +716,7 @@ def uploadApplication():
                                             job_role=job_role_applied, 
                                             app_deadline=application_deadline,
                                             position=position_name,
+                                            department=department_name,
                                             username=generated_username,
                                             password=rand_pw)
     applicant_inform_email.set_content(content,subtype="html")
@@ -747,7 +743,7 @@ def uploadApplication():
         smtp.send_message(applicant_inform_email)
         smtp.send_message(organization_inform_email)
 
-        print("A information email has been sent to", applicant_values['email'], "( via SSL Connection ) while the questions selection emails are being submmitted to", manager_email )
+    print("A information email has been sent to", applicant_values['email'], "( via SSL Connection ) while the questions selection emails are being submmitted to", manager_email )
     
     conn.close()
 
@@ -1303,17 +1299,68 @@ def postSpecificQuestions(current_user):
 
     data = jwt.decode(token, app.config['SECRET_KEY'],algorithms=["HS256"])  # get the application_id.
 
-    # conn = engine.connect()
+    conn = engine.connect()
     answers = request.json['list_of_answers']
-    # print(answers, type(answers))
+    # # print(answers, type(answers))
+
+    table = PrettyTable()
+    table.field_names = ["Question ID","Question","Answer"]
 
     for i in answers:
+        question_for_disp = conn.execute("SELECT question FROM questions WHERE question_id = "+str(i['q_id'])).fetchall()[0].question
+        table.add_row([ i['q_id'] , question_for_disp , i['answer'] ])
         query = "UPDATE questions_answered SET answer = '" + str(i['answer']) + "' WHERE application_id = " + str(data['application_id']) + " and question_id = " + str(i['q_id']) + ""
-        # print(query)
-        # conn.execute(query)
+        conn.execute(query)
 
+    query_for_info = '''
+    SELECT application.application_id, application.job_id, applicant_information.fullname, applicant_information.email, job_information.rolename, organization_information.position, 
+    job_information.department, job_information.line_manager_id, employee_information.employee_fullname, employee_information.employee_email
+    FROM application
+    INNER JOIN applicant_information ON application.applicant_id = applicant_information.applicant_id
+    INNER JOIN job_information ON application.job_id = job_information.job_id
+    INNER JOIN organization_information ON job_information.position_id = organization_information.position_id
+    INNER JOIN employee_information ON job_information.line_manager_id = employee_information.employee_id
+    WHERE application_id = ''' + str(data['application_id'])
 
-    response = jsonify({'Jobs': 'Answers submitted successfully' })
+    data_for_email = conn.execute(query_for_info).fetchall()[0]
+
+    applicant_inform_email = EmailMessage()
+    applicant_inform_email['Subject'] = "Company A Online Application : Thank you for your application"
+    applicant_inform_email['From'] = EMAIL_ADDRESS    
+    applicant_inform_email['To'] = data_for_email.email
+
+    content_for_applicant = open("thank_applicant_for_applying.html").read().format(
+                                            applicant_name=data_for_email.fullname, 
+                                            job_role=data_for_email.rolename, 
+                                            position=data_for_email.position,
+                                            department=data_for_email.department,
+                                            )
+    applicant_inform_email.set_content(content_for_applicant,subtype="html")
+
+    manager_inform_email = EmailMessage()
+    manager_inform_email['Subject'] = "Company A Online Application : Application Consideration"
+    manager_inform_email['From'] = EMAIL_ADDRESS    
+    manager_inform_email['To'] = data_for_email.employee_email
+
+    content_for_manager = open("inform_employee_for_completed_questionaire.html").read().format(
+                                            manager_name=data_for_email.employee_fullname,
+                                            applicant_name=data_for_email.fullname,
+                                            applicant_email=data_for_email.email, 
+                                            job_role=data_for_email.rolename, 
+                                            position=data_for_email.position,
+                                            department=data_for_email.department,
+                                            answer_disp=table.get_html_string()
+                                            )
+
+    manager_inform_email.set_content(content_for_manager,subtype="html")
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:   # to the actual email, required smtp.ehlo() and smtp.starttls() code
+
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        smtp.send_message(applicant_inform_email)
+        smtp.send_message(manager_inform_email)
+
+    response = jsonify({'Jobs': 'Answers submitted successfully, emails have been submitted to involved people' })
     response.headers.add("Access-Control-Allow-Origin","*")
     return response
 
