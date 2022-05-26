@@ -92,7 +92,6 @@ def token_required(f):
 
 # rechecked
 @app.route('/login', methods=['POST'])
-@cross_origin()
 def login():
 
     data = { 'username': request.json['username'], 'password': request.json['password']}    # get the information from front-end login section.
@@ -161,7 +160,6 @@ def login():
     
 # rechecked
 @app.route('/logout', methods=['DELETE'])
-@cross_origin()
 @token_required
 def logout(current_user):
 
@@ -185,7 +183,6 @@ def logout(current_user):
 
 # rechecked
 @app.route('/userinfo', methods=['GET'])
-@cross_origin()
 @token_required
 def userinfo(current_user):
 
@@ -211,13 +208,12 @@ def userinfo(current_user):
 
 # rechecked
 @app.route('/getAllApplicants', methods=['GET'])
-@cross_origin()
 @token_required
 def getAllApplicants(current_user):
 
     for i in current_user:
         if i.role != 'admin':
-            response = jsonify({ 'Unauthorized, 401' })
+            response = jsonify({ 'response':'Unauthorized, 401' })
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
 
@@ -315,13 +311,12 @@ def getAllApplicants(current_user):
 # for instance https://<api_web_url>/getApplication/42 will get 42 to passed into this function.
 
 @app.route('/getApplication/<application_id>', methods=['GET'])  
-@cross_origin()
 @token_required
 def getApplication(current_user, application_id):
 
     for i in current_user:
         if i.role != 'admin':
-            response = jsonify({ 'Unauthorized, 401' })
+            response = jsonify({ 'response':'Unauthorized, 401' })
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
 
@@ -470,7 +465,8 @@ def getApplication(current_user, application_id):
     if answered_questions_data:
         for j in answered_questions_data:
             dummy_data = {}
-            question_data = conn.execute(db.select(questions).where(questions.columns.question_id == j.question_id))
+            question_data = conn.execute("SELECT * FROM questions WHERE question_type = 'general' and question_id = "+str(j.question_id)).fetchall()
+            # question_data = conn.execute(db.select(questions).where(questions.columns.question_id == j.question_id))
             for k in question_data:
                 dummy_data['q_id'] = k.question_id
                 dummy_data['questions'] = k.question
@@ -488,7 +484,6 @@ def getApplication(current_user, application_id):
 
 # rechecked
 @app.route('/uploadApplication', methods=['GET','POST'])
-@cross_origin()
 def uploadApplication(): 
 
     conn = engine.connect()
@@ -762,7 +757,6 @@ def uploadApplication():
 
 # rechecked
 @app.route('/getAllJobs', methods=['GET'])
-@cross_origin()
 def getAllJobs():
 
     conn = engine.connect()
@@ -868,7 +862,6 @@ def getAllJobs():
 
 
 @app.route('/getSingleJob/<job_id>', methods=['GET'])
-@cross_origin()
 def getSingleJob(job_id):
 
     conn = engine.connect()
@@ -969,13 +962,12 @@ def getSingleJob(job_id):
 
 # rechecked
 @app.route('/addNewJob', methods=['POST'])  
-@cross_origin()
 @token_required
 def addNewJob(current_user):
 
     for i in current_user:
         if i.role != 'admin':
-            response = jsonify({ 'Unauthorized, 401' })
+            response = jsonify({ 'response':'Unauthorized, 401' })
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
 
@@ -1096,13 +1088,12 @@ def addNewJob(current_user):
 
 
 @app.route('/editJob/<job_id>', methods=['POST']) 
-@cross_origin()
 @token_required
 def editJob(current_user,job_id):
 
     for i in current_user:
         if i.role != 'admin':
-            response = jsonify({ 'Unauthorized, 401' })
+            response = jsonify({ 'response':'Unauthorized, 401' })
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
 
@@ -1255,13 +1246,12 @@ def editJob(current_user,job_id):
 
 # rechecked
 @app.route('/addNewQuestion', methods=['POST'])
-@cross_origin()
 @token_required
 def addNewQuestion(current_user):
 
     for i in current_user:
         if i.role != 'admin':
-            response = jsonify({ 'Unauthorized, 401' })
+            response = jsonify({ 'response':'Unauthorized, 401' })
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
 
@@ -1294,7 +1284,6 @@ def addNewQuestion(current_user):
 
 
 @app.route('/postSpecificQuestions', methods=['POST'])  # this is for applicants to answer their personalized
-@cross_origin()
 @token_required
 def postSpecificQuestions(current_user):
 
@@ -1374,13 +1363,12 @@ def postSpecificQuestions(current_user):
 
 
 @app.route('/getAllQuestions/<question_category>/<question_difficulty>', methods=['GET'])
-@cross_origin()
 @token_required
 def getAllQuestions(current_user,question_category,question_difficulty):
 
     for i in current_user:
         if i.role != 'admin':
-            response = jsonify({ 'Unauthorized, 401' })
+            response = jsonify({ 'response':'Unauthorized, 401' })
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
 
@@ -1423,13 +1411,12 @@ def getAllQuestions(current_user,question_category,question_difficulty):
 
 
 @app.route('/getAllGeneralQuestions', methods=['GET'])
-@cross_origin()
 @token_required
 def getGeneralQuestions(current_user):
 
     for i in current_user:
         if i.role != 'admin':
-            response = jsonify({ 'Unauthorized, 401' })
+            response = jsonify({ 'response':'Unauthorized, 401' })
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
 
@@ -1464,13 +1451,12 @@ def getGeneralQuestions(current_user):
 
 
 @app.route('/getSingleQuestion/<question_id>', methods=['GET'])
-@cross_origin()
 @token_required
 def getSingleQuestions(current_user, question_id):
 
     for i in current_user:
         if i.role != 'admin':
-            response = jsonify({ 'Unauthorized, 401' })
+            response = jsonify({ 'response':'Unauthorized, 401' })
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
 
@@ -1506,7 +1492,6 @@ def getSingleQuestions(current_user, question_id):
 
 
 @app.route('/getSetOfJobQuestions/<job_id>', methods=['GET'])  
-@cross_origin()
 def getQuestionsAccordingToJobs(job_id):
 
     conn = engine.connect()
@@ -1542,7 +1527,6 @@ def getQuestionsAccordingToJobs(job_id):
 
 
 @app.route('/pairSelectedQuestions', methods=['POST'])  
-@cross_origin()
 def pairSelectedQuestions():
 
     conn = engine.connect()
@@ -1687,13 +1671,12 @@ def pairSelectedQuestions():
 
 
 @app.route('/displayAllSpecificQuestions/<application_id>', methods=['GET'])
-@cross_origin()
 @token_required
 def displaySpecificQuestions(current_user,application_id):
 
     for i in current_user:
         if i.role != 'admin':
-            response = jsonify({ 'Unauthorized, 401' })
+            response = jsonify({ 'response':'Unauthorized, 401' })
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
 
@@ -1726,13 +1709,12 @@ def displaySpecificQuestions(current_user,application_id):
 
 
 @app.route('/selectSpecificQuestions/<application_id>', methods=['POST'])  
-@cross_origin()
 @token_required
 def selectQuestions(current_user,application_id):
 
     for i in current_user:
         if i.role != 'admin':
-            response = jsonify({ 'Unauthorized, 401' })
+            response = jsonify({ 'response':'Unauthorized, 401' })
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
 
@@ -1817,7 +1799,6 @@ def selectQuestions(current_user,application_id):
 
 
 @app.route('/displaySelectedQuestions', methods=['GET'])  
-@cross_origin()
 @token_required
 def displaySelectedSpecificQuestions(current_user):
 
@@ -1871,13 +1852,12 @@ def displaySelectedSpecificQuestions(current_user):
 
 
 @app.route('/validation/<application_id>', methods=['POST'])  
-@cross_origin()
 @token_required
 def validation(current_user,application_id):
 
     for i in current_user:
         if i.role != 'admin':
-            response = jsonify({ 'Unauthorized, 401' })
+            response = jsonify({ 'response':'Unauthorized, 401' })
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
 
@@ -1902,13 +1882,12 @@ def validation(current_user,application_id):
 
 
 @app.route('/devalidation/<application_id>', methods=['POST'])   
-@cross_origin()
 @token_required
 def devalidation(current_user, application_id):
 
     for i in current_user:
         if i.role != 'admin':
-            response = jsonify({ 'Unauthorized, 401' })
+            response = jsonify({ 'response':'Unauthorized, 401' })
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
 
@@ -1931,7 +1910,6 @@ def devalidation(current_user, application_id):
 
 
 @app.route('/sent_offer/<application_id>', methods=['POST']) 
-@cross_origin()
 @token_required 
 def sentOffer(current_user, application_id):
 
@@ -1995,7 +1973,6 @@ def sentOffer(current_user, application_id):
 
 
 @app.route('/sentQuestions/<application_id>', methods=['POST'])  
-@cross_origin()
 @token_required
 def sentQuestion(current_user,application_id):
 
