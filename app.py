@@ -101,7 +101,7 @@ def login():
 
     conn = engine.connect()
     metadata = db.MetaData()
-    print(data,flush=True)
+    # print(data,flush=True)
     # applicants = db.Table('applicant_information', metadata, autoload=True, autoload_with=engine)
 
     if data == None or not data['username'] or not data['password']:   
@@ -111,7 +111,7 @@ def login():
     applicants = db.Table('applicant_information', metadata, autoload=True, autoload_with=engine)
 
     new_user = conn.execute(db.select(applicants).where(applicants.columns.username == data['username']))
-    # new_user = conn.execute("SELECT * FROM applicant_information WHERE username = '"+str(data['username'])+"'").fetchall()[0]
+    # new_user = conn.execute("SELECT * FROM applicant_information WHERE username = '"+str(data['username'])+"'").fetchall()
     # print(new_user)
     print(new_user,flush=True)
 
@@ -2054,24 +2054,6 @@ def sentQuestion(current_user,application_id):
     response = jsonify({ 'Response': 'Questions has been informed to the applicant in Application ' + str(application_id)})
     response.headers.add("Access-Control-Allow-Origin","*")
     return response
-
-
-
-@app.route('/editKeywords', methods=['POST'])  
-def editKeywords():
-
-    conn = engine.connect()
-
-    keywords_list = conn.execute("SELECT question_id, question_keywords FROM questions WHERE question_id > 173").fetchall()
-
-    # print(keywords_list[0])
-
-    for record in keywords_list:
-        print(record.question_keywords)
-        if record.question_keywords[0] == "[" and record.question_keywords[-1] == "]":
-            conn.execute("UPDATE questions SET question_keywords = '" + str(record.question_keywords[1:-1]) + "' WHERE question_id = " + str(record.question_id))
-    
-    return "done"
 
 
 if __name__ == "__main__":
