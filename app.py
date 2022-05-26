@@ -458,9 +458,17 @@ def getApplication(current_user, application_id):
         set_employee_data['manager_fullname'] = i.employee_fullname
         set_employee_data['manager_role'] = i.role
 
-    answered_questions = db.Table('questions_answered', metadata, autoload=True, autoload_with=engine)
-    answered_questions_data = conn.execute(db.select(answered_questions).where(answered_questions.columns.application_id == application_id))
-    questions = db.Table('questions', metadata, autoload=True, autoload_with=engine)
+    # answered_questions = db.Table('questions_answered', metadata, autoload=True, autoload_with=engine)
+
+    answered_questions_data = conn.execute("""
+    SELECT questions_answered.question_id, questions_answered.answer, questions.question FROM questions_answered 
+    JOIN questions ON questions_answered.question_id = questions.question_id
+    WHERE questions.question_type = 'general' and application_id = """ +str(application_id)
+    )
+
+
+    # answered_questions_data = conn.execute(db.select(answered_questions).where(answered_questions.columns.application_id == application_id))
+    # questions = db.Table('questions', metadata, autoload=True, autoload_with=engine)
     
     if answered_questions_data:
         for j in answered_questions_data:
