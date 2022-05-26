@@ -37,7 +37,7 @@
           
         </div>
         <v-col class="text-right">
-            <v-btn align="end" color="primary darken-3" @click="send();" nuxt to = "/list_of_jobs"> 
+            <v-btn align="end" color="primary darken-3" @click="send();"> 
               SEND
             </v-btn>
           </v-col>
@@ -94,6 +94,7 @@ export default {
       await axios.post(`https://api.job-application.duckdns.org/selectSpecificQuestions/${this.$route.params.id}`,{
         "selected_q_id":this.admin.selectedques,
       },config)
+      this.$router.push({name:'applicants'})
     }
   }
 };
