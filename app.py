@@ -859,7 +859,7 @@ def getAllJobs():
 
     #     whole_data.append(data)
 
-    # conn.close()
+    conn.close()
 
     response = jsonify(test2)
     # response = jsonify(whole_data)
@@ -1361,7 +1361,7 @@ def postSpecificQuestions(current_user):
 
     manager_inform_email.set_content(content_for_manager,subtype="html")
 
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:   # to the actual email, required smtp.ehlo() and smtp.starttls() code
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:  
 
         smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         smtp.send_message(applicant_inform_email)
@@ -1823,7 +1823,7 @@ def displaySelectedSpecificQuestions(current_user):
 
     for i in current_user:
         if i.role != 'admin' or i.role != 'applicant':
-            response = jsonify({ 'Unauthorized, 401' })
+            response = jsonify({ 'Response' : 'Unauthorized, 401' })
             response.headers.add("Access-Control-Allow-Origin","*")
             return response
 
