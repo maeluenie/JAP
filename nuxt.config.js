@@ -76,7 +76,7 @@ export default {
                     },
                     user: {
                         url: '/userinfo',
-                        method: 'post',
+                        method: 'get',
                         propertyName: 'user'
                     },
                 },
