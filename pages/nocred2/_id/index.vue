@@ -1178,7 +1178,7 @@
                     </div>
                     
  
-
+                  {{all_q2}}
                   </v-col>
 
                       
@@ -1431,7 +1431,7 @@ export default {
       try{
         const res = await axios.get(`https://api.job-application.duckdns.org/getSingleJob/${this.$route.params.id}`,config);
         this.jobs = res.data.Jobs;
-
+        console.log(res.data)
         } catch(err) {
           console.log(err)
         }
@@ -1532,7 +1532,7 @@ export default {
       formData.append('foreign_language',this.foreignLanguage);
       formData.append('proficiency',this.proficiencyLevel);
       formData.append('special_ability',this.specialAbilities);
-      formData.append('job_id',3);
+      formData.append('job_id',this.jobs.job_id);
       formData.append('all_questions',this.all_q.map(value=>{return {
         question_id: value.question_id,
         answer: value.answer
