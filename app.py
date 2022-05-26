@@ -493,10 +493,6 @@ def uploadApplication():
     print(data, flush=True)
     print(data['applicant_fullname'], flush=True)
 
-    for i in data['all_questions']:
-        print(i, flush=True)
-
-
     check_query = "SELECT number_of_applicants FROM job_information WHERE job_id = " + str(data['job_id'])
     num_of_applicant_check = conn.execute(check_query).fetchall()[0].number_of_applicants 
      
@@ -537,7 +533,7 @@ def uploadApplication():
         'address' : data['partner_address'],
         'time_registered' : time.strftime('%Y-%m-%d %H:%M:%S')
     }
-
+    print(partner_values, flush=True)
     partner_query = db.insert(partner)
     conn.execute(partner_query,partner_values)
 
@@ -605,6 +601,7 @@ def uploadApplication():
         'special_ability' : data['special_ability'],
         'time_registered' : time.strftime('%Y-%m-%d %H:%M:%S')
     }
+    print(workexp_values, flush=True)
     workexp_query = db.insert(workexp)
     conn.execute(workexp_query,workexp_values)
 
@@ -654,7 +651,7 @@ def uploadApplication():
         'append_date': time.strftime('%Y-%m-%d %H:%M:%S'),
         'role': str('applicant')
     }
-
+    print(applicant_values, flush=True)
     applicants_query = db.insert(applicants)
     conn.execute(applicants_query,applicant_values)
 
@@ -669,7 +666,7 @@ def uploadApplication():
         'offer_acceptance': 0,
         'question_progress' : 'Preparing'
     }
-
+    print(application_values, flush=True)
     application_query = db.insert(application)
     conn.execute(application_query,application_values)
 
@@ -690,20 +687,23 @@ def uploadApplication():
 
     answers = db.Table('questions_answered', metadata, autoload=True, autoload_with=engine)
     
-    print(data['all_questions'],flush=True)
-    print(type(data['all_questions']),flush=True)
+    
+    list_of_q_and_a = json.loads(data['all_questions'])
 
-    for k in data['all_questions']:
+    print(list_of_q_and_a,flush=True)
+    print(type(list_of_q_and_a),flush=True)
+
+    for k in list_of_q_and_a:
         print(i,flush=True)
         answer_values = {}
         answer_values['application_id'] = application_id
         answer_values['selected'] = 1
-        answer_values['question_id'] = k.question_id
-        answer_values['answer'] =  k.answer
+        answer_values['question_id'] = k['question_id']
+        answer_values['answer'] =  k['answer']
         target_table = db.insert(answers)
         conn.execute(target_table,answer_values)
 
-    position_name = conn.execute("SELECT position FROM organization_information WHERE position_id = ", str(pos_id)).fetchall()[0].position
+    position_name = conn.execute("SELECT position FROM organization_information WHERE position_id = " + str(pos_id)).fetchall()[0].position
 
     resume = request.files['pdf'] 
 
