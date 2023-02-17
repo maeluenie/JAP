@@ -8,3 +8,4 @@ Back-end in Python
 Database (SQL)
 NLP with OCR and Sentimental Analysis
 
+This is the final year project for Computer Innovation Engineering at KMITL
