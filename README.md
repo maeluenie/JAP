@@ -8,6 +8,7 @@ How to run the program
 
 Run each python files separately.
 
+data-analysis
 Create the following directories in the directories Filesys where the python code files are. 
 This will act as the place to hold the files once it is processed.
 1. ApplicantFolder
@@ -26,3 +27,6 @@ Then each of the text files that were extracted will then trigger the set of cod
 1. Extract skills then map with all available position and calculate the percentage match
 2. Locate the text section from key words in header list then extract skills
    group the skills into difficulty levels then map with the existed question in database
+=======
+This is the final year project for Computer Innovation Engineering at KMITL
+
