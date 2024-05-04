@@ -1,3 +1,7 @@
 {
+api_related
+    "nuxt.isNuxtApp": false
+=======
     "nuxt.isNuxtApp": true
+main
 }

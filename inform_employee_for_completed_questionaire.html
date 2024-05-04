@@ -1,0 +1,24 @@
+<!-- 
+manager_name=data_for_email.employee_fullname, 
+applicant_name=data_for_email.fullname,
+applicant_email=data_for_email.email,
+job_role=data_for_email.rolename, 
+position=data_for_email.position,
+department=data_for_email.department 
+-->
+
+<body>
+    <p>Dear {manager_name},</p>
+    <p> Please consider for {applicant_name} who provide technical answers for his application into {job_role} under the position of <strong style="font-weight: bold">{position}</strong> in
+        <strong style="font-weight: bold">{department}</strong> department.
+    </p>
+    <p>
+        {answer_disp}
+    </p>
+    <p>
+        After completed considering, you can contact the applicants via {applicant_email} for direct communication.
+    </p>
+    <p>
+        Best Regards, <br /> Company A
+    </p>
+</body>
